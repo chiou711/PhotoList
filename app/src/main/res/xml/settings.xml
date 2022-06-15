@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_title_settings">
+        <SwitchPreference
+            android:title="@string/pref_title_auto_play_by_list"
+            android:defaultValue="true"
+            android:key="@string/pref_key_auto_play_by_list" />
+        <SwitchPreference
+            android:title="@string/pref_title_auto_play_by_category"
+            android:defaultValue="false"
+            android:key="@string/pref_key_auto_play_by_category" />
+
+        <SwitchPreference
+            android:title="@string/pref_title_show_duration"
+            android:defaultValue="false"
+            android:key="@string/pref_key_show_duration" />
+
+        <SwitchPreference
+            android:title="@string/sel_file_mgr_app"
+            android:defaultValue="true"
+            android:key="@string/pref_key_sel_file_mgr_app" />
+
+        <Preference
+            android:title="@string/remove_invalid_links"
+            android:defaultValue="true"
+            android:key="@string/pref_key_remove_invalid_links" />
+
+        <Preference
+            android:title="@string/set_default"
+            android:defaultValue="true"
+            android:key="@string/pref_key_set_default" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

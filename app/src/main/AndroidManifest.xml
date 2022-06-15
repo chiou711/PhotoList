@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.cw.photolist">
+
+    <permission
+        android:name="${applicationId}.ACCESS_VIDEO_DATA"
+        android:protectionLevel="signature" />
+
+    <permission
+        android:name="${applicationId}.ACCESS_CATEGORY_DATA"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="${applicationId}.ACCESS_VIDEO_DATA" />
+    <uses-permission android:name="${applicationId}.ACCESS_CATEGORY_DATA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:banner="@drawable/banner"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Leanback"
+        tools:ignore="GoogleAppIndexingWarning"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name="com.cw.photolist.ui.MainActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Leanback.Browse.New"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".ui.VideoDetailsActivity" />
+
+        <activity
+            android:name="com.cw.photolist.ui.VideoDetailsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Leanback.Details">
+
+            <!-- Receives the search request. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <!-- No category needed, because the Intent will specify this class component -->
+            </intent-filter>
+
+            <!-- Points to searchable meta data. -->
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="com.cw.photolist.ui.PlaybackActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true" />
+        <activity
+            android:name="com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity"
+            android:exported="true"
+            android:parentActivityName="com.cw.photolist.ui.MainActivity"
+            android:theme="@style/Theme.Leanback.VerticalGrid" />
+        <activity
+            android:name="com.cw.photolist.ui.options.select_category.SelectCategoryActivity"
+            android:exported="true"
+            android:parentActivityName="com.cw.photolist.ui.MainActivity"
+            android:theme="@style/Theme.Leanback.VerticalGrid" />
+        <activity
+            android:name="com.cw.photolist.ui.add_category.AddCategoryActivity"
+            android:exported="true"
+            android:parentActivityName="com.cw.photolist.ui.MainActivity"
+            android:theme="@style/Theme.Leanback.VerticalGrid" />
+        <activity android:name="com.cw.photolist.import_new.Import_fileListAct"/>
+        <activity android:name="com.cw.photolist.import_new.gdrive.ImportGDriveAct"
+            android:theme="@style/Theme.AppCompat"/>
+        <activity android:name="com.cw.photolist.ui.options.browse_category.SearchActivity" />
+
+        <provider
+            android:name="com.cw.photolist.data.VideoProvider"
+            android:authorities="${packageName}"
+            android:exported="true"
+            android:permission="${applicationId}.ACCESS_VIDEO_DATA">
+            <path-permission
+                android:pathPrefix="/search"
+                android:readPermission="android.permission.GLOBAL_SEARCH" />
+        </provider>
+        <provider
+            android:name="com.cw.photolist.data.CategoryProvider"
+            android:authorities="${packageName}"
+            android:exported="true"
+            android:permission="${applicationId}.ACCESS_CATEGORY_DATA">
+        </provider>
+
+        <receiver
+            android:name="com.cw.photolist.recommendation.RecommendationReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.cw.photolist.data.FetchVideoService"
+            android:exported="false" />
+        <service
+            android:name="com.cw.photolist.data.FetchCategoryService"
+            android:exported="false" />
+        <service
+            android:name="com.cw.photolist.ui.add_category.FetchLinkSrcService"
+            android:exported="false" />
+        <service
+            android:name="com.cw.photolist.recommendation.UpdateRecommendationsService"
+            android:enabled="true" />
+
+        <!-- notice: don't expose the key/values -->
+        <meta-data
+            android:name = "key_DEVELOPER_KEY"
+            android:value = ""/>
+        <meta-data
+            android:name = "key_SHA1"
+            android:value = ""/>
+
+        <activity
+            android:name="com.cw.photolist.ui.options.setting.SettingsActivity"
+            android:exported="true"
+            android:theme="@style/LeanbackPreferences" />
+    </application>
+
+</manifest>

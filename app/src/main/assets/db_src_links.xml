@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources >
+    <!--   format:     https://drive.google.com/uc?export=download&amp;id=1UwzWtBTecYcUADR9F6OurJ7t91ZCJ-dm-->
+
+    <!-- Default categories in Default_YouList4TV.json
+        1: 新聞
+        2: bossa nova
+        3: music Jazz
+        4: 英文耐聽
+        5: 名曲100
+        6: music guitar
+        7: 國語
+        8: 民歌
+    -->
+    <src_link><title>Default_YouList4TV</title>
+        <id>1E6juPS2K7nn_nJ57O4d98f0JQ8Lg9aRY</id></src_link>
+
+    <src_link><title>Local_YouList4TV</title>
+        <id>123456789012345678901234567890123</id></src_link>
+
+    <!-- Add category with link source selection -->
+    <!-- src 1   -->
+    <src_link><title>輕鬆搖滾</title>
+        <id>1E_jWUh8_Cry-Pc2nqhils6Jk1xFaT55H</id></src_link>
+
+    <!-- src 2   -->
+    <src_link><title>20世紀英文歌曲</title>
+        <id>1_RhQfJgkF_AlD3sUEMJ0nih-m-bGQLzH</id></src_link>
+
+    <!-- src 3   -->
+    <src_link><title>Alison Balsom</title>
+        <id>15oO3-NRvHjUB0ptxvPHfYHLoMP-KFPm-</id></src_link>
+
+    <!-- src 4   -->
+    <src_link><title>台語</title>
+        <id>1IBokQo10dWfyVyaiPOhPpX_KBzO4xLHn</id></src_link>
+
+    <!-- src 5   -->
+    <src_link><title>日本歌曲</title>
+        <id>1lekTQ4n9WuQgWRBlEcazMFsO0BbyRpUz</id></src_link>
+
+    <!-- src 6   -->
+    <src_link><title>英文老歌</title>
+        <id>1f2lrfddu7IlZw60vbSlkvm0ZGYDCPVVc</id></src_link>
+
+    <!-- src 7   -->
+    <src_link><title>原唱翻唱</title>
+        <id>1EnFTMVlvcF6Jx23VPgVVamIBfLuRZOVx</id></src_link>
+
+    <!--    <src_link><title>長青</title>-->
+<!--        <id>1U8nwk4MGGW1NbPNnaGD7GwYE5wYNd5p2</id></src_link>-->
+
+</resources>

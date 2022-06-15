@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (c) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <color name="background_gradient_start">#000000</color>
+    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="fastlane_background">#0096a6</color>
+    <color name="search_opaque">#ffaa3f</color>
+    <color name="selected_background">#e08040</color>
+    <color name="current_preference_background">#3f3fff</color>
+    <color name="category_text">#404070</color>
+
+    <color name="default_background">#0096a6</color>
+    <color name="icon_background">#4A4F51</color>
+    <color name="icon_alt_background">#2A2F51</color>
+
+    <!-- set 1 -->
+    <color name="bar_color">#ff185060</color>
+    <color name="button_color">#ff3070A0</color>
+    <color name="highlight_color">#ffff8000</color>
+
+    <!-- set 2 -->
+    <!--<color name="bar_color">#ff985060</color>-->
+    <!--<color name="button_color">#ffA09070</color>-->
+    <!--<color name="highlight_color">#ff0080ff</color>-->
+
+    <color name="pause_color">#ff404040</color>
+</resources>
