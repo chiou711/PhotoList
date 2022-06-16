@@ -25,6 +25,7 @@ import com.cw.photolist.R;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
+// test only
 /*
  * MainActivity class that loads MainFragment.
  */
