@@ -21,6 +21,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -207,8 +208,9 @@ public class CardPresenter extends Presenter {
                         public void onResourceReady(
                                 Bitmap resource,
                                 Transition<? super Bitmap> transition) {
-                            Drawable mDrawable = new BitmapDrawable(act.getResources(), resource);
-                            cardView.setMainImage(mDrawable);
+//                            Drawable mDrawable = new BitmapDrawable(act.getResources(), resource);
+                            Drawable drawable = getScaledDrawable(resource,0.5f,0.5f);
+                            cardView.setMainImage(drawable);
                         }
 
                         @Override
@@ -311,6 +313,24 @@ public class CardPresenter extends Presenter {
 
             }
         });
+    }
+
+    // Get scaled drawable
+    private Drawable getScaledDrawable(Bitmap resource,float ratioX,float ratioY){
+        int width = resource.getWidth();
+        int height = resource.getHeight();
+
+        // create a matrix for the manipulation
+        Matrix matrix = new Matrix();
+
+        // resize the bit map
+        matrix.postScale(ratioX, ratioY);
+
+        // recreate the new Bitmap
+        Bitmap bitmap = Bitmap.createBitmap(resource, 0, 0, width, height, matrix, false);
+        Drawable drawable = new BitmapDrawable(act.getResources(), bitmap);
+
+        return drawable;
     }
 
 }

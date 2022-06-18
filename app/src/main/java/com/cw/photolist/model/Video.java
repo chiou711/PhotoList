@@ -31,7 +31,8 @@ public final class Video implements Parcelable {
     public final String cardImageUrl;
     public final String videoUrl;
 
-    private Video(
+    // todo Remove unused
+    public Video(
             final long id,
             final String rowTitle,
             final String title,

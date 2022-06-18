@@ -30,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 
 import androidx.fragment.app.FragmentActivity;
@@ -82,6 +83,7 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -130,6 +132,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     private FragmentActivity act;
     public static List<RowInfo> rowInfoList;
+    public static String docDir;
 
     @Override
     public void onAttach(Context context) {
@@ -151,6 +154,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         super.onActivityCreated(savedInstanceState);
 
         act = getActivity();
+
+        // package document directory
+        docDir = act.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString();
 
         System.out.println("MainFragment / _onActivityCreated");
         // Prepare the manager that maintains the same background image between activities.
@@ -829,9 +835,40 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 // Map video results from the database to Video objects.
                 CursorObjectAdapter videoCursorAdapter = new CursorObjectAdapter(new CardPresenter(act,row_id));
                 videoCursorAdapter.setMapper(new VideoCursorMapper());
+
+                // Base of data source: videoCursorAdapter
                 mVideoCursorAdapters.put(videoLoaderId, videoCursorAdapter);
 
-                ListRow row = new ListRow(header, videoCursorAdapter);
+                ///
+                //todo Add multiple directories
+                File[] fileArray = new File(docDir).listFiles();
+                int size = fileArray.length;
+
+                String prefix = "file://";
+                String cardImageUrl;
+
+                // Base of data source: arrayObjectAdapter
+                ArrayObjectAdapter arrayObjectAdapter = new ArrayObjectAdapter(new CardPresenter(act, row_id));
+
+                for(int i=0;i<size;i++) {
+                    String filePath = fileArray[i].getPath();
+                    cardImageUrl = prefix.concat(filePath);
+                    System.out.println("---- cardImageUrl = " + cardImageUrl);
+                    Video video = new Video(
+                            0,
+                            "rowTitle",
+                            String.valueOf(i),
+                            "https://www.youtube.com/watch?v=dGkv_vc1L9w",
+                            "android.resource://com.cw.photolist/drawable/image",
+                            cardImageUrl);
+                    arrayObjectAdapter.add(i, video);
+                }
+                ///
+
+//                ListRow row = new ListRow(header, videoCursorAdapter);
+
+                ListRow row = new ListRow(header, arrayObjectAdapter);
+
                 mTitleRowAdapter.add(row);
                 row.setId(row_id);
 	            // System.out.println("MainFragment / _onLoadFinished / existingAdapter is null  / will initLoader / videoLoaderId = " + videoLoaderId);
