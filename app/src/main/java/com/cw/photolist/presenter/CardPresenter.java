@@ -47,7 +47,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.BuildConfig;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.YouTubeTimeConvert;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.model.Video;

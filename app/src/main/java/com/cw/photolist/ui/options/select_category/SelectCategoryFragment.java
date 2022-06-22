@@ -28,7 +28,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.ui.MainActivity;
 

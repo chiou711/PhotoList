@@ -37,7 +37,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
-import static com.cw.photolist.Utils.getYoutubeId;
+import static com.cw.photolist.util.Utils.getYoutubeId;
 
 
 public final class MovieList {

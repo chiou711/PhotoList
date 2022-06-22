@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.ui.MainFragment;
 
 import java.util.List;

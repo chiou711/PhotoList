@@ -69,7 +69,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.FetchCategoryService;
 import com.cw.photolist.data.FetchVideoService;
@@ -83,7 +83,6 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -93,13 +92,14 @@ import java.util.Objects;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.cw.photolist.Utils.getYoutubeId;
+import static com.cw.photolist.util.Utils.getYoutubeId;
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
 import com.cw.photolist.ui.add_category.AddCategoryActivity;
 import com.cw.photolist.ui.options.setting.SettingsActivity;
 import com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity;
+import com.cw.photolist.util.LocalData;
 import com.google.android.youtube.player.YouTubeIntents;
 
 /*
@@ -133,6 +133,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     private FragmentActivity act;
     public static List<RowInfo> rowInfoList;
     public static String docDir;
+    static List<String> fileArray;
 
     @Override
     public void onAttach(Context context) {
@@ -167,6 +168,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         setupEventListeners();
         prepareEntranceTransition();
 //        updateRecommendations();
+
+        LocalData.init();
+        LocalData.scan_and_save(docDir,true);
+        fileArray = LocalData.fileArray;
     }
 
     AlertDialog.Builder builder;
@@ -732,7 +737,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     //
     // create Category presenter
     //
-    void createListRow_category(){
+    void createListRow_category(){ //todo 1st
         // set focus category
         int focusPos = getFocusItemPosition_categoryRow();
         CategoryListRowPresenter cate_listRowPresenter = new CategoryListRowPresenter(act,focusPos);
@@ -782,7 +787,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     //
     // create Video presenter
     //
-    int createListRows_video(Cursor data){
+    int createListRows_video(Cursor data){ //todo 2nd
         // row id count start
         int row_id = 0;
 //                listRowCategory.setId(row_id);
@@ -841,8 +846,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
                 ///
                 //todo Add multiple directories
-                File[] fileArray = new File(docDir).listFiles();
-                int size = fileArray.length;
+                int size = fileArray.size();
 
                 String prefix = "file://";
                 String cardImageUrl;
@@ -851,9 +855,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 ArrayObjectAdapter arrayObjectAdapter = new ArrayObjectAdapter(new CardPresenter(act, row_id));
 
                 for(int i=0;i<size;i++) {
-                    String filePath = fileArray[i].getPath();
+                    String filePath = fileArray.get(i);//.getPath();
                     cardImageUrl = prefix.concat(filePath);
-                    System.out.println("---- cardImageUrl = " + cardImageUrl);
+//                    System.out.println("---- cardImageUrl = " + cardImageUrl);
                     Video video = new Video(
                             0,
                             "rowTitle",

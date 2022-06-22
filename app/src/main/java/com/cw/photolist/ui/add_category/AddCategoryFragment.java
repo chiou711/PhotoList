@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.Pair;
 import com.cw.photolist.data.Source_links;
 import com.cw.photolist.import_new.Import_fileListAct;

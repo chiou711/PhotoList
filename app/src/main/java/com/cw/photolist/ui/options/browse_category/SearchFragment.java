@@ -57,7 +57,7 @@ import com.cw.photolist.presenter.CardPresenter;
 import com.cw.photolist.ui.VideoDetailsActivity;
 import com.google.android.youtube.player.YouTubeIntents;
 
-import static com.cw.photolist.Utils.getYoutubeId;
+import static com.cw.photolist.util.Utils.getYoutubeId;
 
 
 /*

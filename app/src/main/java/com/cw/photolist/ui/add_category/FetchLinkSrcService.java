@@ -22,7 +22,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.FetchVideoService;
 
 import org.json.JSONException;

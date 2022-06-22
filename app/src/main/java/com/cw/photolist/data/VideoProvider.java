@@ -28,7 +28,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 
 import java.util.HashMap;
 

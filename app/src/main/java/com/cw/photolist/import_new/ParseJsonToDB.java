@@ -18,7 +18,7 @@ package com.cw.photolist.import_new;
 
 import android.content.Context;
 
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

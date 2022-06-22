@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cw.photolist;
+package com.cw.photolist.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +32,8 @@ import android.net.Uri;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cw.photolist.Pref;
+import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.data.VideoProvider;

@@ -36,7 +36,7 @@ import androidx.preference.PreferenceScreen;
 
 import com.cw.photolist.BuildConfig;
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.data.VideoProvider;

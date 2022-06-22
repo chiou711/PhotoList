@@ -36,7 +36,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
@@ -49,7 +49,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.cw.photolist.Utils.getYoutubeId;
+import static com.cw.photolist.util.Utils.getYoutubeId;
 
 
 /*

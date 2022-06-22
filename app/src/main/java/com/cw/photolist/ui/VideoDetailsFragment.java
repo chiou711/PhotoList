@@ -66,7 +66,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
@@ -74,7 +74,7 @@ import com.cw.photolist.presenter.DetailsDescriptionPresenter;
 import com.cw.photolist.data.VideoContract;
 import com.google.android.youtube.player.YouTubeIntents;
 
-import static com.cw.photolist.Utils.getYoutubeId;
+import static com.cw.photolist.util.Utils.getYoutubeId;
 
 /*
  * VideoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.

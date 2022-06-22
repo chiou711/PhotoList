@@ -33,7 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 
 import static com.cw.photolist.ui.MainFragment.getPlaylistsCount;
 

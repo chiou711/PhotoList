@@ -22,7 +22,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.cw.photolist.R;
-import com.cw.photolist.Utils;
+import com.cw.photolist.util.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
