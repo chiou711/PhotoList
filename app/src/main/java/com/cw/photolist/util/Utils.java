@@ -16,6 +16,7 @@
 
 package com.cw.photolist.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -24,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -52,6 +54,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
@@ -696,6 +699,20 @@ public class Utils {
         });
 
         act.finish();
+    }
+
+    public static final int PERMISSIONS_REQUEST_STORAGE = 12;
+    // check if WRITE_EXTERNAL_STORAGE permission is granted
+    public static boolean isGranted_permission_WRITE_EXTERNAL_STORAGE(Activity act){
+
+        int permissionWriteExtStorage = ActivityCompat.checkSelfPermission(act,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if(permissionWriteExtStorage != PackageManager.PERMISSION_GRANTED )
+            return false;
+        else
+            // granted
+            return true;
     }
 
 }

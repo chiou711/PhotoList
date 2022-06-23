@@ -22,35 +22,47 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import static com.cw.photolist.ui.MainFragment.docDir;
 
 /**
  * A collection of utility methods, all static.
  */
 public class LocalData {
+    // return array type
+    public static int CATEGORY_DATA = 1;
+    public static int PHOTO_DATA = 2;
 
     // for scanning local directory
-    public static List<String> fileArray;
+    public static List<String> returnArray;
+    public static List<Photo> returnPhotoArray;
+
+    // limit for create new folder
+    // todo Only 2 pages now
     static int PAGES_PER_FOLDER = 7;
-    static Integer pages_count = 0;
+
     static Integer folders_count;
+    static Integer pages_count = 0;
     static Integer existing_folders_count;
     static List<String> filePathArray = null;
     static List<String> fileNames = null;
     public static String currFilePath;
+    static String docDir;
 
     // init
-    public static void init(){
-        currFilePath = docDir;
+    public static void init(String _docDir){
+        currFilePath = _docDir;
+        docDir = _docDir;
         folders_count = 0;
         pages_count = 0;
         existing_folders_count = 0;//todo Need this?
-        fileArray = new ArrayList<>();
+        returnArray = new ArrayList<>();
+        returnPhotoArray = new ArrayList<>();
     }
 
+    static String listName = null;
     // Scan all storage devices and save audio links to DB
-    public static void scan_and_save(String currFilePath, boolean beSaved){
+    public static void scan_and_save(String currFilePath, boolean beSaved, int returnType){
 
+        System.out.println("?----- scan_and_save");
         List<String> list;
         list = getListInPath(currFilePath);
 
@@ -59,13 +71,14 @@ public class LocalData {
             for (String file : list) {
                 File fileDir = new File(currFilePath.concat("/").concat(file));
 
-//                System.out.println("==>  file = " + file);
-//                System.out.println("==>  fileDir = " + fileDir.getPath());
+                System.out.println("==>  file = " + file);
+                System.out.println("==>  fileDir = " + fileDir.getPath());
                 boolean check =  !fileDir.getAbsolutePath().contains("..") ||
                         (fileDir.getAbsolutePath().contains("..") &&  (file.length()!=2) ) ;
                 //Skip some directories which could cause playing hang-up issue
                 if( /*!fileDir.getAbsolutePath().contains("Android/data") && */
-                        !fileDir.getAbsolutePath().contains("Android/media") &&
+                    !fileDir.getAbsolutePath().contains(".thumbnails") &&
+                    !fileDir.getAbsolutePath().contains("Android/media") &&
                                 check )
                 {
                     if (fileDir.isDirectory()) {
@@ -98,26 +111,39 @@ public class LocalData {
                                     // add new folder
                                     if ((pages_count % PAGES_PER_FOLDER) == 0) {
                                         folders_count = (pages_count / PAGES_PER_FOLDER) + 1 + existing_folders_count;
-                                        System.out.println("*> add new folder here : " + (pages_count / PAGES_PER_FOLDER) + 1);
+                                        if(returnType == CATEGORY_DATA) {
+                                            System.out.println("*> add new folder here : " + (pages_count / PAGES_PER_FOLDER) + 1);
+                                            //todo Condition to create new category
+                                            returnArray.add(String.valueOf(folders_count));
+                                        }
                                     }
 
-                                    //                                  // add new page
-                                    System.out.println("**> add new page here : " + pageName);
+                                    // add new page
+                                    if(returnType == PHOTO_DATA) {
+                                        System.out.println("**> add new page here : " + pageName);
+//                                        returnArray.add(pageName);
+                                        listName = pageName;
+                                    }
+
                                     pages_count++;
                                 }
                             }
                         }
 
                         // recursive
-                        scan_and_save(fileDir.getAbsolutePath(),beSaved);
+                        scan_and_save(fileDir.getAbsolutePath(),beSaved,returnType);
 
                     } // if (fileDir.isDirectory())
                     else
                     {
                         String photoUri =  "file://".concat(fileDir.getPath());
                         if(beSaved) {
-                            fileArray.add(photoUri);
-                            System.out.println("***> add new photoUri here : " + photoUri);
+                            if(returnType == PHOTO_DATA) {
+                                Photo photo = new Photo(listName,photoUri);
+                                returnPhotoArray.add(photo);
+                                System.out.println("***> add new listName here : " + listName);
+                                System.out.println("***> add new photoUri here : " + photoUri);
+                            }
                         }
                     }
                 }

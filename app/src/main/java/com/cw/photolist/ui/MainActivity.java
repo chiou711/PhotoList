@@ -16,11 +16,24 @@
 
 package com.cw.photolist.ui;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
+import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.util.LocalData;
+import com.cw.photolist.util.Utils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -66,4 +79,59 @@ public class MainActivity extends LeanbackActivity {
             }
         }
     }
+
+    // callback of granted permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults)
+    {
+        System.out.println("MainFragment / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
+
+        if ( (grantResults.length > 0) &&
+                ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) &&
+                        (grantResults[1] == PackageManager.PERMISSION_GRANTED)   ) )
+        {
+            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
+                createCategoryDB();
+            }
+        } else
+            finish(); //normally, will go to _resume if not finish
+    }
+
+    // Create category DB
+    void createCategoryDB(){
+        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + Environment.DIRECTORY_DCIM;
+
+        LocalData.init(docDir);
+        LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
+        List<String> categoryArray = LocalData.returnArray;
+
+        List<ContentValues> videosToInsert = new ArrayList<>();
+
+        for (int h = 0; h < categoryArray.size(); h++) {
+            String category_name = categoryArray.get(h);
+            System.out.println("? ----- category_name = " + category_name);
+            // save category names
+            ContentValues categoryValues = new ContentValues();
+            categoryValues.put("category_name", category_name);
+            categoryValues.put("video_table_id", h+1);
+            videosToInsert.add(categoryValues);
+        }
+
+        try {
+            List<ContentValues> contentValuesList = videosToInsert;
+
+            ContentValues[] downloadedVideoContentValues =
+                    contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
+
+            ContentResolver contentResolver = getContentResolver();
+            System.out.println("----> contentResolver = " + contentResolver.toString());
+
+            contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -16,9 +16,11 @@
 
 package com.cw.photolist.ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +35,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.BrowseSupportFragment;
@@ -69,6 +72,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
+import com.cw.photolist.data.VideoProvider;
+import com.cw.photolist.util.Photo;
 import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.FetchCategoryService;
@@ -83,6 +88,7 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -133,7 +139,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     private FragmentActivity act;
     public static List<RowInfo> rowInfoList;
     public static String docDir;
-    static List<String> fileArray;
 
     @Override
     public void onAttach(Context context) {
@@ -155,11 +160,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         super.onActivityCreated(savedInstanceState);
 
         act = getActivity();
+    }
 
-        // package document directory
-        docDir = act.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString();
+    void doCreate(){
+        System.out.println("MainFragment / _doCreate");
 
-        System.out.println("MainFragment / _onActivityCreated");
+        System.out.println("MainFragment / _doCreate / docDir = " + docDir);
         // Prepare the manager that maintains the same background image between activities.
         prepareBackgroundManager();
 
@@ -168,10 +174,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         setupEventListeners();
         prepareEntranceTransition();
 //        updateRecommendations();
-
-        LocalData.init();
-        LocalData.scan_and_save(docDir,true);
-        fileArray = LocalData.fileArray;
     }
 
     AlertDialog.Builder builder;
@@ -207,7 +209,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     @Override
     public void onStop() {
         System.out.println("MainFragment / _onStop");
-        mBackgroundManager.release();
+        if(mBackgroundManager!=null)
+            mBackgroundManager.release();
         cancelYouTubeHandler();
         super.onStop();
     }
@@ -329,7 +332,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 if(isCategoryRow(categoryName)) {
                     try {
                         // switch DB
-                        Utils.setPref_category_name(getContext(), categoryName );
+                        Utils.setPref_category_name(Objects.requireNonNull(getContext()), categoryName );
                         mLoaderManager.destroyLoader(TITLE_LOADER);
                     }
                     catch (Exception e)
@@ -525,8 +528,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        System.out.println("MainFragment / _onLoadFinished /  start rowsLoadedCount = " + rowsLoadedCount);
-//        System.out.println("MainFragment / _onLoadFinished /  mVideoCursorAdapters.size() = " + mVideoCursorAdapters.size());
+        System.out.println("MainFragment / _onLoadFinished /  start rowsLoadedCount = " + rowsLoadedCount);
+        System.out.println("MainFragment / _onLoadFinished /  mVideoCursorAdapters.size() = " + mVideoCursorAdapters.size());
 
         // return when load is OK
         if( (rowsLoadedCount!=0 ) && (rowsLoadedCount >= mVideoCursorAdapters.size()) ) {
@@ -701,19 +704,24 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_LONG).show();
 
                 // data base is not created yet, call service for the first time
-                Intent serviceIntent = new Intent(act, FetchCategoryService.class);
-                int linkSrcNum = Utils.getPref_link_source_number(act);
-                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum) );
-                act.startService(serviceIntent);
+//                Intent serviceIntent = new Intent(act, FetchCategoryService.class);
+//                int linkSrcNum = Utils.getPref_link_source_number(act);
+//                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum) );
+//                act.startService(serviceIntent);
+//                createCategoryDB();
+
+                checkPermission();
             }
             // Start an Intent to fetch the videos
             else if ((loader.getId() == TITLE_LOADER) && (rowsLoadedCount == 0)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch video service =================================");
 
-                Intent serviceIntent = new Intent(act, FetchVideoService.class);
-                int linkSrcNum = Utils.getPref_link_source_number(act);
-                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum));
-                act.startService(serviceIntent);
+//                Intent serviceIntent = new Intent(act, FetchVideoService.class);
+//                int linkSrcNum = Utils.getPref_link_source_number(act);
+//                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum));
+//                act.startService(serviceIntent);
+
+                createVideoDB();
             }
         }
     }
@@ -787,7 +795,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     //
     // create Video presenter
     //
-    int createListRows_video(Cursor data){ //todo 2nd
+    int createListRows_video(Cursor data){
         // row id count start
         int row_id = 0;
 //                listRowCategory.setId(row_id);
@@ -844,35 +852,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 // Base of data source: videoCursorAdapter
                 mVideoCursorAdapters.put(videoLoaderId, videoCursorAdapter);
 
-                ///
-                //todo Add multiple directories
-                int size = fileArray.size();
-
-                String prefix = "file://";
-                String cardImageUrl;
-
-                // Base of data source: arrayObjectAdapter
-                ArrayObjectAdapter arrayObjectAdapter = new ArrayObjectAdapter(new CardPresenter(act, row_id));
-
-                for(int i=0;i<size;i++) {
-                    String filePath = fileArray.get(i);//.getPath();
-                    cardImageUrl = prefix.concat(filePath);
-//                    System.out.println("---- cardImageUrl = " + cardImageUrl);
-                    Video video = new Video(
-                            0,
-                            "rowTitle",
-                            String.valueOf(i),
-                            "https://www.youtube.com/watch?v=dGkv_vc1L9w",
-                            "android.resource://com.cw.photolist/drawable/image",
-                            cardImageUrl);
-                    arrayObjectAdapter.add(i, video);
-                }
-                ///
-
-//                ListRow row = new ListRow(header, videoCursorAdapter);
-
-                ListRow row = new ListRow(header, arrayObjectAdapter);
-
+                ListRow row = new ListRow(header, videoCursorAdapter);
                 mTitleRowAdapter.add(row);
                 row.setId(row_id);
 	            // System.out.println("MainFragment / _onLoadFinished / existingAdapter is null  / will initLoader / videoLoaderId = " + videoLoaderId);
@@ -1760,6 +1740,123 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
         }
         return itemRowNumber;
+    }
+
+    // check permission dialog
+    void checkPermission(){
+        // check permission first time, request all necessary permissions
+        if( !Utils.isGranted_permission_WRITE_EXTERNAL_STORAGE(getActivity())) {
+            // request permission
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    Utils.PERMISSIONS_REQUEST_STORAGE);
+        } else {
+            doCreate();
+        }
+    }
+
+    // create video DB
+    void createVideoDB(){
+        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + Environment.DIRECTORY_DCIM;
+
+        LocalData.init(docDir);
+        LocalData.scan_and_save(docDir,true,LocalData.PHOTO_DATA);
+        List<Photo> photoArray = LocalData.returnPhotoArray;
+
+        ///
+        // check
+//        int size = photoArray.size();
+//        System.out.println("--------------- size = " + size);
+//        for(int i=0;i< size; i++ ){
+//            System.out.println("--------------- list title = " + photoArray.get(i).getList_title() );
+//            System.out.println("--------------- photo link = " + photoArray.get(i).getPhoto_link() );
+//        }
+        ///
+
+        List<List<ContentValues>> contentList = new ArrayList<>();
+        List<ContentValues> videosToInsert = new ArrayList<>();
+        int video_table_id = 0;
+
+        for (int j = 0; j < photoArray.size(); j++) {
+            String rowTitle = photoArray.get(j).getList_title();
+            String linkTitle = "no name yet";
+            System.out.println("----- linkTitle = " + linkTitle);
+
+            String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
+
+            // card image Url: YouTube or HTML
+            String cardImageUrl;
+            cardImageUrl = photoArray.get(j).getPhoto_link();
+            System.out.println("----- cardImageUrl = " + cardImageUrl);
+
+            ContentValues videoValues = new ContentValues();
+            videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, linkTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, cardImageUrl);
+
+            if (getActivity() != null) {
+                videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
+                        getActivity().getResources().getString(R.string.global_search));
+            }
+
+            videosToInsert.add(videoValues);
+        }
+
+        //todo Condition to create new video table for new category
+        //
+        // create new video table
+        //
+        DbHelper mOpenHelper = new DbHelper(getActivity());
+        mOpenHelper.setWriteAheadLoggingEnabled(false);
+
+        // Will call DbHelper.onCreate()first time when WritableDatabase is not created yet
+        SQLiteDatabase sqlDb;
+        sqlDb = mOpenHelper.getWritableDatabase();
+        video_table_id++;
+        String tableId = String.valueOf(video_table_id); //Id starts from 1
+
+        // Create a new table to hold videos.
+        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
+                VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
+                VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
+                VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
+                VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
+                VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
+                " );";
+
+        // Do the creating of the databases.
+        sqlDb.execSQL(SQL_CREATE_VIDEO_TABLE);
+
+        // add one table data
+        contentList.add(videosToInsert);
+
+
+        //
+        // insert data to video table
+        //
+        try {
+            List<List<ContentValues>> contentValuesList = contentList;
+
+            for (int i = 0; i < contentValuesList.size(); i++) {
+
+                ContentValues[] downloadedVideoContentValues =
+                        contentValuesList.get(i).toArray(new ContentValues[contentValuesList.get(i).size()]);
+
+                ContentResolver contentResolver = getActivity().getApplicationContext().getContentResolver();
+                System.out.println("------- contentResolver = " + contentResolver.toString());
+
+                VideoProvider.tableId = String.valueOf(i + 1);
+                contentResolver.bulkInsert(VideoContract.VideoEntry.CONTENT_URI, downloadedVideoContentValues);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
