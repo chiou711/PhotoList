@@ -43,16 +43,14 @@ public class LocalData {
     public static int PHOTO_DATA = 2;
 
     // for scanning local directory
-    public static List<String> returnArray;
-    public static List<Photo> returnPhotoArray;
+    public static List<String> category_array;
+    public static List<Photo> photo_array;
 
     // limit for create new folder
-    // todo Only 2 pages now
     static int PAGES_PER_FOLDER = 7;
 
     static Integer folders_count;
     static Integer pages_count = 0;
-    static Integer existing_folders_count;
     static List<String> filePathArray = null;
     static List<String> fileNames = null;
     public static String currFilePath;
@@ -64,28 +62,28 @@ public class LocalData {
         docDir = _docDir;
         folders_count = 0;
         pages_count = 0;
-        existing_folders_count = 0;//todo Need this?
-        returnArray = new ArrayList<>();
-        returnPhotoArray = new ArrayList<>();
+        category_array = new ArrayList<>();
+        photo_array = new ArrayList<>();
     }
 
     static String listName = null;
+
     // Scan all storage devices and save audio links to DB
     public static void scan_and_save(String currFilePath, boolean beSaved, int returnType){
+        System.out.println("LocalData / _scan_and_save");
 
-        System.out.println("?----- scan_and_save");
         List<String> list;
         list = getListInPath(currFilePath);
 
         if (list.size() > 0 ) {
-
             for (String file : list) {
                 File fileDir = new File(currFilePath.concat("/").concat(file));
+//                System.out.println("==>  file = " + file);
+//                System.out.println("==>  fileDir = " + fileDir.getPath());
 
-                System.out.println("==>  file = " + file);
-                System.out.println("==>  fileDir = " + fileDir.getPath());
                 boolean check =  !fileDir.getAbsolutePath().contains("..") ||
                         (fileDir.getAbsolutePath().contains("..") &&  (file.length()!=2) ) ;
+
                 //Skip some directories which could cause playing hang-up issue
                 if( /*!fileDir.getAbsolutePath().contains("Android/data") && */
                     !fileDir.getAbsolutePath().contains(".thumbnails") &&
@@ -100,8 +98,8 @@ public class LocalData {
 
                         // get page name
                         String pageName = fileDir.getName();
-                        System.out.println(" ");
-                        System.out.println("==> pageName = " + pageName);
+//                        System.out.println(" ");
+//                        System.out.println("==> pageName = " + pageName);
 
                         if (fileDir.listFiles() != null) {
                             dirsFilesCount = fileDir.listFiles().length;
@@ -116,23 +114,20 @@ public class LocalData {
                         if(beSaved) {
                             if ((dirs_count == 0) && (dirsFilesCount > 0)) {
 
-                                // check if dir has audio files before Save
+                                // check if dir has photo files before Save
                                 if(getPhotoFilesCount(fileDir)>0) {
 
                                     // add new folder
                                     if ((pages_count % PAGES_PER_FOLDER) == 0) {
-                                        folders_count = (pages_count / PAGES_PER_FOLDER) + 1 + existing_folders_count;
+                                        folders_count = (pages_count / PAGES_PER_FOLDER) + 1 ;
                                         if(returnType == CATEGORY_DATA) {
                                             System.out.println("*> add new folder here : " + (pages_count / PAGES_PER_FOLDER) + 1);
-                                            //todo Condition to create new category
-                                            returnArray.add(String.valueOf(folders_count));
+                                            category_array.add(String.valueOf(folders_count));
                                         }
                                     }
 
-                                    // add new page
+                                    // list name
                                     if(returnType == PHOTO_DATA) {
-                                        System.out.println("**> add new page here : " + pageName);
-//                                        returnArray.add(pageName);
                                         listName = pageName;
                                     }
 
@@ -151,9 +146,8 @@ public class LocalData {
                         if(beSaved) {
                             if(returnType == PHOTO_DATA) {
                                 Photo photo = new Photo(listName,photoUri);
-                                returnPhotoArray.add(photo);
-                                System.out.println("***> add new listName here : " + listName);
-                                System.out.println("***> add new photoUri here : " + photoUri);
+                                // add photo instance
+                                photo_array.add(photo);
                             }
                         }
                     }
@@ -177,13 +171,13 @@ public class LocalData {
                 for (File file : files) {
                     // add for filtering non-audio file
                     if (!file.isDirectory() &&
-                            (hasImageExtension(file))) {
+                       (hasImageExtension(file))) {
                         photoFilesCount++;
                     }
                 }
             }
         }
-        System.out.println("---------------- photoFilesCount = " + photoFilesCount);
+//        System.out.println("---------------- photoFilesCount = " + photoFilesCount);
         return  photoFilesCount;
     }
 
@@ -280,7 +274,7 @@ public class LocalData {
 
         LocalData.init(docDir);
         LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
-        List<String> categoryArray = LocalData.returnArray;
+        List<String> categoryArray = LocalData.category_array;
 
         List<ContentValues> videosToInsert = new ArrayList<>();
 
@@ -301,7 +295,7 @@ public class LocalData {
                     contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
 
             ContentResolver contentResolver = act.getContentResolver();
-            System.out.println("----> contentResolver = " + contentResolver.toString());
+//            System.out.println("----> contentResolver = " + contentResolver.toString());
 
             contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
 
@@ -319,13 +313,12 @@ public class LocalData {
         LocalData.init(docDir);
 
         LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
-        List<String> categoryArray = LocalData.returnArray;
+        List<String> categoryArray = LocalData.category_array;
 
         LocalData.init(docDir);
         LocalData.scan_and_save(docDir,true,LocalData.PHOTO_DATA);
-        List<Photo> photoArray = LocalData.returnPhotoArray;
+        List<Photo> photoArray = LocalData.photo_array;
 
-        ///
         // check
 //        int size = photoArray.size();
 //        System.out.println("--------------- size = " + size);
@@ -333,12 +326,21 @@ public class LocalData {
 //            System.out.println("--------------- list title = " + photoArray.get(i).getList_title() );
 //            System.out.println("--------------- photo link = " + photoArray.get(i).getPhoto_link() );
 //        }
-        ///
 
         List<ContentValues> videosToInsert = new ArrayList<>();
 
+        int list_number = 0;
+        String old_row_title = null;
         for (int j = 0; j < photoArray.size(); j++) {
             String rowTitle = photoArray.get(j).getList_title();
+
+            if (!rowTitle.equalsIgnoreCase(old_row_title)) {
+                old_row_title = rowTitle;
+                list_number++;
+                System.out.println("-> list_number = " + list_number);
+            }
+
+
             String linkTitle = "n/a";
             System.out.println("----- linkTitle = " + linkTitle);
 
@@ -361,9 +363,23 @@ public class LocalData {
             }
 
             videosToInsert.add(videoValues);
+
+            if ((list_number % PAGES_PER_FOLDER) == 0) {
+                int folder_number = (list_number / PAGES_PER_FOLDER);// + 1;
+                doBulkInsert_videoDB(act, folder_number, videosToInsert);
+                videosToInsert = new ArrayList<>();
+            } else if(j == photoArray.size()-1){
+                int folder_number = categoryArray.size();
+                doBulkInsert_videoDB(act, folder_number, videosToInsert);
+                videosToInsert = new ArrayList<>();
+            }
         }
 
-        //todo Condition to create new video table for new category
+    }
+
+    // do bulk insert to video table
+    static void doBulkInsert_videoDB(Activity act, int folder_number, List<ContentValues> videosToInsert)
+    {
         //
         // create new video table
         //
@@ -371,41 +387,37 @@ public class LocalData {
         mOpenHelper.setWriteAheadLoggingEnabled(false);
 
         // Will call DbHelper.onCreate()first time when WritableDatabase is not created yet
-        for(int i=1 ; i<=categoryArray.size(); i++){
-            SQLiteDatabase sqlDb;
-            sqlDb = mOpenHelper.getWritableDatabase();
-            String tableId = String.valueOf(i); //Id starts from 1
+        SQLiteDatabase sqlDb;
+        sqlDb = mOpenHelper.getWritableDatabase();
+        String tableId = String.valueOf(folder_number); //Id starts from 1
 
-            // Create a new table to hold videos.
-            final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
-                    VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
-                    VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
-                    VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
-                    VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
-                    VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
-                    VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
-                    " );";
+        // Create a new table to hold videos.
+        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
+                VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
+                VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
+                VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
+                VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
+                VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
+                " );";
 
-            // Do the creating of the databases.
-            sqlDb.execSQL(SQL_CREATE_VIDEO_TABLE);
+        // Do the creating of the databases.
+        sqlDb.execSQL(SQL_CREATE_VIDEO_TABLE);
 
-            //
-            // bulk insert data to video table
-            //
-            try {
-                ContentValues[] videoContentValues = videosToInsert.toArray(new ContentValues[videosToInsert.size()]);
+        //
+        // bulk insert data to video table
+        //
+        try {
+            ContentValues[] videoContentValues = videosToInsert.toArray(new ContentValues[videosToInsert.size()]);
 
-                ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
+            ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
 
-                VideoProvider.tableId = tableId;
-                contentResolver.bulkInsert(VideoContract.VideoEntry.CONTENT_URI, videoContentValues);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            VideoProvider.tableId = String.valueOf(folder_number);
+            contentResolver.bulkInsert(VideoContract.VideoEntry.CONTENT_URI, videoContentValues);
 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
-
 
 }
