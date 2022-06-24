@@ -16,6 +16,17 @@
 
 package com.cw.photolist.util;
 
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+
+import com.cw.photolist.R;
+import com.cw.photolist.data.DbHelper;
+import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.VideoProvider;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,5 +272,140 @@ public class LocalData {
             }
         }
     }
+
+    // Create category DB
+    public static void createCategoryDB(Activity act){
+        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + Environment.DIRECTORY_DCIM;
+
+        LocalData.init(docDir);
+        LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
+        List<String> categoryArray = LocalData.returnArray;
+
+        List<ContentValues> videosToInsert = new ArrayList<>();
+
+        for (int h = 0; h < categoryArray.size(); h++) {
+            String category_name = categoryArray.get(h);
+            System.out.println("? ----- category_name = " + category_name);
+            // save category names
+            ContentValues categoryValues = new ContentValues();
+            categoryValues.put("category_name", category_name);
+            categoryValues.put("video_table_id", h+1);
+            videosToInsert.add(categoryValues);
+        }
+
+        try {
+            List<ContentValues> contentValuesList = videosToInsert;
+
+            ContentValues[] downloadedVideoContentValues =
+                    contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
+
+            ContentResolver contentResolver = act.getContentResolver();
+            System.out.println("----> contentResolver = " + contentResolver.toString());
+
+            contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // create video DB
+    public static void createVideoDB(Activity act){
+        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + Environment.DIRECTORY_DCIM;
+
+        LocalData.init(docDir);
+
+        LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
+        List<String> categoryArray = LocalData.returnArray;
+
+        LocalData.init(docDir);
+        LocalData.scan_and_save(docDir,true,LocalData.PHOTO_DATA);
+        List<Photo> photoArray = LocalData.returnPhotoArray;
+
+        ///
+        // check
+//        int size = photoArray.size();
+//        System.out.println("--------------- size = " + size);
+//        for(int i=0;i< size; i++ ){
+//            System.out.println("--------------- list title = " + photoArray.get(i).getList_title() );
+//            System.out.println("--------------- photo link = " + photoArray.get(i).getPhoto_link() );
+//        }
+        ///
+
+        List<ContentValues> videosToInsert = new ArrayList<>();
+
+        for (int j = 0; j < photoArray.size(); j++) {
+            String rowTitle = photoArray.get(j).getList_title();
+            String linkTitle = "n/a";
+            System.out.println("----- linkTitle = " + linkTitle);
+
+            String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
+
+            // card image Url: YouTube or HTML
+            String cardImageUrl;
+            cardImageUrl = photoArray.get(j).getPhoto_link();
+            System.out.println("----- cardImageUrl = " + cardImageUrl);
+
+            ContentValues videoValues = new ContentValues();
+            videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, linkTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, cardImageUrl);
+
+            if (act != null) {
+                videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
+                        act.getResources().getString(R.string.global_search));
+            }
+
+            videosToInsert.add(videoValues);
+        }
+
+        //todo Condition to create new video table for new category
+        //
+        // create new video table
+        //
+        DbHelper mOpenHelper = new DbHelper(act);
+        mOpenHelper.setWriteAheadLoggingEnabled(false);
+
+        // Will call DbHelper.onCreate()first time when WritableDatabase is not created yet
+        for(int i=1 ; i<=categoryArray.size(); i++){
+            SQLiteDatabase sqlDb;
+            sqlDb = mOpenHelper.getWritableDatabase();
+            String tableId = String.valueOf(i); //Id starts from 1
+
+            // Create a new table to hold videos.
+            final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
+                    VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
+                    VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
+                    VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                    VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
+                    VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
+                    VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
+                    " );";
+
+            // Do the creating of the databases.
+            sqlDb.execSQL(SQL_CREATE_VIDEO_TABLE);
+
+            //
+            // bulk insert data to video table
+            //
+            try {
+                ContentValues[] videoContentValues = videosToInsert.toArray(new ContentValues[videosToInsert.size()]);
+
+                ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
+
+                VideoProvider.tableId = tableId;
+                contentResolver.bulkInsert(VideoContract.VideoEntry.CONTENT_URI, videoContentValues);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
 
 }
