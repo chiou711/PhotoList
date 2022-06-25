@@ -130,7 +130,8 @@ public class CardPresenter extends Presenter {
 
         ImageCardView cardView = (ImageCardView) viewHolder.view;
         cardView.setTitleText(video.title);
-        ((TextView)cardView.findViewById(R.id.title_text)).setLines(3);// setMaxLines(5);
+        ((TextView)cardView.findViewById(R.id.title_text)).setLines(1);// setMaxLines(5);
+        ((TextView)cardView.findViewById(R.id.title_text)).setHeight(40);
 
         // get duration
         if(Pref.isShowDuration(act)){
@@ -177,6 +178,7 @@ public class CardPresenter extends Presenter {
         TextView positionText = ((TextView)cardView.findViewById(R.id.content_text));
         positionText.setTextColor(cardView.getContext().getResources().getColor(R.color.category_text));
         positionText.setGravity(Gravity.RIGHT);
+        positionText.setHeight(40);
 
         if (video.cardImageUrl != null) {
             // Set card size from dimension resources.

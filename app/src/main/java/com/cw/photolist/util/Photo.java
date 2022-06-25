@@ -3,13 +3,12 @@ package com.cw.photolist.util;
 public class Photo {
    String list_title;
    String photo_link;
+   String photo_name;
 
-   public Photo() {
-   }
-
-   public Photo(String list_title,String photo_link) {
+   public Photo(String list_title,String photo_link,String photo_name) {
       setList_title(list_title);
       setPhoto_link(photo_link);
+      setPhoto_name(photo_name);
    }
 
    public String getList_title() {
@@ -29,4 +28,11 @@ public class Photo {
       this.photo_link = photo_link;
    }
 
+   public String getPhoto_name() {
+      return photo_name;
+   }
+
+   public void setPhoto_name(String photo_name) {
+      this.photo_name = photo_name;
+   }
 }

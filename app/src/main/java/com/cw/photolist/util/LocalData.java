@@ -66,7 +66,7 @@ public class LocalData {
         photo_array = new ArrayList<>();
     }
 
-    static String listName = null;
+    static String listTitle = null;
 
     // Scan all storage devices and save audio links to DB
     public static void scan_and_save(String currFilePath, boolean beSaved, int returnType){
@@ -128,7 +128,7 @@ public class LocalData {
 
                                     // list name
                                     if(returnType == PHOTO_DATA) {
-                                        listName = pageName;
+                                        listTitle = pageName;
                                     }
 
                                     pages_count++;
@@ -142,10 +142,11 @@ public class LocalData {
                     } // if (fileDir.isDirectory())
                     else
                     {
-                        String photoUri =  "file://".concat(fileDir.getPath());
+                        String photoLink =  "file://".concat(fileDir.getPath());
+                        String photoName = new File(photoLink).getName();
                         if(beSaved) {
                             if(returnType == PHOTO_DATA) {
-                                Photo photo = new Photo(listName,photoUri);
+                                Photo photo = new Photo(listTitle,photoLink,photoName);
                                 // add photo instance
                                 photo_array.add(photo);
                             }
@@ -340,22 +341,21 @@ public class LocalData {
                 System.out.println("-> list_number = " + list_number);
             }
 
-
-            String linkTitle = "n/a";
-            System.out.println("----- linkTitle = " + linkTitle);
+            String photoName = photoArray.get(j).getPhoto_name();
+            System.out.println("----- photoName = " + photoName);
 
             String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
 
             // card image Url: YouTube or HTML
-            String cardImageUrl;
-            cardImageUrl = photoArray.get(j).getPhoto_link();
-            System.out.println("----- cardImageUrl = " + cardImageUrl);
+            String photoLink;
+            photoLink = photoArray.get(j).getPhoto_link();
+            System.out.println("----- photoLink = " + photoLink);
 
             ContentValues videoValues = new ContentValues();
             videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
-            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, linkTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
             videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
-            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, cardImageUrl);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
 
             if (act != null) {
                 videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
