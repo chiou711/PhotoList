@@ -51,4 +51,9 @@ public class Define {
 
     // display duration
     public final static int DEFAULT_DISPLAY_DURATION = 5; //3;
+
+    // auto play case
+    public final static int by_onActivityResult = 1;
+    public final static int by_runnable = 2;
+    public final static int DEFAULT_PLAY_NEXT = by_runnable;
 }

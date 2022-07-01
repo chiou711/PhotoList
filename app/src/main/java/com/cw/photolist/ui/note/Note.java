@@ -36,7 +36,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.R;
+import com.cw.photolist.data.DbData;
+import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.define.Define;
+import com.cw.photolist.util.Utils;
 
 import java.io.IOException;
 
@@ -46,14 +49,15 @@ import androidx.appcompat.app.AppCompatActivity;
 public class Note extends AppCompatActivity
 {
     int mEntryPosition;
-
-    public AppCompatActivity act;
-
 	public static String photoPath;
 	RequestOptions options;
 	ImageView imageView;
 	private Handler handler;
 	private int count;
+	int focusCatNum;
+	String table;
+	String columnName;
+	int photosCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class Note extends AppCompatActivity
 		    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		    getSupportActionBar().hide();
 	    }
+
 	    // image view
 	    imageView = findViewById(R.id.image_view);
 	    imageView.setVisibility(View.VISIBLE);
@@ -73,13 +78,18 @@ public class Note extends AppCompatActivity
 	    // set current selection
 	    mEntryPosition = getIntent().getExtras().getInt("PHOTO_POSITION");
 	    System.out.println("Note / _onCreate / mEntryPosition = " + mEntryPosition);
-	    photoPath = getIntent().getExtras().getString("PHOTO_PATH");
+
+	    focusCatNum = Utils.getPref_video_table_id(getBaseContext());
+	    table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+	    columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+
+	    photoPath =  DbData.getDB_link_data(getBaseContext(),table,columnName,mEntryPosition);
 	    System.out.println("Note / _onCreate / photoPath = " + photoPath);
-		act = this;
+
+	    photosCount = DbData.getPhotosCountInCategory(getBaseContext(),table);
 
 		//cf. Measure and optimize bitmap size using Glide or Picasso
 	    // https://proandroiddev.com/measure-and-optimize-bitmap-size-using-glide-or-picasso-3273b4a569cd
-
 	    options = new RequestOptions()
 //				.centerCrop()
 //			    .centerInside()
@@ -96,16 +106,13 @@ public class Note extends AppCompatActivity
 //			    .diskCacheStrategy(DiskCacheStrategy.DATA)
 				.priority(Priority.HIGH);
 
-	    try {
-		    setLayoutView();
-	    } catch (IOException e) {
-		    e.printStackTrace();
-		    System.out.println("Note / _onCreate / exception ");
-	    }
-
 	    count = Define.DEFAULT_DISPLAY_DURATION;
 	    handler = new Handler();
-	    handler.postDelayed(runCountDown,100);
+
+	    if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
+			handler.postDelayed(runCountDown,100);
+	    else if(Define.DEFAULT_PLAY_NEXT == Define.by_runnable)
+			handler.postDelayed(runAutoPlay,100);
 
 	} //onCreate end
 
@@ -117,15 +124,59 @@ public class Note extends AppCompatActivity
 			// start count down
 			count--;
 
-			if(count>0)
+			if(count>0){
+
+				try {
+					setPhotoImage();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("Note / _runCountDown / exception ");
+				}
+
 				handler.postDelayed(runCountDown,1000);
-			else
-			{
+			} else {
 				if(handler != null) {
 					handler.removeCallbacks(runCountDown);
 					handler = null;
 				}
 				finish();
+			}
+		}
+	};
+
+
+	/**
+	 * runnable for auto play
+	 * */
+	private final Runnable runAutoPlay = new Runnable() {
+		public void run() {
+
+			if(count == Define.DEFAULT_DISPLAY_DURATION){
+
+				try {
+					setPhotoImage();
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("Note / _runAutoPlay / exception ");
+				}
+			}
+
+			count --;
+
+			if(count < 0){
+				mEntryPosition++;
+
+				if(mEntryPosition >= photosCount)
+					mEntryPosition = 0;
+
+				photoPath =  DbData.getDB_link_data(getBaseContext(),table,columnName,mEntryPosition);
+				count = Define.DEFAULT_DISPLAY_DURATION;
+
+				if(handler!= null)
+					handler.postDelayed(runAutoPlay,100);
+			} else {
+				if(handler != null)
+					handler.postDelayed(runAutoPlay, 1000);
 			}
 		}
 	};
@@ -164,10 +215,11 @@ public class Note extends AppCompatActivity
 		return false;
 	}
 
-	void setLayoutView() throws IOException {
+	void setPhotoImage() throws IOException {
         System.out.println("Note / _setLayoutView");
 
 //		photoPath = "https://i.imgur.com/DvpvklR.png";
+
 		// cf. https://stackoverflow.com/questions/57584072/simpletarget-is-deprecated-glide
 		Glide.with(this)
 				.asBitmap()
@@ -191,7 +243,7 @@ public class Note extends AppCompatActivity
 					public void onLoadFailed(@Nullable Drawable errorDrawable) {
 						super.onLoadFailed(errorDrawable);
 						System.out.println("------ _onLoadFailed");
-						imageView.setImageDrawable(act.getResources().getDrawable(R.drawable.movie));
+						imageView.setImageDrawable(getResources().getDrawable(R.drawable.movie));
 					}
 				});
 
@@ -245,10 +297,23 @@ public class Note extends AppCompatActivity
     @Override
     public void onBackPressed() {
 		System.out.println("Note / _onBackPressed");
+	    if(handler != null) {
+		    handler.removeCallbacks(runCountDown);
+		    handler = null;
+	    }
 		finish();
     }
-    
-    @Override
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(handler != null) {
+			handler.removeCallbacks(runCountDown);
+			handler = null;
+		}
+	}
+
+	@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         int maskedAction = event.getActionMasked();
         switch (maskedAction) {

@@ -19,7 +19,6 @@ package com.cw.photolist.ui;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -72,6 +71,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
+import com.cw.photolist.data.DbData;
 import com.cw.photolist.ui.note.Note;
 import com.cw.photolist.ui.note.NoteFragment;
 import com.cw.photolist.util.Utils;
@@ -396,7 +396,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             int nextId_auto = getNextCursorPositionId_auto(getPlayId());
             setNextId_auto(nextId_auto);
 
-            nextLinkTitle =  getNextYouTubeTitle();
+            nextLinkTitle =  getNextPhotoTitle();
 
             countStr = act.getString(R.string.play_countdown)+
                               " " + count + " " +
@@ -425,7 +425,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                             alertDlg.dismiss();
                             cancelYouTubeHandler();
 
-                            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
+                            startNoteIntentForResult(getPhotoPosition());
                         }
                     }).
                     setOnCancelListener(new DialogInterface.OnCancelListener(){
@@ -577,7 +577,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
                 // init row position and focus item
                 setSelectedPosition(0);
-                int pos = getFocusItemPosition_categoryRow();
+                int pos = DbData.getFocusItemPosition_categoryRow(getContext());
                 setSelectedPosition(0, true, new ListRowPresenter.SelectItemViewHolderTask(pos));
 
                 startEntranceTransition(); //Move startEntranceTransition to after all
@@ -744,7 +744,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     //
     void createListRow_category(){ //todo 1st
         // set focus category
-        int focusPos = getFocusItemPosition_categoryRow();
+        int focusPos = DbData.getFocusItemPosition_categoryRow(getContext());
         CategoryListRowPresenter cate_listRowPresenter = new CategoryListRowPresenter(act,focusPos);
         cate_listRowPresenter.setRowHeight(400);
 
@@ -963,7 +963,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId(getNextId_auto());
 
             // method 1: by intent
-            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
+            startNoteIntentForResult(getPhotoPosition());
 
             // method 2 : by UI
 //            mInputConnection = new BaseInputConnection(act.findViewById(R.id.main_frame), true);
@@ -993,12 +993,20 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     }
 
     // start note intent for result
-    private void startNoteIntentForResult(String path,int position)
+    private void startNoteIntentForResult(int position)
     {
         Intent intent = new Intent(act,Note.class);
         intent.putExtra("PHOTO_POSITION", position);
-        intent.putExtra("PHOTO_PATH", path);
         startActivityForResult(intent,PHOTO_INTENT);
+    }
+
+
+    // start note intent
+    private void startNoteIntent(String path,int position)
+    {
+        Intent intent = new Intent(act,Note.class);
+        intent.putExtra("PHOTO_POSITION", position);
+        startActivity(intent);
     }
 
     // start note fragment
@@ -1100,7 +1108,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // set new play Id after Shift keys
             setPlayId(getNextId_auto());
 
-            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
+            startNoteIntentForResult(getPhotoPosition());
         }
     }
 
@@ -1265,72 +1273,28 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         }
     }
 
-    // get YouTube link
-    private String getYouTubeLink()
-    {
-        int focusCatNum = Utils.getPref_video_table_id(act);
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-        String columnName = VideoContract.VideoEntry.COLUMN_LINK_URL;
-        int pos = getCursorPositionById(getPlayId());
-        return getDB_link_data(table,columnName,pos);
-    }
-
     // get photo path
-    private String getPhotoPath()
-    {
+    private String getPhotoPath() {
         int focusCatNum = Utils.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
         String columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
-        int pos = getCursorPositionById(getPlayId());
-        return getDB_link_data(table,columnName,pos);
+        int pos = DbData.getCursorPositionById(getContext(),getPlayId());
+        return DbData.getDB_link_data(getContext(),table,columnName,pos);
     }
 
     // get photo position
     private int getPhotoPosition() {
-        int pos = getCursorPositionById(getPlayId());
+        int pos = DbData.getCursorPositionById(getContext(),getPlayId());
         return pos;
     }
 
-    // get YouTube title
-    private String getNextYouTubeTitle() {
+    // get next photo title
+    private String getNextPhotoTitle() {
         int focusCatNum = Utils.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
         String columnName = VideoContract.VideoEntry.COLUMN_LINK_TITLE;
-        int pos = getCursorPositionById(getNextId_auto());
-        return getDB_link_data(table,columnName,pos);
-    }
-
-    // get cursor position by ID
-    int getCursorPositionById(int id){
-        int focusCatNum = Utils.getPref_video_table_id(act);
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-
-        int pos = 0;
-        DbHelper mOpenHelper = new DbHelper(act);
-        mOpenHelper.setWriteAheadLoggingEnabled(false);
-        SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
-        Cursor cursor = sqlDb.query(
-                table,
-                null,//projection,
-                null,//selection,
-                null,//selectionArgs,
-                null,
-                null,
-                null//sortOrder
-        );
-
-        int index_id = cursor.getColumnIndex("_id");
-        for(int position=0;position<cursor.getCount();position++){
-            cursor.moveToPosition((int) position);
-            if(id == cursor.getInt(index_id)) {
-                pos = position;
-                break;
-            }
-        }
-        cursor.close();
-        sqlDb.close();
-
-        return  pos;
+        int pos = DbData.getCursorPositionById(getContext(),getNextId_auto());
+        return DbData.getDB_link_data(getContext(),table,columnName,pos);
     }
 
     // get next cursor position ID for Auto play
@@ -1372,17 +1336,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // video ID starts with 1
         currentRow1stId = (int) mPlayLists.get(currentRowPos).get(0);
         currentRowSize = mPlayLists.get(currentRowPos).size();
-        currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);;//currentRow1stId + currentRowSize - 1; //todo last item error
-
-//        System.out.println("??? cursorPos = " + cursorPos);
-//        System.out.println("??? currentPlayId = " + currentPlayId);
-//        System.out.println("??? currentRowPos = " + currentRowPos);
-//        System.out.println("??? currentRow1stId = " + currentRow1stId);
-//        System.out.println("??? currentRowLastId = " + currentRowLastId);
-//        System.out.println("??? currentRowSize = " + currentRowSize);
+        currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);//currentRow1stId + currentRowSize - 1; //todo last item error
 
         int nextId = 0;
-
         // at last video item of category
         try{
             cursor.moveToPosition(cursorPos+1);
@@ -1398,90 +1354,29 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
             cursor.close();
             sqlDb.close();
-//            System.out.println("??? nextId (return / exception) = " + nextId);
             return nextId;
         }
 
         // move cursor to next position
         cursor.moveToPosition(cursorPos+1);
-//        System.out.println("??? cursor.getInt(index_id) = " + cursor.getInt(index_id));
 
         // at row end
         if(cursor.getInt(index_id)  > currentRowLastId  ) {
-
             // set next ID
             if(Pref.isAutoPlayByList(act))
                 nextId = currentRow1stId;
             else if(Pref.isAutoPlayByCategory(act)) {
                 nextId = cursor.getInt(index_id);
             }
-
-//            System.out.println("??? nextId 1 = " + nextId);
-        }
-        else {
+        } else {
             cursor.moveToPosition((int) cursorPos + 1);
             nextId = cursor.getInt(index_id);
-//            System.out.println("??? nextId 2 = " + nextId);
         }
 
-//        System.out.println("??? nextId (return)= " + nextId);
-
         cursor.close();
         sqlDb.close();
-
         return  nextId;
     }
-
-    // get DB link data
-    private String getDB_link_data(String table, String columnName, int pos)
-    {
-        DbHelper mOpenHelper = new DbHelper(act);
-        mOpenHelper.setWriteAheadLoggingEnabled(false);
-        SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
-        Cursor cursor = sqlDb.query(
-                table,
-                null,//projection,
-                null,//selection,
-                null,//selectionArgs,
-                null,
-                null,
-                null//sortOrder
-        );
-
-        int index = cursor.getColumnIndex(columnName);
-        cursor.moveToPosition((int) pos);
-        String retData = cursor.getString(index);
-        cursor.close();
-        sqlDb.close();
-
-        return retData;
-    }
-
-    private int getTotalLinksCount()
-    {
-        int focusCatNum = Utils.getPref_video_table_id(act);
-
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-        DbHelper mOpenHelper = new DbHelper(act);
-        mOpenHelper.setWriteAheadLoggingEnabled(false);
-        SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
-
-        Cursor cursor = sqlDb.query(
-                table,
-                null,//projection,
-                null,//selection,
-                null,//selectionArgs,
-                null,
-                null,
-                null//sortOrder
-        );
-
-        int totalLinksCount = cursor.getCount();
-        cursor.close();
-
-        return totalLinksCount;
-    }
-
 
     // get duplicated times of same category name
     // i.e.
@@ -1507,35 +1402,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     // get playlists count
     public static int getPlaylistsCount(){
         return rowsCount;
-    }
-
-    // get focus position of category row
-    int getFocusItemPosition_categoryRow(){
-        // get current video* tables
-        int prefVideoTableId = Utils.getPref_video_table_id(MainFragment.this.act);
-        ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
-        String[] projection = new String[]{"_id", "category_name", "video_table_id"};
-        String selection = null;
-        String[] selectionArgs = null;
-        String sortOrder = null;
-        Cursor query = contentResolver.query(VideoContract.CategoryEntry.CONTENT_URI,projection,selection,selectionArgs,sortOrder);
-
-        // get new position by video table ID
-        int new_position=0;
-        if (query.moveToFirst()) {
-            do {
-                String columnStr = VideoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID;
-                int index = query.getColumnIndex(columnStr);
-                int pointedVideoTableId = query.getInt(index);
-                if(pointedVideoTableId == prefVideoTableId)
-                    break;
-                else
-                    new_position++;
-
-            } while (query.moveToNext());
-        }
-        query.close();
-        return new_position;
     }
 
     // differentiate category row with other rows
@@ -1569,7 +1435,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // auto play
         if (Pref.isAutoPlayByList(act) || Pref.isAutoPlayByCategory(act)){
             setPlayId((int) ((Video) (item)).id);
-            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
+
+            if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
+                startNoteIntentForResult(getPhotoPosition());
+            else if(Define.DEFAULT_PLAY_NEXT == Define.by_runnable)
+                startNoteIntent(getPhotoPath(),getPhotoPosition());
+
         } else {
             // manual play
             act.runOnUiThread(new Runnable() {
