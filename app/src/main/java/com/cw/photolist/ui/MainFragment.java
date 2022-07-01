@@ -20,7 +20,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,11 +31,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.BrowseSupportFragment;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -68,12 +68,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.data.VideoProvider;
-import com.cw.photolist.util.Photo;
+import com.cw.photolist.ui.note.Note;
+import com.cw.photolist.ui.note.NoteFragment;
 import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.FetchCategoryService;
@@ -88,10 +88,6 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -125,6 +121,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     private static final int CATEGORY_LOADER = 100; // Unique ID for Category Loader.
     private static final int TITLE_LOADER = 101; // Unique ID for Title Loader.
 	public static List<String> mCategoryNames;
+    public final static int PHOTO_INTENT = 97;
     private final static int YOUTUBE_LINK_INTENT = 98;
     public final static int VIDEO_DETAILS_INTENT = 99;
     // Maps a Loader Id to its CursorObjectAdapter.
@@ -391,7 +388,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("MainFragment / _onActivityResult");
-        if(requestCode == YOUTUBE_LINK_INTENT) {
+        if(requestCode == PHOTO_INTENT) {
             count = Define.DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT; // countdown time to play next
             builder = new AlertDialog.Builder(getContext());
 
@@ -427,7 +424,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                             // launch next intent
                             alertDlg.dismiss();
                             cancelYouTubeHandler();
-                            launchYouTubeIntent();
+
+                            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
                         }
                     }).
                     setOnCancelListener(new DialogInterface.OnCancelListener(){
@@ -526,12 +524,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        System.out.println("MainFragment / _onLoadFinished /  start rowsLoadedCount = " + rowsLoadedCount);
-        System.out.println("MainFragment / _onLoadFinished /  mVideoCursorAdapters.size() = " + mVideoCursorAdapters.size());
+//        System.out.println("MainFragment / _onLoadFinished /  start rowsLoadedCount = " + rowsLoadedCount);
+//        System.out.println("MainFragment / _onLoadFinished /  mVideoCursorAdapters.size() = " + mVideoCursorAdapters.size());
 
         // return when load is OK
         if( (rowsLoadedCount!=0 ) && (rowsLoadedCount >= mVideoCursorAdapters.size()) ) {
-            System.out.println("MainFragment / _onLoadFinished / return");//??? not needed this?
+//            System.out.println("MainFragment / _onLoadFinished / return");//??? not needed this?
             return;
         }
 
@@ -539,12 +537,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         if (data != null && data.moveToFirst()) {
             final int loaderId = loader.getId();
 
-            if (loaderId == CATEGORY_LOADER)
-	            System.out.println("MainFragment / _onLoadFinished / loaderId = CATEGORY_LOADER");
-            else if(loaderId == TITLE_LOADER)
-                System.out.println("MainFragment / _onLoadFinished / loaderId = TITLE_LOADER");
-            else
-                System.out.println("MainFragment / _onLoadFinished / loaderId (video) = " + loaderId);
+//            if (loaderId == CATEGORY_LOADER)
+//	            System.out.println("MainFragment / _onLoadFinished / loaderId = CATEGORY_LOADER");
+//            else if(loaderId == TITLE_LOADER)
+//                System.out.println("MainFragment / _onLoadFinished / loaderId = TITLE_LOADER");
+//            else
+//                System.out.println("MainFragment / _onLoadFinished / loaderId (video) = " + loaderId);
 
             if (loaderId == CATEGORY_LOADER) {
                 mCategoryNames = new ArrayList<>();
@@ -552,7 +550,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 while (!data.isAfterLast()) {
                     int categoryIndex = data.getColumnIndex(VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME);
                     String category_name = data.getString(categoryIndex);
-                    System.out.println("MainFragment / _onLoadFinished / category_name = " + category_name);
+//                    System.out.println("MainFragment / _onLoadFinished / category_name = " + category_name);
                     mCategoryNames.add(category_name);
 
                     // check only
@@ -610,9 +608,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                     setPlaylistsCount(rowsLoadedCount);
                     isOkToChangeCategory = true;
 
-                    System.out.println("MainFragment / _onLoadFinished / -------------------------------------");
-                    System.out.println("MainFragment / _onLoadFinished / end of onLoadFinished video");
-                    System.out.println("MainFragment / _onLoadFinished / -------------------------------------");
+//                    System.out.println("MainFragment / _onLoadFinished / -------------------------------------");
+//                    System.out.println("MainFragment / _onLoadFinished / end of onLoadFinished video");
+//                    System.out.println("MainFragment / _onLoadFinished / -------------------------------------");
 
                     // create row info list
                     DbHelper mOpenHelper = new DbHelper(act);
@@ -811,11 +809,11 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         while (!data.isAfterLast()) {
             int titleIndex = data.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
             String title = data.getString(titleIndex);
-            System.out.println("MainFragment / _onLoadFinished / title = " + title);
+//            System.out.println("MainFragment / _onLoadFinished / title = " + title);
 
             // Create header for this category.
             HeaderItem header = new HeaderItem(title);
-            System.out.println("MainFragment / _onLoadFinished / header.getName() = " + header.getName());
+//            System.out.println("MainFragment / _onLoadFinished / header.getName() = " + header.getName());
 
             // if (getHeadersSupportFragment() != null){
                 // on selected
@@ -965,8 +963,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId(getNextId_auto());
 
             // method 1: by intent
-            String video_url = getYouTubeLink();
-            startYouTubeIntentForResult(video_url);
+            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
 
             // method 2 : by UI
 //            mInputConnection = new BaseInputConnection(act.findViewById(R.id.main_frame), true);
@@ -993,6 +990,27 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         intent.putExtra("force_fullscreen", true);
         intent.putExtra("finish_on_ended", true);
         startActivityForResult(intent, YOUTUBE_LINK_INTENT);
+    }
+
+    // start note intent for result
+    private void startNoteIntentForResult(String path,int position)
+    {
+        Intent intent = new Intent(act,Note.class);
+        intent.putExtra("PHOTO_POSITION", position);
+        intent.putExtra("PHOTO_PATH", path);
+        startActivityForResult(intent,PHOTO_INTENT);
+    }
+
+    // start note fragment
+    private void startNoteFragment(String path)
+    {
+        NoteFragment fragment = new NoteFragment();
+        final Bundle args = new Bundle();
+        args.putString("KEY_PHOTO_PATH", path);
+        fragment.setArguments(args);
+        FragmentTransaction transaction = act.getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+        transaction.replace(R.id.main_frame, fragment,"note").addToBackStack("note_stack").commit();
     }
 
     private void cancelYouTubeHandler()
@@ -1082,8 +1100,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // set new play Id after Shift keys
             setPlayId(getNextId_auto());
 
-            String video_url = getYouTubeLink();
-            startYouTubeIntentForResult(video_url);
+            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
         }
     }
 
@@ -1137,12 +1154,17 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 .asBitmap()
                 .load(uri)
                 .apply(options)
-                .into(new SimpleTarget<Bitmap>(width, height) {
+                .into(new CustomTarget<Bitmap>(width, height) {
                     @Override
                     public void onResourceReady(
                             Bitmap resource,
                             Transition<? super Bitmap> transition) {
                         mBackgroundManager.setBitmap(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
                     }
                 });
     }
@@ -1253,9 +1275,24 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         return getDB_link_data(table,columnName,pos);
     }
 
-    // get YouTube title
-    private String getNextYouTubeTitle()
+    // get photo path
+    private String getPhotoPath()
     {
+        int focusCatNum = Utils.getPref_video_table_id(act);
+        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+        String columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+        int pos = getCursorPositionById(getPlayId());
+        return getDB_link_data(table,columnName,pos);
+    }
+
+    // get photo position
+    private int getPhotoPosition() {
+        int pos = getCursorPositionById(getPlayId());
+        return pos;
+    }
+
+    // get YouTube title
+    private String getNextYouTubeTitle() {
         int focusCatNum = Utils.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
         String columnName = VideoContract.VideoEntry.COLUMN_LINK_TITLE;
@@ -1513,7 +1550,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     // open video item
     void openVideoItem(Object item){
         Video video = (Video) item;
-        System.out.println("MainFragment / _openVideoItem / item = "+ item );
+//        System.out.println("MainFragment / _openVideoItem / item = "+ item );
 
         // for auto play by list only
         if(!Pref.isAutoPlayByCategory(act)) {
@@ -1527,140 +1564,22 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // video ID starts with 1
         currentRow1stId = (int) mPlayLists.get(currentRowPos).get(0);
         currentRowSize = mPlayLists.get(currentRowPos).size();
-//        currentRowLastId = currentRow1stId + currentRowSize - 1; //todo last item error again
         currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);;//currentRow1stId + currentRowSize - 1; //todo last item error
 
-        String urlStr = ((Video) item).videoUrl;
-
-        String path;
-        // YouTube or HTML
-        if(urlStr.contains("youtube.com/channel/")){
-            path = ((Video) item).cardImageUrl;
-        } else if(!urlStr.contains("playlist") && ( urlStr.contains("youtube") || urlStr.contains("youtu.be") ))
-            path = "https://img.youtube.com/vi/"+getYoutubeId(urlStr)+"/0.jpg";
-        else
-            path = urlStr;
-
-        System.out.println("MainFragment / _openVideoItem / path= "+ path);
-        new Thread(new Runnable(){
-            @Override
-            public void run() {
-                /**
-                 *  check connection response
-                 *  404: not found, 200: OK
-                 */
-                int responseCode = -1;
-                HttpURLConnection urlConnection = null;
-                try {
-                    URL url = new URL(path);
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-                    responseCode = urlConnection.getResponseCode();
-                    System.out.println("MainFragment / _openVideoItem / responseCode  OK = " + responseCode);
+        // auto play
+        if (Pref.isAutoPlayByList(act) || Pref.isAutoPlayByCategory(act)){
+            setPlayId((int) ((Video) (item)).id);
+            startNoteIntentForResult(getPhotoPath(),getPhotoPosition());
+        } else {
+            // manual play
+            act.runOnUiThread(new Runnable() {
+                public void run() {
+                        // for open directly
+                    setPlayId((int) ((Video) (item)).id);
+                    startNoteFragment(getPhotoPath());
                 }
-                catch (IOException e)
-                {
-                    System.out.println("MainFragment / _openVideoItem / responseCode NG = "+ responseCode);
-                    e.printStackTrace();
-                    return;
-                }
-                urlConnection.disconnect();
-
-                /**
-                 *  normal response: launch VideoDetailsActivity
-                 */
-                // YouTube  or video or HTML
-                if(responseCode == 200) {
-                    // play YouTube
-                    if(urlStr.contains("youtube") || urlStr.contains("youtu.be")) {
-                        // auto play
-                        if (Pref.isAutoPlayByList(act) ||
-                            Pref.isAutoPlayByCategory(act)) {
-                            setPlayId((int) ((Video) (item)).id);
-                            startYouTubeIntentForResult(((Video) item).videoUrl);
-                        } else {
-                            // manual play
-                            act.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    // for VideoDetailsActivity
-//                                            Intent intent = new Intent(act, VideoDetailsActivity.class);
-//                                            intent.putExtra(VideoDetailsActivity.VIDEO, video);
-//                                            if (urlStr.contains("youtube") || urlStr.contains("youtu.be")) {
-//                                                // play YouTube
-//                                                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-//                                                        act,
-//                                                        ((ImageCardView) itemViewHolder.view).getMainImageView(),
-//                                                        VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
-//                                                        startActivityForResult(intent, VIDEO_DETAILS_INTENT, bundle);
-//                                            }
-
-                                    if(((Video) item).videoUrl.contains("playlist"))
-                                    {
-                                        String playListIdStr = Utils.getYoutubePlaylistId(((Video) item).videoUrl);
-                                        Intent intent = YouTubeIntents.createPlayPlaylistIntent(act, playListIdStr);
-                                        intent.putExtra("force_fullscreen", true);
-                                        intent.putExtra("finish_on_ended", true);
-                                        startActivity(intent);
-                                    }
-                                    else {
-                                        // for open directly
-                                        setPlayId((int) ((Video) (item)).id);
-                                        String idStr = getYoutubeId(((Video) item).videoUrl);
-                                        Intent intent = YouTubeIntents.createPlayVideoIntent(act, idStr);
-                                        intent.putExtra("force_fullscreen", true);
-                                        intent.putExtra("finish_on_ended", true);
-                                        startActivity(intent);
-                                    }
-
-                                    // for testing NewPipe
-//                                            Uri linkUri = Uri.parse(((Video) item).videoUrl);
-//                                            Intent appIntent = new Intent(Intent.ACTION_VIEW, linkUri);
-
-                                    // case: w/o chooser
-//                                            startActivity(appIntent);
-
-                                    // case: w/ chooser
-//                                            String title = "Select an APP";
-//                                            Intent chooser = Intent.createChooser(appIntent, title);
-//                                            if (appIntent.resolveActivity(act.getPackageManager()) != null) {
-//                                                startActivity(chooser);
-//                                            }
-
-                                }
-                            });
-                        }
-                    }
-                    else {
-                        // play video
-                        // https://drive.google.com/uc?export=view&id=ID
-                        if(urlStr.contains("https://drive.google.com/uc?export=view") ||
-                                urlStr.contains("https://storage.googleapis.com/android-tv") ){
-                            Intent intent = new Intent(act, PlaybackActivity.class);
-                            intent.putExtra(VideoDetailsActivity.VIDEO, ((Video) item));
-                            startActivity(intent);
-                        }
-                        // play HTML
-                        else {
-                            String link = ((Video) item).videoUrl;
-                            Uri uriStr = Uri.parse(link);
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uriStr);
-                            startActivity(intent);
-                        }
-                    }
-                } else {
-                    /*
-                     *  show connection error toast
-                     */
-                    act.runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(act, getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        }).start();
-
+            });
+        }
     }
 
     // row information class

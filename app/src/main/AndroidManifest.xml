@@ -103,6 +103,11 @@
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="com.cw.photolist.ui.options.browse_category.SearchActivity" />
 
+        <activity android:name=".ui.note.Note"
+            android:theme="@style/Theme.AppCompat"
+            android:exported="true">
+        </activity>
+
         <provider
             android:name="com.cw.photolist.data.VideoProvider"
             android:authorities="${packageName}"

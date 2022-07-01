@@ -84,7 +84,7 @@ public class MainActivity extends LeanbackActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults)
     {
-        System.out.println("MainFragment / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
+        System.out.println("MainActivity / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
 
         if ( (grantResults.length > 0) &&
              ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) &&

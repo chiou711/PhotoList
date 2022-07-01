@@ -47,5 +47,8 @@ public class Define {
     public final static int DEFAULT_DELAY_GET_DURATION = 80;
 
     // count down seconds to play next
-    public final static int DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT = 3;
+    public final static int DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT = 1; //3;
+
+    // display duration
+    public final static int DEFAULT_DISPLAY_DURATION = 5; //3;
 }

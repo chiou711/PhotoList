@@ -62,7 +62,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
@@ -178,12 +178,16 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                 .asBitmap()
                 .load(uri)
                 .apply(options)
-                .into(new SimpleTarget<Bitmap>(mMetrics.widthPixels, mMetrics.heightPixels) {
+                .into(new CustomTarget<Bitmap>(mMetrics.widthPixels, mMetrics.heightPixels) {
                     @Override
                     public void onResourceReady(
                             Bitmap resource,
                             Transition<? super Bitmap> transition) {
                         mBackgroundManager.setBitmap(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
                     }
                 });
     }
@@ -366,7 +370,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                 .asBitmap()
                 .load(mSelectedVideo.cardImageUrl)
                 .apply(options)
-                .into(new SimpleTarget<Bitmap>() {
+                .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(
                             Bitmap resource,
@@ -374,6 +378,10 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                         System.out.println("VideoDetailsFragment / _onResourceReady");
                         row.setImageBitmap(getActivity(), resource);
                         startEntranceTransition();
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
                     }
 
                     @Override

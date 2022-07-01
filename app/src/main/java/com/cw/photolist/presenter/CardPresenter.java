@@ -42,7 +42,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.BuildConfig;
 import com.cw.photolist.Pref;
@@ -205,7 +205,7 @@ public class CardPresenter extends Presenter {
                     .asBitmap()
                     .load(video.cardImageUrl)
                     .apply(options)
-                    .into(new SimpleTarget<Bitmap>() {
+                    .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(
                                 Bitmap resource,
@@ -213,6 +213,10 @@ public class CardPresenter extends Presenter {
 //                            Drawable mDrawable = new BitmapDrawable(act.getResources(), resource);
                             Drawable drawable = getScaledDrawable(resource,0.5f,0.5f);
                             cardView.setMainImage(drawable);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
                         }
 
                         @Override
