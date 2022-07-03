@@ -19,8 +19,13 @@ package com.cw.photolist.util;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
@@ -270,13 +275,58 @@ public class LocalData {
 
     // Create category DB
     public static void createCategoryDB(Activity act){
-        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + File.separator + Environment.DIRECTORY_DCIM;
+        System.out.println("LocalData / _createCategoryDB");
+        String docDir = null;
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q){
+            if(Environment.isExternalStorageLegacy()) {
+                System.out.println("LocalData / _createCategoryDB / isExternalStorageLegacy()");
+                docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + File.separator + Environment.DIRECTORY_DCIM;
+            }
+        } else {
+            docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + File.separator + Environment.DIRECTORY_DCIM;
+        }
+
+        System.out.println("---- docDir = " + docDir);
+
+        ///
+        // test for MediaStore
+//        String[] projection = new String[] {"_id"
+////                media-database-columns-to-retrieve
+//        };
+//        String selection = null;//sql-where-clause-with-placeholder-variables;
+//        String[] selectionArgs = null;
+////        new String[] {
+////                values-of-placeholder-variables
+////        };
+//        String sortOrder = null;//sql-order-by-clause;
+//
+//        Cursor cursor = act.getApplicationContext().getContentResolver().query(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                projection,
+//                selection,
+//                selectionArgs,
+//                sortOrder
+//        );
+//
+//        while (cursor.moveToNext()) {
+//            // Use an ID column from the projection to get
+//            // a URI representing the media item itself.
+//            @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("_id"));
+//            Uri uri = Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+//            System.out.println("uri = " + uri );
+//
+//            String realPath = getLocalRealPathByUri(act, uri);
+//            System.out.println("realPath =  " + realPath );
+//        }
+//        cursor.close();
+        ///
 
         LocalData.init(docDir);
         LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
-        List<String> categoryArray = LocalData.category_array;
 
+        List<String> categoryArray = LocalData.category_array;
         List<ContentValues> videosToInsert = new ArrayList<>();
 
         for (int h = 0; h < categoryArray.size(); h++) {
@@ -417,6 +467,26 @@ public class LocalData {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    // get local real path from URI
+    public static String getLocalRealPathByUri(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        }
+        catch (Exception e){
+            return null;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 

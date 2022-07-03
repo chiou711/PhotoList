@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "com.cw.photolist"
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdk 30
         versionCode 9
         versionName '0.0.9'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

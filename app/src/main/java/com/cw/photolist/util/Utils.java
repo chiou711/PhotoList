@@ -694,11 +694,11 @@ public class Utils {
     }
 
     public static final int PERMISSIONS_REQUEST_STORAGE = 12;
-    // check if WRITE_EXTERNAL_STORAGE permission is granted
-    public static boolean isGranted_permission_WRITE_EXTERNAL_STORAGE(Activity act){
+    // check if READ_EXTERNAL_STORAGE permission is granted
+    public static boolean isGranted_permission_READ_EXTERNAL_STORAGE(Activity act){
 
         int permissionWriteExtStorage = ActivityCompat.checkSelfPermission(act,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                Manifest.permission.READ_EXTERNAL_STORAGE);
 
         if(permissionWriteExtStorage != PackageManager.PERMISSION_GRANTED )
             return false;

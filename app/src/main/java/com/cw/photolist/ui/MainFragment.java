@@ -29,7 +29,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
@@ -56,6 +58,7 @@ import androidx.loader.content.Loader;
 import androidx.loader.content.CursorLoader;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -92,6 +95,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.cw.photolist.util.Utils.getYoutubeId;
@@ -388,6 +392,18 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         System.out.println("MainFragment / _onActivityResult");
+
+        // API >= 30
+        if(resultCode == RESULT_OK &&
+           requestCode == ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // Permission granted.
+                    LocalData.createCategoryDB(getActivity());
+                }
+            }
+        }
+
         if(requestCode == PHOTO_INTENT) {
             count = Define.DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT; // countdown time to play next
             builder = new AlertDialog.Builder(getContext());
@@ -1531,22 +1547,39 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         return itemRowNumber;
     }
 
+    final static int ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE = 501;
     // check permission
     void checkPermission(){
-        System.out.println("MainFragment / _checkPermission");
-        // check permission first time, request all necessary permissions
-        if( !Utils.isGranted_permission_WRITE_EXTERNAL_STORAGE(getActivity())) {
-            // request permission dialog
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE},
-                    Utils.PERMISSIONS_REQUEST_STORAGE);
-        } else {
-            // case: renew default data
-            if(docDir == null) {
+        System.out.println("MainFragment / _checkPermission / Build.VERSION.SDK_INT = " + Build.VERSION.SDK_INT);
+
+        // <= API 29
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            // check permission first time, request necessary permission
+            if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
+                // request permission dialog
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Utils.PERMISSIONS_REQUEST_STORAGE);
+            } else {
+                // case: renew default data
+                if (docDir == null) {
+                    LocalData.createCategoryDB(getActivity());
+                }
+            }
+        }
+
+        // >= API 30
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!Environment.isExternalStorageManager())
+            {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE);
+            } else {
                 LocalData.createCategoryDB(getActivity());
             }
         }
+
     }
 
 }

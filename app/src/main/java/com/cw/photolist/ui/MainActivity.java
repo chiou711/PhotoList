@@ -87,8 +87,7 @@ public class MainActivity extends LeanbackActivity {
         System.out.println("MainActivity / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
 
         if ( (grantResults.length > 0) &&
-             ( (grantResults[0] == PackageManager.PERMISSION_GRANTED) &&
-               (grantResults[1] == PackageManager.PERMISSION_GRANTED)   ) )
+             (grantResults[0] == PackageManager.PERMISSION_GRANTED) )
         {
             if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
                 LocalData.createCategoryDB(this);
