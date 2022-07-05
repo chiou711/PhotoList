@@ -55,7 +55,6 @@ import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
 import com.cw.photolist.ui.VideoDetailsActivity;
-import com.google.android.youtube.player.YouTubeIntents;
 
 import static com.cw.photolist.util.Utils.getYoutubeId;
 
@@ -228,9 +227,7 @@ public class SearchFragment extends SearchSupportFragment
 
                 if (Pref.isAutoPlayByList(getActivity()) ||
                     Pref.isAutoPlayByCategory(getActivity())) {
-                    String idStr = getYoutubeId(video.videoUrl);
-                    Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(getActivity(), idStr, true/*fullscreen*/, true/*finishOnEnd*/);
-                    startActivity(intent);
+                    // add action
                 } else {
                     Intent intent = new Intent(getActivity(), VideoDetailsActivity.class);
                     intent.putExtra(VideoDetailsActivity.VIDEO, video);

@@ -77,16 +77,7 @@
                 <!-- No category needed, because the Intent will specify this class component -->
             </intent-filter>
 
-            <!-- Points to searchable meta data. -->
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
         </activity>
-        <activity
-            android:name="com.cw.photolist.ui.PlaybackActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true" />
         <activity
             android:name="com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity"
             android:exported="true"
@@ -97,13 +88,6 @@
             android:exported="true"
             android:parentActivityName="com.cw.photolist.ui.MainActivity"
             android:theme="@style/Theme.Leanback.VerticalGrid" />
-        <activity
-            android:name="com.cw.photolist.ui.add_category.AddCategoryActivity"
-            android:exported="true"
-            android:parentActivityName="com.cw.photolist.ui.MainActivity"
-            android:theme="@style/Theme.Leanback.VerticalGrid" />
-        <activity android:name="com.cw.photolist.import_new.Import_fileListAct"/>
-        <activity android:name="com.cw.photolist.import_new.gdrive.ImportGDriveAct"
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="com.cw.photolist.ui.options.browse_category.SearchActivity" />
 
@@ -121,34 +105,6 @@
                 android:pathPrefix="/search"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />
         </provider>
-        <provider
-            android:name="com.cw.photolist.data.CategoryProvider"
-            android:authorities="${packageName}"
-            android:exported="true"
-            android:permission="${applicationId}.ACCESS_CATEGORY_DATA">
-        </provider>
-
-        <receiver
-            android:name="com.cw.photolist.recommendation.RecommendationReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <service
-            android:name="com.cw.photolist.data.FetchVideoService"
-            android:exported="false" />
-        <service
-            android:name="com.cw.photolist.data.FetchCategoryService"
-            android:exported="false" />
-        <service
-            android:name="com.cw.photolist.ui.add_category.FetchLinkSrcService"
-            android:exported="false" />
-        <service
-            android:name="com.cw.photolist.recommendation.UpdateRecommendationsService"
-            android:enabled="true" />
 
         <!-- notice: don't expose the key/values -->
         <meta-data

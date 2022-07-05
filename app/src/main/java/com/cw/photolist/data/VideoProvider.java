@@ -191,7 +191,9 @@ public class VideoProvider extends ContentProvider {
             }
         }
 
+        // this will call MainFragment / _onLoadFinished
         retCursor.setNotificationUri(mContentResolver, uri);
+
         return retCursor;
     }
 

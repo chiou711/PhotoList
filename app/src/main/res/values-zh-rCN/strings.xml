@@ -95,7 +95,8 @@
     <string name="play_4_spaces">"    "</string>
 
     <!-- update -->
-    <string name="database_update">更新资料库</string>
+    <string name="scan_photo_dir">扫描本地DCIM目录</string>
+    <string name="database_update">创建数据库</string>
 
     <!--  delete  -->
     <string name="database_delete_item">删除当前项目</string>

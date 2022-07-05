@@ -80,20 +80,4 @@ public class MainActivity extends LeanbackActivity {
         }
     }
 
-    // callback of granted permission
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults)
-    {
-        System.out.println("MainActivity / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
-
-        if ( (grantResults.length > 0) &&
-             (grantResults[0] == PackageManager.PERMISSION_GRANTED) )
-        {
-            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
-                LocalData.createCategoryDB(this);
-            }
-        } else
-            finish(); //normally, will go to _resume if not finish
-    }
-
 }

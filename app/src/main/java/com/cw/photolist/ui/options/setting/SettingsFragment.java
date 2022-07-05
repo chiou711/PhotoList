@@ -19,13 +19,9 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import androidx.preference.PreferenceFragment;
 import androidx.leanback.preference.LeanbackPreferenceFragment;
@@ -34,7 +30,6 @@ import androidx.preference.DialogPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
-import com.cw.photolist.BuildConfig;
 import com.cw.photolist.R;
 import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
@@ -43,20 +38,8 @@ import com.cw.photolist.data.VideoProvider;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.MainActivity;
 import com.cw.photolist.ui.MainFragment;
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -181,100 +164,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
             }
 
             // remove invalid links
-            if (preference.getKey().equals(getString(R.string.pref_key_remove_invalid_links))) {
-                Toast.makeText(act,R.string.please_wait,Toast.LENGTH_LONG).show();
-
-                ExecutorService myExecutor = Executors.newCachedThreadPool();
-                myExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
-                    DbHelper mOpenHelper = new DbHelper(act);
-                    mOpenHelper.setWriteAheadLoggingEnabled(false);
-
-                    // query current video table
-                    // check if playlist still exists
-                    Cursor cursor = null;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        // Call requires API level 26(8.0)
-                        cursor = contentResolver.query(VideoContract.VideoEntry.CONTENT_URI, null,null,null);
-                    }
-                    int videoLinksCount = cursor.getCount();
-
-                    for(int i=0;i<videoLinksCount;i++) {
-
-                        // get link by video ID
-                        cursor.moveToPosition(i);
-
-                        // get video ID
-                        int video_id_index = cursor.getColumnIndex(VideoContract.VideoEntry._ID);
-                        long video_id = cursor.getLong(video_id_index);
-
-                        // get link URL
-                        int linkUrl_index = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_LINK_URL);
-                        String linkUrl = cursor.getString(linkUrl_index);
-
-                        // check if URL is working
-                        YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(),
-                                new HttpRequestInitializer() {
-                                    public void initialize(HttpRequest request) throws IOException {
-                                    }
-                                }).setApplicationName(act.getString(R.string.app_name)).build();
-
-                        String videoId = Utils.getYoutubeId(linkUrl);
-                        YouTube.Videos.List videoRequest = null;
-                        try {
-//                            videoRequest = youtube.videos().list("snippet,statistics,contentDetails");
-                            videoRequest = youtube.videos().list("snippet");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        videoRequest.setId(videoId);
-
-                        //get the key/values from the meta-data in AndroidManifest
-                        ApplicationInfo ai;
-                        String developer_key = null;
-                        String sha_1 = null;
-                        try {
-                            ai = getActivity().getPackageManager()
-                                    .getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
-                            developer_key = ai.metaData.get("key_DEVELOPER_KEY").toString();
-                            sha_1 = ai.metaData.get("key_SHA1").toString();
-                        } catch (PackageManager.NameNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        videoRequest.setKey(developer_key);
-
-                        // set http headers for restricting Android App
-                        HttpHeaders httpHeaders = new HttpHeaders();
-                        httpHeaders.set("Content-Type","application/json");
-                        httpHeaders.set("X-Android-Package", BuildConfig.APPLICATION_ID);
-                        httpHeaders.set("X-Android-Cert",sha_1);
-                        videoRequest.setRequestHeaders(httpHeaders);
-
-                        VideoListResponse listResponse = null;
-                        try {
-                            listResponse = videoRequest.execute();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        List<Video> videoList = listResponse.getItems();
-
-                        // if response is NG
-                        if(videoList.size()== 0) {
-                            int tableId = Utils.getPref_video_table_id(act);
-                            // delete item
-                            mOpenHelper.getWritableDatabase().delete(
-                                    VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(tableId)),
-                                            "_id=".concat(String.valueOf(video_id)),
-                                            null);
-                        }
-                    }
-                    cursor.close();
-
-                    startNewMainAct();
-                }//_run
-                });
+            if (preference.getKey().equals(getString(R.string.pref_key_remove_invalid_links))){
             }
 
             return super.onPreferenceTreeClick(preference);

@@ -72,7 +72,6 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
 import com.cw.photolist.presenter.DetailsDescriptionPresenter;
 import com.cw.photolist.data.VideoContract;
-import com.google.android.youtube.player.YouTubeIntents;
 
 import static com.cw.photolist.util.Utils.getYoutubeId;
 
@@ -214,25 +213,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY) {
-//                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-//                    intent.putExtra(VideoDetailsActivity.VIDEO, mSelectedVideo);
-//                    startActivity(intent);
-
-                    // play YouTube
-                    if(mSelectedVideo.videoUrl.contains("youtube") ||
-                        mSelectedVideo.videoUrl.contains("youtu.be") )
-                    {
-                        String idStr = getYoutubeId(mSelectedVideo.videoUrl);
-                        Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(getActivity(), idStr, true/*fullscreen*/, true/*finishOnEnd*/);
-                        startActivity(intent);
-                    }
-                    else {
-                        // play HTML
-                        Uri uriStr = Uri.parse(mSelectedVideo.videoUrl);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uriStr);
-                        startActivity(intent);
-                    }
-
+                    // add action
                 } else if(action.getId() == ACTION_DELETE){
                     // delete current item
                     Utils.confirmDeleteSelectedItem(getActivity(),mSelectedVideo.id);
@@ -433,9 +414,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
 
                 if (Pref.isAutoPlayByList(getActivity()) ||
                     Pref.isAutoPlayByCategory(getActivity())) {
-                    String idStr = getYoutubeId(video.videoUrl);
-                    Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(getActivity(), idStr, true/*fullscreen*/, true/*finishOnEnd*/);
-                    startActivity(intent);
+                    // add action
                 } else {
                     Intent intent = new Intent(getActivity(), VideoDetailsActivity.class);
                     intent.putExtra(VideoDetailsActivity.VIDEO, video);

@@ -18,11 +18,10 @@ package com.cw.photolist.ui;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -34,8 +33,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.leanback.app.BackgroundManager;
@@ -56,7 +55,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.core.content.ContextCompat;
 import androidx.loader.content.Loader;
 import androidx.loader.content.CursorLoader;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -79,8 +77,6 @@ import com.cw.photolist.ui.note.Note;
 import com.cw.photolist.ui.note.NoteFragment;
 import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
-import com.cw.photolist.data.FetchCategoryService;
-import com.cw.photolist.data.FetchVideoService;
 import com.cw.photolist.data.Pair;
 import com.cw.photolist.data.Source_links;
 import com.cw.photolist.data.VideoContract;
@@ -96,17 +92,12 @@ import java.util.List;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.cw.photolist.util.Utils.getYoutubeId;
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
-import com.cw.photolist.ui.add_category.AddCategoryActivity;
 import com.cw.photolist.ui.options.setting.SettingsActivity;
 import com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity;
 import com.cw.photolist.util.LocalData;
-import com.google.android.youtube.player.YouTubeIntents;
 
 /*
  * Main class to show BrowseFragment with header and rows of videos
@@ -126,13 +117,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     private static final int TITLE_LOADER = 101; // Unique ID for Title Loader.
 	public static List<String> mCategoryNames;
     public final static int PHOTO_INTENT = 97;
-    private final static int YOUTUBE_LINK_INTENT = 98;
     public final static int VIDEO_DETAILS_INTENT = 99;
     // Maps a Loader Id to its CursorObjectAdapter.
     private SparseArray<CursorObjectAdapter> mVideoCursorAdapters;
-
-    private FetchServiceResponseReceiver responseReceiver;
-    private LocalBroadcastManager localBroadcastMgr;
 
     // loaded rows after Refresh
     private int rowsLoadedCount;
@@ -183,14 +170,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         super.onResume();
 
         System.out.println("MainFragment / _onResume");
-
-        // receiver for fetch video service
-        IntentFilter statusIntentFilter = new IntentFilter(FetchVideoService.Constants.BROADCAST_ACTION);
-        responseReceiver = new FetchServiceResponseReceiver();
-
-        // Registers the FetchServiceResponseReceiver and its intent filters
-        localBroadcastMgr = LocalBroadcastManager.getInstance(act);
-        localBroadcastMgr.registerReceiver(responseReceiver, statusIntentFilter );
     }
 
     @Override
@@ -218,9 +197,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         mHandler.removeCallbacks(mBackgroundTask);
         mBackgroundManager = null;
 
-        // unregister receiver
-        localBroadcastMgr.unregisterReceiver(responseReceiver);
-        responseReceiver = null;
         super.onDestroy();
     }
 
@@ -270,8 +246,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(act, AddCategoryActivity.class);
-                startActivity(intent);
+                // add action
             }
         });
 
@@ -359,9 +334,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 System.out.println("MainFragment / onItemClicked / item = "+ item);
                 // item is Select category
                 if (((String) item).contains(getString(R.string.select_category))) {
-
-                    localBroadcastMgr.unregisterReceiver(responseReceiver);
-                    responseReceiver = null;
 
                     Intent intent = new Intent(act, SelectCategoryActivity.class);
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
@@ -538,6 +510,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     int row_id;
 
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 //        System.out.println("MainFragment / _onLoadFinished /  start rowsLoadedCount = " + rowsLoadedCount);
@@ -597,6 +570,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 setSelectedPosition(0, true, new ListRowPresenter.SelectItemViewHolderTask(pos));
 
                 startEntranceTransition(); //Move startEntranceTransition to after all
+
+                // show toast
+                Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_LONG).show();
 
                 /*
                  *  end of loading category
@@ -706,34 +682,22 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
         } else { // cursor data is null after App installation
             /***
-             *  call fetch service to load or update data base
+             *  call fetch data to load or update data base
              */
 
-            // Start an Intent to fetch the categories
+            // Start fetching the categories data
             if ((loader.getId() == CATEGORY_LOADER) && (mCategoryNames == null)) {
-                System.out.println("MainFragment / onLoadFinished / start Fetch category service =================================");
+                System.out.println("MainFragment / onLoadFinished / start Fetch category data =================================");
 
                 // show toast
-                Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_LONG).show();
+                Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();
 
-                // data base is not created yet, call service for the first time
-//                Intent serviceIntent = new Intent(act, FetchCategoryService.class);
-//                int linkSrcNum = Utils.getPref_link_source_number(act);
-//                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum) );
-//                act.startService(serviceIntent);
-//                createCategoryDB();
-
+                // data base is not created yet, check READ permission for the first time
                 checkPermission();
             }
             // Start an Intent to fetch the videos
             else if ((loader.getId() == TITLE_LOADER) && (rowsLoadedCount == 0)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch video service =================================");
-
-//                Intent serviceIntent = new Intent(act, FetchVideoService.class);
-//                int linkSrcNum = Utils.getPref_link_source_number(act);
-//                serviceIntent.putExtra("FetchUrl", getDefaultUrl(linkSrcNum));
-//                act.startService(serviceIntent);
-
                 LocalData.createVideoDB(getActivity());
             }
         }
@@ -902,8 +866,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(gridPresenter);
         gridRowAdapter.add(getString(R.string.select_category));
         gridRowAdapter.add(getString(R.string.category_grid_view_title));
-//                gridRowAdapter.add(getString(R.string.guidedstep_first_title));
-//                gridRowAdapter.add(getString(R.string.error_fragment));
         gridRowAdapter.add(getString(R.string.personal_settings));
         ListRow row = new ListRow(gridHeader, gridRowAdapter);
 
@@ -989,28 +951,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         }
     }
 
-    // start YouTube intent
-    private void startYouTubeIntentForResult(String url)
-    {
-        Intent intent;
-        if(url.contains("youtube.com/channel/")) {
-            // open channel
-            String CHANNEL_ID = url.replace("https://www.youtube.com/channel/", "");
-            intent = YouTubeIntents.createChannelIntent(act, CHANNEL_ID);
-
-        } else {
-            String idStr = getYoutubeId(url);
-            //Intent intent = YouTubeIntents.createPlayVideoIntentWithOptions(act, idStr, true/*fullscreen*/, true/*finishOnEnd*/);
-            intent  = YouTubeIntents.createPlayVideoIntent(act, idStr);
-        }
-        intent.putExtra("force_fullscreen", true);
-        intent.putExtra("finish_on_ended", true);
-        startActivityForResult(intent, YOUTUBE_LINK_INTENT);
-    }
-
     // start note intent for result
-    private void startNoteIntentForResult(int position)
-    {
+    private void startNoteIntentForResult(int position){
         Intent intent = new Intent(act,Note.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivityForResult(intent,PHOTO_INTENT);
@@ -1254,41 +1196,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         return next_id;
     }
 
-    // Broadcast receiver for receiving status updates from the IntentService
-    public class FetchServiceResponseReceiver extends BroadcastReceiver {
-        // Called when the BroadcastReceiver gets an Intent it's registered to receive
-        public void onReceive(Context context, Intent intent) {
-            /*
-             * You get notified here when your IntentService is done
-             * obtaining data form the server!
-             */
-            String statusStr = intent.getExtras().getString(FetchCategoryService.Constants.EXTENDED_DATA_STATUS);
-            System.out.println("MainFragment / _FetchServiceResponseReceiver / _onReceive / statusStr = " + statusStr);
-
-            // for fetch category
-            if((statusStr != null) && statusStr.equalsIgnoreCase("FetchCategoryServiceIsDone"))
-            {
-                if (context != null) {
-                }
-            }
-
-            // for fetch video
-            if((statusStr != null) && statusStr.equalsIgnoreCase("FetchVideoServiceIsDone"))
-            {
-                if (context != null) {
-                    // unregister receiver
-                    LocalBroadcastManager.getInstance(context).unregisterReceiver(responseReceiver);
-
-                    System.out.println("MainFragment / _FetchServiceResponseReceiver / will start new main activity");
-                    Intent new_intent = new Intent(context, MainActivity.class);
-                    new_intent.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
-                    new_intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(new_intent);
-                }
-            }
-        }
-    }
-
     // get photo path
     private String getPhotoPath() {
         int focusCatNum = Utils.getPref_video_table_id(act);
@@ -1446,7 +1353,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // video ID starts with 1
         currentRow1stId = (int) mPlayLists.get(currentRowPos).get(0);
         currentRowSize = mPlayLists.get(currentRowPos).size();
-        currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);;//currentRow1stId + currentRowSize - 1; //todo last item error
+        currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);//currentRow1stId + currentRowSize - 1; //todo last item error
 
         // auto play
         if (Pref.isAutoPlayByList(act) || Pref.isAutoPlayByCategory(act)){
@@ -1557,8 +1464,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // check permission first time, request necessary permission
             if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
                 // request permission dialog
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         Utils.PERMISSIONS_REQUEST_STORAGE);
             } else {
                 // case: renew default data
@@ -1582,4 +1488,16 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     }
 
+    // callback of granted permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        System.out.println("MainFragment / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
+        if ( (grantResults.length > 0) &&
+             (grantResults[0] == PackageManager.PERMISSION_GRANTED) ){
+            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE)
+                LocalData.createCategoryDB(getActivity());
+        } else
+            getActivity().finish(); //normally, will go to _resume if not finish
+    }
 }

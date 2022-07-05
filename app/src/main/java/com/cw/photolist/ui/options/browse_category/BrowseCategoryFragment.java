@@ -18,7 +18,6 @@ package com.cw.photolist.ui.options.browse_category;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.leanback.app.VerticalGridSupportFragment;
@@ -41,9 +40,6 @@ import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
-import com.cw.photolist.ui.PlaybackActivity;
-import com.cw.photolist.ui.VideoDetailsActivity;
-import com.google.android.youtube.player.YouTubeIntents;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -182,39 +178,9 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
                             {
                                 getActivity().runOnUiThread(new Runnable() {
                                     public void run() {
-
-                                        if(((Video) item).videoUrl.contains("playlist"))
-                                        {
-                                            String playListIdStr = Utils.getYoutubePlaylistId(((Video) item).videoUrl);
-                                            Intent intent = YouTubeIntents.createPlayPlaylistIntent(getActivity(), playListIdStr);
-                                            intent.putExtra("force_fullscreen", true);
-                                            intent.putExtra("finish_on_ended", true);
-                                            startActivity(intent);
-                                        } else {
-                                            // for open directly
-                                            String idStr = getYoutubeId(((Video) item).videoUrl);
-                                            Intent intent = YouTubeIntents.createPlayVideoIntent(getActivity(), idStr);
-                                            intent.putExtra("force_fullscreen", true);
-                                            intent.putExtra("finish_on_ended", true);
-                                            startActivity(intent);
-                                        }
+                                        // add action
                                     }
                                 });
-                            } else {
-                                // https://drive.google.com/uc?export=view&id=ID
-                                if(urlStr.contains("https://drive.google.com/uc?export=view") ||
-                                   urlStr.contains("https://storage.googleapis.com/android-tv") ){
-                                    // play video
-                                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                                    intent.putExtra(VideoDetailsActivity.VIDEO, ((Video) item));
-                                    startActivity(intent);
-                                } else {
-                                    // play HTML
-                                    String link = ((Video) item).videoUrl;
-                                    Uri uriStr = Uri.parse(link);
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, uriStr);
-                                    startActivity(intent);
-                                }
                             }
                         } else {
                             /**

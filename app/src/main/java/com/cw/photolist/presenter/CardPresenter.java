@@ -17,8 +17,6 @@
 package com.cw.photolist.presenter;
 
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -44,27 +42,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cw.photolist.BuildConfig;
 import com.cw.photolist.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
-import com.cw.photolist.data.YouTubeTimeConvert;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.ui.MainFragment;
 import com.cw.photolist.ui.VideoDetailsActivity;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.VideoListResponse;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.Executors;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
@@ -75,7 +58,6 @@ public class CardPresenter extends Presenter {
     private int mDefaultBackgroundColor = -1;
 //    private Drawable mDefaultCardImage;
     FragmentActivity act;
-    private static YouTube youtube;
     boolean isGotDuration;
     String acquiredDuration;
     String duration;
@@ -86,13 +68,6 @@ public class CardPresenter extends Presenter {
     public CardPresenter(FragmentActivity main_act,int rowId){
         act = main_act;
         row_id = rowId;
-
-        // Get duration
-        youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
-            public void initialize(HttpRequest request) throws IOException {
-            }
-        }
-        ).setApplicationName(act.getString(R.string.app_name)).build();
     }
 
     @Override
@@ -136,9 +111,6 @@ public class CardPresenter extends Presenter {
         // get duration
         if(Pref.isShowDuration(act)){
             isGotDuration = false;
-
-            // get duration by YouTube ID
-            getDuration(Utils.getYoutubeId(video.videoUrl));
 
             //wait for buffering
             int time_out_count = 0;
@@ -260,65 +232,6 @@ public class CardPresenter extends Presenter {
         // Remove references to images so that the garbage collector can free up memory.
         cardView.setBadgeImage(null);
         cardView.setMainImage(null);
-    }
-
-    public void getDuration(String youtubeId) {
-
-        // Call the API and print results.
-        Executors.newSingleThreadExecutor().submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    HashMap<String, String> parameters = new HashMap<>();
-                    parameters.put("part", "contentDetails");
-                    String stringsList = youtubeId;
-
-//                    System.out.println("CardPresenter / _getDuration/ run /stringsList = "+ stringsList);
-                    parameters.put("id", stringsList);
-
-                    YouTube.Videos.List videosListMultipleIdsRequest = youtube.videos().list(parameters.get("part"));
-
-                    //get the key/values from the meta-data in AndroidManifest
-                    String developer_key = null;
-                    String sha_1 = null;
-                    try {
-                        ApplicationInfo ai = act.getPackageManager()
-                                .getApplicationInfo(act.getPackageName(), PackageManager.GET_META_DATA);
-                        developer_key = ai.metaData.get("key_DEVELOPER_KEY").toString();
-                        sha_1 = ai.metaData.get("key_SHA1").toString();
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    videosListMultipleIdsRequest.setKey(developer_key);
-
-                    // set http headers for restricting Android App
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    httpHeaders.set("Content-Type","application/json");
-                    httpHeaders.set("X-Android-Package",BuildConfig.APPLICATION_ID);
-                    httpHeaders.set("X-Android-Cert",sha_1);
-                    videosListMultipleIdsRequest.setRequestHeaders(httpHeaders);
-
-                    if (parameters.containsKey("id") && parameters.get("id") != "") {
-                        videosListMultipleIdsRequest.setId(parameters.get("id"));
-                    }
-
-                    VideoListResponse response = videosListMultipleIdsRequest.execute();
-
-                    String duration = response.getItems().get(0).getContentDetails().getDuration();
-//                    System.out.println("CardPresenter / _getDurations / runnable / duration" + "(" + 0 + ") = " + duration);
-                    acquiredDuration = YouTubeTimeConvert.convertYouTubeDuration(duration);
-//                    System.out.println("CardPresenter / _getDurations / runnable / acquiredDuration = " + acquiredDuration);
-
-                    isGotDuration = true;
-                } catch (GoogleJsonResponseException e) {
-                    e.printStackTrace();
-                    System.err.println("There was a service error: " + e.getDetails().getCode() + " : " + e.getDetails().getMessage());
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-
-            }
-        });
     }
 
     // Get scaled drawable
