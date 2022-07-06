@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Utils;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.ui.MainActivity;
 
@@ -172,7 +173,7 @@ public class SelectCategoryFragment extends VerticalGridSupportFragment implemen
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 loadData();
-                setSelectedPosition(Utils.getPref_video_table_id(getActivity())-1);
+                setSelectedPosition(Pref.getPref_video_table_id(getActivity())-1);
                 startEntranceTransition();
             }
         }, 500);
@@ -201,7 +202,7 @@ public class SelectCategoryFragment extends VerticalGridSupportFragment implemen
                     }
                 }
 
-                Utils.setPref_category_name(getActivity(),(String)item);
+                Pref.setPref_category_name(getActivity(),(String)item);
 
                 if(getActivity() != null)
                     getActivity().finish();

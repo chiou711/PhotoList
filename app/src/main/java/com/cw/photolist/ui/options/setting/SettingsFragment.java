@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -30,8 +30,8 @@ import androidx.preference.DialogPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.data.VideoProvider;
@@ -152,11 +152,11 @@ public class SettingsFragment extends LeanbackSettingsFragment
             }
 
             if (preference.getKey().equals(getString(R.string.pref_key_set_default))) {
-                Utils.setPref_link_source_number(act, Define.INIT_SOURCE_LINK_NUMBER);
+                Pref.setPref_link_source_number(act, Define.INIT_SOURCE_LINK_NUMBER);
                 startRenewFetchService();
 
                 // remove category name key
-                Utils.removePref_category_name(act);
+                Pref.removePref_category_name(act);
 
                 MainFragment.mCategoryNames = null;
 

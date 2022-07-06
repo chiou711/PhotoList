@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,11 @@
 
 package com.cw.photolist.ui;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 
-import com.cw.photolist.Pref;
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.data.VideoContract;
-import com.cw.photolist.util.LocalData;
-import com.cw.photolist.util.Utils;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;

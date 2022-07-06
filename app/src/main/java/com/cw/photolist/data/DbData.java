@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Pref;
 
 public class DbData {
 
@@ -61,7 +61,7 @@ public class DbData {
    // get focus position of category row
    public static int getFocusItemPosition_categoryRow(Context context){
       // get current video* tables
-      int prefVideoTableId = Utils.getPref_video_table_id(context);
+      int prefVideoTableId = Pref.getPref_video_table_id(context);
       ContentResolver contentResolver = context.getContentResolver();
       String[] projection = new String[]{"_id", "category_name", "video_table_id"};
       String selection = null;
@@ -89,7 +89,7 @@ public class DbData {
 
    // get cursor position by ID
    public static int getCursorPositionById(Context act,int id){
-      int focusCatNum = Utils.getPref_video_table_id(act);
+      int focusCatNum = Pref.getPref_video_table_id(act);
       String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 
       int pos = 0;

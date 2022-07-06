@@ -70,12 +70,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cw.photolist.Pref;
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
 import com.cw.photolist.ui.note.Note;
 import com.cw.photolist.ui.note.NoteFragment;
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.Pair;
 import com.cw.photolist.data.Source_links;
@@ -97,7 +97,7 @@ import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
 import com.cw.photolist.ui.options.setting.SettingsActivity;
 import com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity;
-import com.cw.photolist.util.LocalData;
+import com.cw.photolist.utility.LocalData;
 
 /*
  * Main class to show BrowseFragment with header and rows of videos
@@ -306,7 +306,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 if(isCategoryRow(categoryName)) {
                     try {
                         // switch DB
-                        Utils.setPref_category_name(Objects.requireNonNull(getContext()), categoryName );
+                        Pref.setPref_category_name(Objects.requireNonNull(getContext()), categoryName );
                         mLoaderManager.destroyLoader(TITLE_LOADER);
                     }
                     catch (Exception e)
@@ -572,7 +572,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 startEntranceTransition(); //Move startEntranceTransition to after all
 
                 // show toast
-                Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_LONG).show();
+                Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_SHORT).show();
 
                 /*
                  *  end of loading category
@@ -608,7 +608,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                     DbHelper mOpenHelper = new DbHelper(act);
                     mOpenHelper.setWriteAheadLoggingEnabled(false);
                     SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
-                    String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(Utils.getPref_video_table_id(act)));
+                    String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(Pref.getPref_video_table_id(act)));
 
                     Cursor cursor = sqlDb.query(
                             table,
@@ -735,14 +735,14 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
         // category UI
         // Create a row for category selections at top
-        String cate_name = Utils.getPref_category_name(act);
+        String cate_name = Pref.getPref_category_name(act);
         String curr_cate_message;
 
         // initial category name
         if(cate_name.equalsIgnoreCase("no category name")){
             // get first available category name
             cate_name = mCategoryNames.get(INIT_CATEGORY_NUMBER - 1);
-            Utils.setPref_category_name(getActivity(),cate_name);
+            Pref.setPref_category_name(getActivity(),cate_name);
         }
 
         // current category message
@@ -1198,7 +1198,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     // get photo path
     private String getPhotoPath() {
-        int focusCatNum = Utils.getPref_video_table_id(act);
+        int focusCatNum = Pref.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
         String columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
         int pos = DbData.getCursorPositionById(getContext(),getPlayId());
@@ -1213,7 +1213,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     // get next photo title
     private String getNextPhotoTitle() {
-        int focusCatNum = Utils.getPref_video_table_id(act);
+        int focusCatNum = Pref.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
         String columnName = VideoContract.VideoEntry.COLUMN_LINK_TITLE;
         int pos = DbData.getCursorPositionById(getContext(),getNextId_auto());
@@ -1222,7 +1222,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     // get next cursor position ID for Auto play
     int getNextCursorPositionId_auto(int currentPlayId){
-        int focusCatNum = Utils.getPref_video_table_id(act);
+        int focusCatNum = Pref.getPref_video_table_id(act);
         String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 
         int cursorPos = 0;

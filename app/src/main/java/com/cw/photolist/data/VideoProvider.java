@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Pref;
 
 import java.util.HashMap;
 
@@ -64,7 +64,7 @@ public class VideoProvider extends ContentProvider {
         mOpenHelper = new DbHelper(context);
         mOpenHelper.setWriteAheadLoggingEnabled(false);
 
-        int focusVideoTableId = Utils.getPref_video_table_id(context);
+        int focusVideoTableId = Pref.getPref_video_table_id(context);
         table_id = String.valueOf(focusVideoTableId);
         System.out.println("VideoProvider / _onCreate / table_id = " + table_id);
 
@@ -139,7 +139,7 @@ public class VideoProvider extends ContentProvider {
             String[] selectionArgs, String sortOrder) {
         System.out.println("VideoProvider / _query/ uri =  " + uri);
 
-        int focus_videoTableId = Utils.getPref_video_table_id(context);
+        int focus_videoTableId = Pref.getPref_video_table_id(context);
         table_id = String.valueOf(focus_videoTableId);
         System.out.println("VideoProvider / _query/ table_id =  " + table_id);
 

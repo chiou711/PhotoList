@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,16 +64,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cw.photolist.Pref;
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Utils;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
 import com.cw.photolist.presenter.DetailsDescriptionPresenter;
 import com.cw.photolist.data.VideoContract;
-
-import static com.cw.photolist.util.Utils.getYoutubeId;
 
 /*
  * VideoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.

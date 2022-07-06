@@ -1,4 +1,4 @@
-package com.cw.photolist.util;
+package com.cw.photolist.utility;
 
 public class Photo {
    String list_title;

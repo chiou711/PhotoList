@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,21 +32,14 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import android.view.View;
-import android.widget.Toast;
 
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.data.DbData;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import static com.cw.photolist.util.Utils.getYoutubeId;
-
+import com.cw.photolist.ui.note.Note;
 
 /*
  * BrowseCategoryFragment shows a grid of videos that can be scrolled vertically.
@@ -133,67 +126,10 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
             if (item instanceof Video) {
                 System.out.println("VerticalGridFragment /  _onItemClicked");
                 Video video = (Video) item;
-
-                String path;
-                String urlStr = video.videoUrl;
-                // YouTube or HTML
-                if(!urlStr.contains("playlist") && ( urlStr.contains("youtube") || urlStr.contains("youtu.be") ))
-                    path = "https://img.youtube.com/vi/"+getYoutubeId(urlStr)+"/0.jpg";
-                else
-                    path = urlStr;
-
-                System.out.println("MainFragment / onItemClicked / path= "+ path);
-                new Thread(new Runnable(){
-                    @Override
-                    public void run() {
-                        /**
-                         *  check connection response
-                         *  404: not found, 200: OK
-                         */
-                        int responseCode = -1;
-                        HttpURLConnection urlConnection = null;
-                        try {
-                            URL url = new URL(path);
-                            urlConnection = (HttpURLConnection) url.openConnection();
-                            urlConnection.setRequestMethod("GET");
-                            urlConnection.connect();
-                            responseCode = urlConnection.getResponseCode();
-                            System.out.println("MainFragment / _onItemClicked / responseCode  OK = " + responseCode);
-                        }
-                        catch (IOException e)
-                        {
-                            System.out.println("MainFragment / _onItemClicked / responseCode NG = "+ responseCode);
-                            e.printStackTrace();
-                            return;
-                        }
-                        urlConnection.disconnect();
-
-                        /**
-                         *  normal response: launch VideoDetailsActivity
-                         */
-                        // YouTube  or video or HTML
-                        if(responseCode == 200) {
-                            // play YouTube
-                            if(urlStr.contains("youtube") || urlStr.contains("youtu.be"))
-                            {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        // add action
-                                    }
-                                });
-                            }
-                        } else {
-                            /**
-                             *  show connection error toast
-                             */
-                            getActivity().runOnUiThread(new Runnable() {
-                                public void run() {
-                                    Toast.makeText(getActivity(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    }
-                }).start();
+                Intent intent = new Intent(getActivity(), Note.class);
+                int pos = DbData.getCursorPositionById(getContext(),(int)video.id);
+                intent.putExtra("PHOTO_POSITION", pos);
+                startActivity(intent);
             }
         }
     }

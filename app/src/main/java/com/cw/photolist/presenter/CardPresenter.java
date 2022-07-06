@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cw.photolist.Pref;
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.model.Video;

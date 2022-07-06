@@ -2,7 +2,7 @@ package com.cw.photolist.ui;
 
 import android.view.View;
 
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Utils;
 import com.cw.photolist.presenter.GridItemPresenter;
 
 import java.util.List;

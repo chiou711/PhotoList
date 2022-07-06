@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Android Open Source Project
+ * Copyright (c) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.cw.photolist.R;
-import com.cw.photolist.util.Utils;
+import com.cw.photolist.utility.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

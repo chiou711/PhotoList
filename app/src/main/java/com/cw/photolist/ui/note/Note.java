@@ -35,11 +35,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.define.Define;
-import com.cw.photolist.util.Utils;
 
 import java.io.IOException;
 
@@ -79,7 +79,7 @@ public class Note extends AppCompatActivity
 	    mEntryPosition = getIntent().getExtras().getInt("PHOTO_POSITION");
 	    System.out.println("Note / _onCreate / mEntryPosition = " + mEntryPosition);
 
-	    focusCatNum = Utils.getPref_video_table_id(getBaseContext());
+	    focusCatNum = Pref.getPref_video_table_id(getBaseContext());
 	    table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 	    columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
 
