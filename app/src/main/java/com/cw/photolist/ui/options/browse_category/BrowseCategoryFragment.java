@@ -38,7 +38,7 @@ import com.cw.photolist.data.DbData;
 import com.cw.photolist.data.VideoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
-import com.cw.photolist.presenter.CardPresenter;
+import com.cw.photolist.presenter.CardPresenter_browse;
 import com.cw.photolist.ui.note.Note;
 
 /*
@@ -55,7 +55,7 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // parameter -1 is used for hiding row number in card view
-        mVideoCursorAdapter = new CursorObjectAdapter(new CardPresenter(getActivity(),-1));
+        mVideoCursorAdapter = new CursorObjectAdapter(new CardPresenter_browse(getActivity(),-1));
 
         mVideoCursorAdapter.setMapper(new VideoCursorMapper());
         setAdapter(mVideoCursorAdapter);
