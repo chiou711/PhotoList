@@ -146,11 +146,6 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 startNewMainAct();
             }
 
-            if (preference.getKey().equals(getString(R.string.pref_key_show_duration))) {
-                // start new MainActivity to refresh card view
-                startNewMainAct();
-            }
-
             if (preference.getKey().equals(getString(R.string.pref_key_set_default))) {
                 Pref.setPref_link_source_number(act, Define.INIT_SOURCE_LINK_NUMBER);
                 startRenewFetchService();

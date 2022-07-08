@@ -67,7 +67,6 @@
     <string name="pref_title_show_duration">显示视频长短</string>
     <string name="pref_title_auto_play_by_list">自动播放范围: 列表</string>
     <string name="pref_title_auto_play_by_category">自动播放范围: 分类</string>
-    <string name="pref_key_show_duration">pref_show_duration</string>
     <string name="pref_key_auto_play_by_list">pref_list_play</string>
     <string name="pref_key_auto_play_by_category">pref_category_play</string>
     <string name="pref_title_recommendations">Recommendations</string>

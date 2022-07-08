@@ -26,11 +26,6 @@ public class Pref {
 		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_auto_play_by_category), DEFAULT_AUTO_PLAY_BY_CATEGORY);
 	}
 
-	public static boolean isShowDuration(Activity context) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_show_duration), DEFAULT_SHOW_YOUTUBE_DURATION);
-	}
-
 	public static boolean isSelFileMgrApp(Context context) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_sel_file_mgr_app), DEFAULT_SEL_FILE_MGR_APP);

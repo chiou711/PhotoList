@@ -232,7 +232,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         setBrandColor(ContextCompat.getColor(act, R.color.fastlane_background));
 
         // Set search icon color.
-        setSearchAffordanceColor(ContextCompat.getColor(act, R.color.default_background));
+//        setSearchAffordanceColor(ContextCompat.getColor(act, R.color.default_background));
 
         setHeaderPresenterSelector(new PresenterSelector() {
             @Override
@@ -243,10 +243,15 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     }
 
     private void setupEventListeners() {
+
+        // replace original reach action
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // add action
+                // new action: browse
+                Intent intent = new Intent(act, BrowseCategoryActivity.class);
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
+                startActivity(intent, bundle);
             }
         });
 
@@ -340,10 +345,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                     startActivity(intent, bundle);
 
                 // item is Browse category
-                } else if (((String) item).contains(getString(R.string.category_grid_view_title))) {
-                    Intent intent = new Intent(act, BrowseCategoryActivity.class);
-                    Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
-                    startActivity(intent, bundle);
+//                } else if (((String) item).contains(getString(R.string.category_grid_view_title))) {
+//                    Intent intent = new Intent(act, BrowseCategoryActivity.class);
+//                    Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
+//                    startActivity(intent, bundle);
 
                 // item is Setting
                 } else if(((String) item).contains(getString(R.string.personal_settings))) {
@@ -865,7 +870,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         GridItemPresenter gridPresenter = new GridItemPresenter(this);
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(gridPresenter);
         gridRowAdapter.add(getString(R.string.select_category));
-        gridRowAdapter.add(getString(R.string.category_grid_view_title));
+//        gridRowAdapter.add(getString(R.string.category_grid_view_title));
         gridRowAdapter.add(getString(R.string.personal_settings));
         ListRow row = new ListRow(gridHeader, gridRowAdapter);
 
