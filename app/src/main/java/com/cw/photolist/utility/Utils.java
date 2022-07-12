@@ -131,7 +131,7 @@ public class Utils {
     public static int getVideoTableId_byCategoryName(Context act,String categoryName){
         int videoTableId = 0;
 
-        System.out.println("Utils / _getVideoTableId_byCategoryName /  categoryName =　" + categoryName);
+//        System.out.println("Utils / _getVideoTableId_byCategoryName /  categoryName =　" + categoryName);
 
         // initial video table ID
         if(categoryName.equalsIgnoreCase("no category name"))

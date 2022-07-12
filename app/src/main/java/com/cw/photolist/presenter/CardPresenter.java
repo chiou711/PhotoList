@@ -108,26 +108,6 @@ public class CardPresenter extends Presenter {
         ((TextView)cardView.findViewById(R.id.title_text)).setLines(1);// setMaxLines(5);
         ((TextView)cardView.findViewById(R.id.title_text)).setHeight(40);
 
-        // get duration
-        if(Pref.isShowDuration(act)){
-            isGotDuration = false;
-
-            //wait for buffering
-            int time_out_count = 0;
-            while ((!isGotDuration) && time_out_count< 10)
-            {
-                try {
-                    Thread.sleep(Define.DEFAULT_DELAY_GET_DURATION);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                time_out_count++;
-            }
-            duration = acquiredDuration;
-        } else { // no duration
-            duration = "";
-        }
-
         // set position info
         int row_number = row_id;
         String positionInfo;

@@ -70,11 +70,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.cw.photolist.utility.Photo;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
 import com.cw.photolist.ui.note.Note;
 import com.cw.photolist.ui.note.NoteFragment;
+import com.cw.photolist.utility.StorageUtils;
 import com.cw.photolist.utility.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.Pair;
@@ -87,6 +89,7 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -170,6 +173,60 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         super.onResume();
 
         System.out.println("MainFragment / _onResume");
+
+//        doSeeAll();
+    }
+
+    ///
+    String appDir;
+    String currFilePath;
+    void doSeeAll() {
+        List<StorageUtils.StorageInfo> storageList = StorageUtils.getStorageList();
+
+        for (int i = 0; i < storageList.size(); i++) {
+            System.out.println("-->  storageList[" + i + "] name = " + storageList.get(i).getDisplayName());
+            System.out.println("-->  storageList[" + i + "] path = " + storageList.get(i).path);
+            System.out.println("-->  storageList[" + i + "] display number = " + storageList.get(i).display_number);
+
+            String sdCardPath = storageList.get(i).path;
+
+            appDir = sdCardPath;
+
+            if (appDir.contains("/mnt/media_rw"))
+                appDir = appDir.replace("mnt/media_rw", "storage");
+
+            System.out.println("-->  storageList[" + i + "] appDir = " + appDir);
+
+            currFilePath = appDir;
+
+//            scan_and_save(currFilePath,true);
+//            String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+//                    + File.separator + Environment.DIRECTORY_DCIM;
+
+            LocalData.init(currFilePath);
+            LocalData.scan_and_save(currFilePath, false, LocalData.CATEGORY_DATA);
+            List<String> categoryArray = LocalData.category_array;
+
+            // check
+            int size = categoryArray.size();
+            System.out.println("--------------- size = " + size);
+            for (int j = 0; j < size; j++) {
+                System.out.println("--------------- categoryArray.get("+j+") = " + categoryArray.get(j));
+            }
+
+            LocalData.init(currFilePath);
+            LocalData.scan_and_save(currFilePath,false,LocalData.PHOTO_DATA);
+            List<Photo> photoArray = LocalData.photo_array;
+
+            // check
+            size = photoArray.size();
+            System.out.println("--------------- size = " + size);
+            for(int k=0;k< size; k++ ){
+                System.out.println("--------------- list title = " + photoArray.get(k).getList_title() );
+                System.out.println("--------------- photo link = " + photoArray.get(k).getPhoto_link() );
+            }
+        }
+        ///
     }
 
     @Override
@@ -373,10 +430,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // API >= 30
         if(resultCode == RESULT_OK &&
            requestCode == ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
                 if (Environment.isExternalStorageManager()) {
-                    // Permission granted.
-                    LocalData.createCategoryDB(getActivity());
+                    // Manage All Permission is granted
+                    LocalData.createCategoryDB2(getActivity());
                 }
             }
         }
@@ -451,12 +508,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == CATEGORY_LOADER)
-            System.out.println("MainFragment / _onCreateLoader / id = CATEGORY_LOADER");
-        else if(id == TITLE_LOADER)
-            System.out.println("MainFragment / _onCreateLoader / id = TITLE_LOADER");
-        else
-            System.out.println("MainFragment / _onCreateLoader / id = "+ id);
+//        if (id == CATEGORY_LOADER)
+//            System.out.println("MainFragment / _onCreateLoader / id = CATEGORY_LOADER");
+//        else if(id == TITLE_LOADER)
+//            System.out.println("MainFragment / _onCreateLoader / id = TITLE_LOADER");
+//        else
+//            System.out.println("MainFragment / _onCreateLoader / id = "+ id);
 
         // init loaded rows count
         rowsLoadedCount = 0;
@@ -498,7 +555,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         } else {
             // Assume it is for a video.
             String title = args.getString(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
-            System.out.println("MainFragment / _onCreateLoader / title = "+ title);
+//            System.out.println("MainFragment / _onCreateLoader / title = "+ title);
             // This just creates a CursorLoader that gets all videos.
             return new CursorLoader(
                     getContext(),
@@ -703,7 +760,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // Start an Intent to fetch the videos
             else if ((loader.getId() == TITLE_LOADER) && (rowsLoadedCount == 0)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch video service =================================");
-                LocalData.createVideoDB(getActivity());
+                LocalData.createVideoDB2(getActivity());
             }
         }
     }
@@ -1465,7 +1522,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         System.out.println("MainFragment / _checkPermission / Build.VERSION.SDK_INT = " + Build.VERSION.SDK_INT);
 
         // <= API 29
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q /*API 29*/) {
             // check permission first time, request necessary permission
             if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
                 // request permission dialog
@@ -1474,20 +1531,24 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             } else {
                 // case: renew default data
                 if (docDir == null) {
-                    LocalData.createCategoryDB(getActivity());
+                    // permission is granted
+                    LocalData.createCategoryDB2(getActivity());
                 }
             }
         }
 
         // >= API 30
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
             if(!Environment.isExternalStorageManager())
             {
+                // intent to request Manage All permission
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                 startActivityForResult(intent, ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE);
             } else {
-                LocalData.createCategoryDB(getActivity());
+
+                // permission is granted
+                LocalData.createCategoryDB2(getActivity());
             }
         }
 
@@ -1500,8 +1561,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         System.out.println("MainFragment / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
         if ( (grantResults.length > 0) &&
              (grantResults[0] == PackageManager.PERMISSION_GRANTED) ){
-            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE)
-                LocalData.createCategoryDB(getActivity());
+            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
+                // permission is granted
+                LocalData.createCategoryDB2(getActivity());
+            }
         } else
             getActivity().finish(); //normally, will go to _resume if not finish
     }

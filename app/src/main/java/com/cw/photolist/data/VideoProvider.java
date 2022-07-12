@@ -137,11 +137,11 @@ public class VideoProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
-        System.out.println("VideoProvider / _query/ uri =  " + uri);
+//        System.out.println("VideoProvider / _query/ uri =  " + uri);
 
         int focus_videoTableId = Pref.getPref_video_table_id(context);
         table_id = String.valueOf(focus_videoTableId);
-        System.out.println("VideoProvider / _query/ table_id =  " + table_id);
+//        System.out.println("VideoProvider / _query/ table_id =  " + table_id);
 
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
@@ -161,7 +161,7 @@ public class VideoProvider extends ContentProvider {
                 break;
             }
             case VIDEO: {
-                System.out.println("VideoProvider / _query/ case VIDEO  " );
+//                System.out.println("VideoProvider / _query/ case VIDEO  " );
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         VideoContract.VideoEntry.TABLE_NAME.concat(table_id),//todo temp
                         projection,
@@ -174,7 +174,7 @@ public class VideoProvider extends ContentProvider {
                 break;
             }
             case CATEGORY: {
-                System.out.println("VideoProvider / _query/ case CATEGORY  " );
+//                System.out.println("VideoProvider / _query/ case CATEGORY  " );
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         VideoContract.CategoryEntry.TABLE_NAME,//todo temp
                         projection,
