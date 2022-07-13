@@ -11,7 +11,6 @@ import com.cw.photolist.define.Define;
 import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_CATEGORY;
 import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
 import static com.cw.photolist.define.Define.DEFAULT_SEL_FILE_MGR_APP;
-import static com.cw.photolist.define.Define.DEFAULT_SHOW_YOUTUBE_DURATION;
 
 public class Pref {
 	public static int DB_DELETE = 99;

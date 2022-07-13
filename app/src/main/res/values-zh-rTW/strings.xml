@@ -94,7 +94,7 @@
     <string name="play_4_spaces">"    "</string>
 
     <!-- update -->
-    <string name="scan_photo_dir">掃描本地DCIM目錄</string>
+    <string name="scan_photo_dir">掃描本地目錄</string>
     <string name="database_update">建立資料庫</string>
 
     <!--  delete  -->

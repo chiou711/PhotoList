@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
@@ -56,7 +55,6 @@ import androidx.core.content.ContextCompat;
 import androidx.loader.content.Loader;
 import androidx.loader.content.CursorLoader;
 
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -89,12 +87,10 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static android.app.Activity.RESULT_OK;
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
@@ -204,7 +200,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 //                    + File.separator + Environment.DIRECTORY_DCIM;
 
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath, false, LocalData.CATEGORY_DATA);
+            LocalData.scan_and_save(currFilePath, LocalData.CATEGORY_DATA);
             List<String> categoryArray = LocalData.category_array;
 
             // check
@@ -215,7 +211,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
 
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath,false,LocalData.PHOTO_DATA);
+            LocalData.scan_and_save(currFilePath,LocalData.PHOTO_DATA);
             List<Photo> photoArray = LocalData.photo_array;
 
             // check
@@ -428,15 +424,15 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         System.out.println("MainFragment / _onActivityResult");
 
         // API >= 30
-        if(resultCode == RESULT_OK &&
-           requestCode == ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
-                if (Environment.isExternalStorageManager()) {
-                    // Manage All Permission is granted
-                    LocalData.createCategoryDB2(getActivity());
-                }
-            }
-        }
+//        if(resultCode == RESULT_OK &&
+//           requestCode == ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
+//                if (Environment.isExternalStorageManager()) {
+//                    // Manage All Permission is granted
+//                    LocalData.createCategoryDB_root(getActivity());
+//                }
+//            }
+//        }
 
         if(requestCode == PHOTO_INTENT) {
             count = Define.DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT; // countdown time to play next
@@ -755,12 +751,16 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();
 
                 // data base is not created yet, check READ permission for the first time
-                checkPermission();
+                checkPermission2();
             }
             // Start an Intent to fetch the videos
             else if ((loader.getId() == TITLE_LOADER) && (rowsLoadedCount == 0)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch video service =================================");
-                LocalData.createVideoDB2(getActivity());
+
+                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
+                    LocalData.createVideoDB_DCIM(getActivity());
+                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
+                    LocalData.createVideoDB_root(getActivity());
             }
         }
     }
@@ -1516,41 +1516,66 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         return itemRowNumber;
     }
 
-    final static int ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE = 501;
+//    final static int ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE = 501;
     // check permission
-    void checkPermission(){
+//    void checkPermission(){
+//        System.out.println("MainFragment / _checkPermission / Build.VERSION.SDK_INT = " + Build.VERSION.SDK_INT);
+//
+//        // <= API 29
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q /*API 29*/) {
+//            // check permission first time, request necessary permission
+//            if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
+//                // request permission dialog
+//                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+//                        Utils.PERMISSIONS_REQUEST_STORAGE);
+//            } else {
+//                // case: renew default data
+//                if (docDir == null) {
+//                    // permission is granted
+//                    LocalData.createCategoryDB2(getActivity());
+//                }
+//            }
+//        }
+//
+//        // >= API 30
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
+//            if(!Environment.isExternalStorageManager())
+//            {
+//                // intent to request Manage All permission
+//                Intent intent = new Intent();
+//                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+//                startActivityForResult(intent, ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE);
+//            } else {
+//
+//                // permission is granted
+//                LocalData.createCategoryDB2(getActivity());
+//            }
+//        }
+//
+//    }
+
+    // check permission
+    void checkPermission2(){
         System.out.println("MainFragment / _checkPermission / Build.VERSION.SDK_INT = " + Build.VERSION.SDK_INT);
 
-        // <= API 29
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q /*API 29*/) {
-            // check permission first time, request necessary permission
-            if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
-                // request permission dialog
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        Utils.PERMISSIONS_REQUEST_STORAGE);
-            } else {
-                // case: renew default data
-                if (docDir == null) {
-                    // permission is granted
-                    LocalData.createCategoryDB2(getActivity());
-                }
-            }
-        }
-
-        // >= API 30
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R /*API 30*/) {
-            if(!Environment.isExternalStorageManager())
-            {
-                // intent to request Manage All permission
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivityForResult(intent, ACTION_MANAGE_ALL_FILES_ACCESS_REQUEST_CODE);
-            } else {
-
+        // check permission first time, request necessary permission
+        if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
+            // request permission dialog
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    Utils.PERMISSIONS_REQUEST_STORAGE);
+        } else {
+            // case: renew default data
+            if (docDir == null) {
                 // permission is granted
-                LocalData.createCategoryDB2(getActivity());
+                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
+                    LocalData.createCategoryDB_DCIM(getActivity());
+                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
+                    LocalData.createCategoryDB_root(getActivity());
+
             }
         }
+
+
 
     }
 
@@ -1563,7 +1588,11 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
              (grantResults[0] == PackageManager.PERMISSION_GRANTED) ){
             if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
                 // permission is granted
-                LocalData.createCategoryDB2(getActivity());
+                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
+                    LocalData.createCategoryDB_DCIM(getActivity());
+                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
+                    LocalData.createCategoryDB_root(getActivity());
+
             }
         } else
             getActivity().finish(); //normally, will go to _resume if not finish

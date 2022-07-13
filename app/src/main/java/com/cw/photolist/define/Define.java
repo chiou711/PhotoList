@@ -18,7 +18,7 @@ package com.cw.photolist.define;
 
 /*
  * Created by CW on 2022/03/01
- * Modified by CW on 2022/03/01
+ * Modified by CW on 2022/07/13
  *
  */
 public class Define {
@@ -30,9 +30,6 @@ public class Define {
     // auto play by category (default: by list)
     public final static boolean DEFAULT_AUTO_PLAY_BY_CATEGORY = false;
 
-    // show duration (default: disabled, show duration could cause card view display lag)
-    public final static boolean DEFAULT_SHOW_YOUTUBE_DURATION = false;
-
     // select file manager app (default: enabled, data package folder is empty at first)
     public final static boolean DEFAULT_SEL_FILE_MGR_APP = true;
 
@@ -43,9 +40,6 @@ public class Define {
     public final static int INIT_CATEGORY_NUMBER = 1;
 
     // --- time ---
-    // delay time for getting YouTube duration
-    public final static int DEFAULT_DELAY_GET_DURATION = 80;
-
     // count down seconds to play next
     public final static int DEFAULT_COUNT_DOWN_TIME_TO_PLAY_NEXT = 1; //3;
 
@@ -56,4 +50,10 @@ public class Define {
     public final static int by_onActivityResult = 1;
     public final static int by_runnable = 2;
     public final static int DEFAULT_PLAY_NEXT = by_runnable;
+
+    // photo directory origin
+    public static int DIR_ROOT = 1;
+    public static int DIR_DCIM = 2;
+    public static int DEFAULT_PHOTO_DIRECTORY = DIR_ROOT;
+
 }

@@ -94,7 +94,7 @@
     <string name="play_4_spaces">"    "</string>
 
     <!-- update -->
-    <string name="scan_photo_dir">Scan local DCIM directory</string>
+    <string name="scan_photo_dir">Scan local directory</string>
     <string name="database_update">Create database</string>
 
     <!--  delete  -->

@@ -74,7 +74,7 @@ public class LocalData {
     static String listTitle = null;
 
     // Scan all storage devices and save audio links to DB
-    public static void scan_and_save(String currFilePath, boolean beSaved, int returnType){
+    public static void scan_and_save(String currFilePath, int returnType){
         System.out.println("LocalData / _scan_and_save / currFilePath = " + currFilePath);
 
         List<String> list;
@@ -116,47 +116,42 @@ public class LocalData {
                         }
 
                         // check if photo files exist
-//                        if(beSaved)
-                        {
-                            if ((dirs_count == 0) && (dirsFilesCount > 0)) {
 
-                                // check if dir has photo files before Save
-                                if(getPhotoFilesCount(fileDir)>0) {
+                        if ((dirs_count == 0) && (dirsFilesCount > 0)) {
 
-                                    // add new folder
-                                    if ((pages_count % PAGES_PER_FOLDER) == 0) {
-                                        folders_count = (pages_count / PAGES_PER_FOLDER) + 1 ;
-                                        if(returnType == CATEGORY_DATA) {
-                                            System.out.println("*> add new folder here : " + (pages_count / PAGES_PER_FOLDER) + 1);
-                                            category_array.add(String.valueOf(folders_count));
-                                        }
+                            // check if dir has photo files before Save
+                            if(getPhotoFilesCount(fileDir)>0) {
+
+                                // add new folder
+                                if ((pages_count % PAGES_PER_FOLDER) == 0) {
+                                    folders_count = (pages_count / PAGES_PER_FOLDER) + 1 ;
+                                    if(returnType == CATEGORY_DATA) {
+                                        System.out.println("*> add new folder here : " + (pages_count / PAGES_PER_FOLDER) + 1);
+                                        category_array.add(String.valueOf(folders_count));
                                     }
-
-                                    // list name
-                                    if(returnType == PHOTO_DATA) {
-                                        listTitle = pageName;
-                                    }
-
-                                    pages_count++;
                                 }
+
+                                // list name
+                                if(returnType == PHOTO_DATA) {
+                                    listTitle = pageName;
+                                }
+
+                                pages_count++;//todo where to Reset pages_count?
                             }
                         }
 
                         // recursive
-                        scan_and_save(fileDir.getAbsolutePath(),beSaved,returnType);
+                        scan_and_save(fileDir.getAbsolutePath(),returnType);
 
                     } // if (fileDir.isDirectory())
                     else
                     {
                         String photoLink =  "file://".concat(fileDir.getPath());
                         String photoName = new File(photoLink).getName();
-//                        if(beSaved)
-                        {
-                            if(returnType == PHOTO_DATA) {
-                                Photo photo = new Photo(listTitle,photoLink,photoName);
-                                // add photo instance
-                                photo_array.add(photo);
-                            }
+                        if(returnType == PHOTO_DATA) {
+                            Photo photo = new Photo(listTitle,photoLink,photoName);
+                            // add photo instance
+                            photo_array.add(photo);
                         }
                     }
                 }
@@ -274,8 +269,162 @@ public class LocalData {
             }
         }
     }
-    // Create category DB 2
-    public static void createCategoryDB2(Activity act){
+
+    // Create category DB via DCIM
+    public static void createCategoryDB_DCIM(Activity act){
+        System.out.println("LocalData / _createCategoryDB");
+        String docDir = null;
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q /*API 29*/){
+            if(Environment.isExternalStorageLegacy()) {
+                System.out.println("LocalData / _createCategoryDB / isExternalStorageLegacy()");
+                docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + File.separator + Environment.DIRECTORY_DCIM;
+            }
+        } else {
+            docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + File.separator + Environment.DIRECTORY_DCIM;
+        }
+
+        System.out.println("---- docDir = " + docDir);
+
+        ///
+        // test for MediaStore
+//        String[] projection = new String[] {"_id"
+////                media-database-columns-to-retrieve
+//        };
+//        String selection = null;//sql-where-clause-with-placeholder-variables;
+//        String[] selectionArgs = null;
+////        new String[] {
+////                values-of-placeholder-variables
+////        };
+//        String sortOrder = null;//sql-order-by-clause;
+//
+//        Cursor cursor = act.getApplicationContext().getContentResolver().query(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                projection,
+//                selection,
+//                selectionArgs,
+//                sortOrder
+//        );
+//
+//        while (cursor.moveToNext()) {
+//            // Use an ID column from the projection to get
+//            // a URI representing the media item itself.
+//            @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("_id"));
+//            Uri uri = Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+//            System.out.println("uri = " + uri );
+//
+//            String realPath = getLocalRealPathByUri(act, uri);
+//            System.out.println("realPath =  " + realPath );
+//        }
+//        cursor.close();
+        ///
+
+        init(docDir);
+        scan_and_save(docDir,CATEGORY_DATA);
+
+        List<String> categoryArray = category_array;
+        List<ContentValues> videosToInsert = new ArrayList<>();
+
+        for (int h = 0; h < categoryArray.size(); h++) {
+            String category_name = categoryArray.get(h);
+            System.out.println("? ----- category_name = " + category_name);
+            // save category names
+            ContentValues categoryValues = new ContentValues();
+            categoryValues.put("category_name", category_name);
+            categoryValues.put("video_table_id", h+1);
+            videosToInsert.add(categoryValues);
+        }
+
+        try {
+            List<ContentValues> contentValuesList = videosToInsert;
+
+            ContentValues[] downloadedVideoContentValues =
+                    contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
+
+            ContentResolver contentResolver = act.getContentResolver();
+//            System.out.println("----> contentResolver = " + contentResolver.toString());
+
+            contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // create video DB via DCIM
+    public static void createVideoDB_DCIM(Activity act){
+        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + Environment.DIRECTORY_DCIM;
+
+        init(docDir);
+
+        scan_and_save(docDir,CATEGORY_DATA);
+        List<String> categoryArray = category_array;
+
+        init(docDir);
+        scan_and_save(docDir,PHOTO_DATA);
+        List<Photo> photoArray = photo_array;
+
+        // check
+//        int size = photoArray.size();
+//        System.out.println("--------------- size = " + size);
+//        for(int i=0;i< size; i++ ){
+//            System.out.println("--------------- list title = " + photoArray.get(i).getList_title() );
+//            System.out.println("--------------- photo link = " + photoArray.get(i).getPhoto_link() );
+//        }
+
+        List<ContentValues> videosToInsert = new ArrayList<>();
+
+        int list_number = 0;
+        String old_row_title = null;
+        for (int j = 0; j < photoArray.size(); j++) {
+            String rowTitle = photoArray.get(j).getList_title();
+
+            if (!rowTitle.equalsIgnoreCase(old_row_title)) {
+                old_row_title = rowTitle;
+                list_number++;
+                System.out.println("-> list_number = " + list_number);
+            }
+
+            String photoName = photoArray.get(j).getPhoto_name();
+            System.out.println("----- photoName = " + photoName);
+
+            String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
+
+            // card image Url: YouTube or HTML
+            String photoLink;
+            photoLink = photoArray.get(j).getPhoto_link();
+            System.out.println("----- photoLink = " + photoLink);
+
+            ContentValues videoValues = new ContentValues();
+            videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
+            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
+
+            if (act != null) {
+                videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
+                        act.getResources().getString(R.string.global_search));
+            }
+
+            videosToInsert.add(videoValues);
+
+            if ((list_number % PAGES_PER_FOLDER) == 0) {
+                int folder_number = (list_number / PAGES_PER_FOLDER);// + 1;
+                doBulkInsert_videoDB(act, folder_number, videosToInsert);
+                videosToInsert = new ArrayList<>();
+            } else if(j == photoArray.size()-1){
+                int folder_number = categoryArray.size();
+                doBulkInsert_videoDB(act, folder_number, videosToInsert);
+                videosToInsert = new ArrayList<>();
+            }
+        }
+
+    }
+
+    // Create category DB via root
+    public static void createCategoryDB_root(Activity act){
         System.out.println("LocalData / _createCategoryDB2");
         String docDir;
         List<StorageUtils.StorageInfo> storageList = StorageUtils.getStorageList();
@@ -292,10 +441,10 @@ public class LocalData {
 
             System.out.println("-->  storageList[" + i + "] docDir = " + docDir);
 
-            LocalData.init(docDir);
-            LocalData.scan_and_save(docDir, true, LocalData.CATEGORY_DATA);
+            init(docDir);
+            scan_and_save(docDir, CATEGORY_DATA);
 
-            List<String> categoryArray = LocalData.category_array;
+            List<String> categoryArray = category_array;
             List<ContentValues> videosToInsert = new ArrayList<>();
 
             for (int h = 0; h < categoryArray.size(); h++) {
@@ -325,10 +474,8 @@ public class LocalData {
         }
     }
 
-    // create video DB
-    public static void createVideoDB2(Activity act){
-//        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                + File.separator + Environment.DIRECTORY_DCIM;
+    // create video DB via root
+    public static void createVideoDB_root(Activity act){
         String docDir;
 
         List<StorageUtils.StorageInfo> storageList = StorageUtils.getStorageList();
@@ -347,14 +494,14 @@ public class LocalData {
 
             System.out.println("---- docDir = " + docDir);
 
-            LocalData.init(docDir);
+            init(docDir);
 
-            LocalData.scan_and_save(docDir, true, LocalData.CATEGORY_DATA);
-            List<String> categoryArray = LocalData.category_array;
+            scan_and_save(docDir, CATEGORY_DATA);
+            List<String> categoryArray = category_array;
 
-            LocalData.init(docDir);
-            LocalData.scan_and_save(docDir, true, LocalData.PHOTO_DATA);
-            List<Photo> photoArray = LocalData.photo_array;
+            init(docDir);
+            scan_and_save(docDir, PHOTO_DATA);
+            List<Photo> photoArray = photo_array;
 
             List<ContentValues> videosToInsert = new ArrayList<>();
 
@@ -364,7 +511,7 @@ public class LocalData {
                 String rowTitle = photoArray.get(j).getList_title();
 
                 if ( (rowTitle!=null) &&
-                     (!rowTitle.equalsIgnoreCase(old_row_title)) ) {
+                        (!rowTitle.equalsIgnoreCase(old_row_title)) ) {
                     old_row_title = rowTitle;
                     list_number++;
                     System.out.println("-> list_number = " + list_number);
@@ -406,159 +553,6 @@ public class LocalData {
         }
 
     }
-
-    // Create category DB
-//    public static void createCategoryDB(Activity act){
-//        System.out.println("LocalData / _createCategoryDB");
-//        String docDir = null;
-//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q /*API 29*/){
-//            if(Environment.isExternalStorageLegacy()) {
-//                System.out.println("LocalData / _createCategoryDB / isExternalStorageLegacy()");
-//                docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                        + File.separator + Environment.DIRECTORY_DCIM;
-//            }
-//        } else {
-//            docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                    + File.separator + Environment.DIRECTORY_DCIM;
-//        }
-//
-//        System.out.println("---- docDir = " + docDir);
-//
-//        ///
-//        // test for MediaStore
-////        String[] projection = new String[] {"_id"
-//////                media-database-columns-to-retrieve
-////        };
-////        String selection = null;//sql-where-clause-with-placeholder-variables;
-////        String[] selectionArgs = null;
-//////        new String[] {
-//////                values-of-placeholder-variables
-//////        };
-////        String sortOrder = null;//sql-order-by-clause;
-////
-////        Cursor cursor = act.getApplicationContext().getContentResolver().query(
-////                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-////                projection,
-////                selection,
-////                selectionArgs,
-////                sortOrder
-////        );
-////
-////        while (cursor.moveToNext()) {
-////            // Use an ID column from the projection to get
-////            // a URI representing the media item itself.
-////            @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("_id"));
-////            Uri uri = Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-////            System.out.println("uri = " + uri );
-////
-////            String realPath = getLocalRealPathByUri(act, uri);
-////            System.out.println("realPath =  " + realPath );
-////        }
-////        cursor.close();
-//        ///
-//
-//        LocalData.init(docDir);
-//        LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
-//
-//        List<String> categoryArray = LocalData.category_array;
-//        List<ContentValues> videosToInsert = new ArrayList<>();
-//
-//        for (int h = 0; h < categoryArray.size(); h++) {
-//            String category_name = categoryArray.get(h);
-//            System.out.println("? ----- category_name = " + category_name);
-//            // save category names
-//            ContentValues categoryValues = new ContentValues();
-//            categoryValues.put("category_name", category_name);
-//            categoryValues.put("video_table_id", h+1);
-//            videosToInsert.add(categoryValues);
-//        }
-//
-//        try {
-//            List<ContentValues> contentValuesList = videosToInsert;
-//
-//            ContentValues[] downloadedVideoContentValues =
-//                    contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
-//
-//            ContentResolver contentResolver = act.getContentResolver();
-////            System.out.println("----> contentResolver = " + contentResolver.toString());
-//
-//            contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // create video DB
-//    public static void createVideoDB(Activity act){
-//        String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                + File.separator + Environment.DIRECTORY_DCIM;
-//
-//        LocalData.init(docDir);
-//
-//        LocalData.scan_and_save(docDir,true,LocalData.CATEGORY_DATA);
-//        List<String> categoryArray = LocalData.category_array;
-//
-//        LocalData.init(docDir);
-//        LocalData.scan_and_save(docDir,true,LocalData.PHOTO_DATA);
-//        List<Photo> photoArray = LocalData.photo_array;
-//
-//        // check
-////        int size = photoArray.size();
-////        System.out.println("--------------- size = " + size);
-////        for(int i=0;i< size; i++ ){
-////            System.out.println("--------------- list title = " + photoArray.get(i).getList_title() );
-////            System.out.println("--------------- photo link = " + photoArray.get(i).getPhoto_link() );
-////        }
-//
-//        List<ContentValues> videosToInsert = new ArrayList<>();
-//
-//        int list_number = 0;
-//        String old_row_title = null;
-//        for (int j = 0; j < photoArray.size(); j++) {
-//            String rowTitle = photoArray.get(j).getList_title();
-//
-//            if (!rowTitle.equalsIgnoreCase(old_row_title)) {
-//                old_row_title = rowTitle;
-//                list_number++;
-//                System.out.println("-> list_number = " + list_number);
-//            }
-//
-//            String photoName = photoArray.get(j).getPhoto_name();
-//            System.out.println("----- photoName = " + photoName);
-//
-//            String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
-//
-//            // card image Url: YouTube or HTML
-//            String photoLink;
-//            photoLink = photoArray.get(j).getPhoto_link();
-//            System.out.println("----- photoLink = " + photoLink);
-//
-//            ContentValues videoValues = new ContentValues();
-//            videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
-//            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
-//            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
-//            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
-//
-//            if (act != null) {
-//                videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
-//                        act.getResources().getString(R.string.global_search));
-//            }
-//
-//            videosToInsert.add(videoValues);
-//
-//            if ((list_number % PAGES_PER_FOLDER) == 0) {
-//                int folder_number = (list_number / PAGES_PER_FOLDER);// + 1;
-//                doBulkInsert_videoDB(act, folder_number, videosToInsert);
-//                videosToInsert = new ArrayList<>();
-//            } else if(j == photoArray.size()-1){
-//                int folder_number = categoryArray.size();
-//                doBulkInsert_videoDB(act, folder_number, videosToInsert);
-//                videosToInsert = new ArrayList<>();
-//            }
-//        }
-//
-//    }
 
     // do bulk insert to video table
     static void doBulkInsert_videoDB(Activity act, int folder_number, List<ContentValues> videosToInsert)
