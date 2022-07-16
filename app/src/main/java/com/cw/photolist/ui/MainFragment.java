@@ -173,7 +173,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 //        doSeeAll();
     }
 
-    ///
+    //
+    // see all directories
     String appDir;
     String currFilePath;
     void doSeeAll() {
@@ -195,12 +196,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
             currFilePath = appDir;
 
-//            scan_and_save(currFilePath,true);
-//            String docDir = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                    + File.separator + Environment.DIRECTORY_DCIM;
-
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath, LocalData.CATEGORY_DATA);
+            LocalData.scan_and_save(currFilePath,i);
             List<String> categoryArray = LocalData.category_array;
 
             // check
@@ -211,7 +208,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
 
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath,LocalData.PHOTO_DATA);
+            LocalData.scan_and_save(currFilePath,i);
             List<Photo> photoArray = LocalData.photo_array;
 
             // check
@@ -745,22 +742,13 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
             // Start fetching the categories data
             if ((loader.getId() == CATEGORY_LOADER) && (mCategoryNames == null)) {
-                System.out.println("MainFragment / onLoadFinished / start Fetch category data =================================");
+                System.out.println("MainFragment / onLoadFinished / start Fetch local data =================================");
 
                 // show toast
                 Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();
 
                 // data base is not created yet, check READ permission for the first time
                 checkPermission2();
-            }
-            // Start an Intent to fetch the videos
-            else if ((loader.getId() == TITLE_LOADER) && (rowsLoadedCount == 0)) {
-                System.out.println("MainFragment / onLoadFinished / start Fetch video service =================================");
-
-                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
-                    LocalData.createVideoDB_DCIM(getActivity());
-                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
-                    LocalData.createVideoDB_root(getActivity());
             }
         }
     }
@@ -1568,9 +1556,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             if (docDir == null) {
                 // permission is granted
                 if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
-                    LocalData.createCategoryDB_DCIM(getActivity());
+                    LocalData.createDB_DCIM(getActivity());
                 else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
-                    LocalData.createCategoryDB_root(getActivity());
+                    LocalData.createDB_root(getActivity());
 
             }
         }
@@ -1589,9 +1577,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
                 // permission is granted
                 if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
-                    LocalData.createCategoryDB_DCIM(getActivity());
+                    LocalData.createDB_DCIM(getActivity());
                 else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
-                    LocalData.createCategoryDB_root(getActivity());
+                    LocalData.createDB_root(getActivity());
+
 
             }
         } else
