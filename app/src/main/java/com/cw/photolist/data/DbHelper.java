@@ -48,7 +48,7 @@ public class DbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + "video" + Define.INIT_CATEGORY_NUMBER + " (" +
                 VideoEntry._ID + " INTEGER PRIMARY KEY," +
                 VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
-                VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                VideoEntry.COLUMN_LINK_URL + " TEXT, " + // TEXT UNIQUE NOT NULL will make the URL unique.
                 VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
                 VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
                 VideoEntry.COLUMN_ACTION + " TEXT NOT NULL" +

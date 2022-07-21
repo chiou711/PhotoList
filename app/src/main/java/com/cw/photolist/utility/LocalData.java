@@ -43,9 +43,6 @@ import java.util.Locale;
  * A collection of utility methods, all static.
  */
 public class LocalData {
-    // return array type
-    public static int CATEGORY_DATA = 1;
-    public static int PHOTO_DATA = 2;
 
     // for scanning local directory
     public static List<String> category_array;
@@ -142,11 +139,13 @@ public class LocalData {
                     } // if (fileDir.isDirectory())
                     else
                     {
-                        String photoLink =  "file://".concat(fileDir.getPath());
-                        String photoName = new File(photoLink).getName();
-                        Photo photo = new Photo(listTitle,photoLink,photoName);
-                        // add photo instance
-                        photo_array.add(photo);
+                        if(!Utils.isEmptyString(listTitle)) {
+                            String photoLink = "file://".concat(fileDir.getPath());
+                            String photoName = new File(photoLink).getName();
+                            Photo photo = new Photo(folders_count+storage_number, pages_count+storage_number*PAGES_PER_FOLDER, listTitle, photoLink, photoName);
+                            // add photo instance
+                            photo_array.add(photo);
+                        }
                     }
                 }
             } // for (String file : list)
@@ -166,7 +165,7 @@ public class LocalData {
                 Arrays.sort(files, new FileNameComparator());
 
                 for (File file : files) {
-                    // add for filtering non-audio file
+                    // add for filtering non-photo file
                     if (!file.isDirectory() &&
                        (hasImageExtension(file))) {
                         photoFilesCount++;
@@ -309,7 +308,7 @@ public class LocalData {
 
             String rowTitle = photoArray.get(j).getList_title();
             String photoName = photoArray.get(j).getPhoto_name();
-            String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
+            String linkUrl = null;
             String photoLink = photoArray.get(j).getPhoto_link();
 
             if (!rowTitle.equalsIgnoreCase(old_row_title)) {
@@ -343,67 +342,57 @@ public class LocalData {
 
     }
 
-
     // create DB via root
     public static void createDB_root(Activity act){
         String docDir;
 
         List<StorageUtils.StorageInfo> storageList = StorageUtils.getStorageList();
-        int folder_number = 0;
-        boolean isCateogyEnd = false;
+        int cat_number;
+        int last_cat_id = 0;
 
         for (int i = 0; i < storageList.size(); i++) {
-            System.out.println("-->  storageList[" + i + "] name = " + storageList.get(i).getDisplayName());
-            System.out.println("-->  storageList[" + i + "] path = " + storageList.get(i).path);
-            System.out.println("-->  storageList[" + i + "] display number = " + storageList.get(i).display_number);
+//            System.out.println("-->  storageList[" + i + "] name = " + storageList.get(i).getDisplayName());
+//            System.out.println("-->  storageList[" + i + "] path = " + storageList.get(i).path);
+//            System.out.println("-->  storageList[" + i + "] display number = " + storageList.get(i).display_number);
 
             docDir = storageList.get(i).path;
 
             if (docDir.contains("/mnt/media_rw"))
                 docDir = docDir.replace("mnt/media_rw", "storage");
 
-            System.out.println("-->  storageList[" + i + "] docDir = " + docDir);
-
-            System.out.println("---- docDir = " + docDir);
+//            System.out.println("-->  storageList[" + i + "] docDir = " + docDir);
 
             init(docDir);
 
-            int storage_number = i;
-
             // scan local root and save data to array
-            scan_and_save(docDir,storage_number);
+            scan_and_save(docDir,last_cat_id);
 
-            List<String> categoryArray = category_array;
             List<Photo> photoArray = photo_array; //todo Do twice?
+
+            int arraySize = photoArray.size();
+            int cats_count = photoArray.get(arraySize-1).getCategory_id()-last_cat_id;
+            int rows_count = photoArray.get(arraySize-1).getRow_id();
 
             // create category tables
             List<ContentValues> categoriesToInsert = new ArrayList<>();
 
-            for (int h = 0; h < categoryArray.size(); h++) {
+            for (int h = last_cat_id; h < last_cat_id + cats_count; h++) {
 
                 // get category data
-                folder_number = Integer.valueOf(categoryArray.get(h))+storage_number;
-                String category_name = String.valueOf(folder_number);
+                cat_number = h+1;
+                String category_name = String.valueOf(cat_number);
                 ContentValues categoryValues = new ContentValues();
                 categoryValues.put("category_name", category_name);
-                categoryValues.put("video_table_id", folder_number);
+                categoryValues.put("video_table_id", cat_number);
                 categoriesToInsert.add(categoryValues);
-
-                if(isCateogyEnd){
-                    isCateogyEnd = false;
-                    continue; // skip current iteration
-                }
 
                 // get photo data
                 List<ContentValues> videosToInsert = new ArrayList<>();
 
-                int list_number = 0;
-                String old_row_title = null;
-
                 for (int j = 0; j < photoArray.size(); j++) {
                     String rowTitle = photoArray.get(j).getList_title();
                     String photoName = photoArray.get(j).getPhoto_name();
-                    String linkUrl = "https://www.youtube.com/watch?v=h-AJ0ApCjVI";
+                    String linkUrl = null;
                     String photoLink = photoArray.get(j).getPhoto_link();
 
                     ContentValues videoValues = new ContentValues();
@@ -417,49 +406,19 @@ public class LocalData {
                                 act.getResources().getString(R.string.global_search));
                     }
 
-                    // init title
-                    if(old_row_title == null)
-                        old_row_title = rowTitle;
-
-                    if ( (rowTitle!=null) &&
-                         (rowTitle.equalsIgnoreCase(old_row_title)) ) {
-
+                    int cat_id = photoArray.get(j).getCategory_id();
+                    int row_id = photoArray.get(j).getRow_id();
+                    if(cat_id == cat_number) {
                         // same title: just add to the same array
                         videosToInsert.add(videoValues);
 
                         // final photo item check
-                        if (j == (photoArray.size() - 1)){
-                            list_number++;
-                            doBulkInsert_videoDB(act, list_number/PAGES_PER_FOLDER + folder_number , videosToInsert);
-                            isCateogyEnd = true;
-                        }
-
-                    } else if ( (rowTitle!=null) &&
-                         (!rowTitle.equalsIgnoreCase(old_row_title)) ) {
-                        // different title, so previous item is an old row end
-                        // list number increases one
-                        list_number++;
-
-                        // insert video DB page
-                        if(list_number%PAGES_PER_FOLDER == 0) {
-                            doBulkInsert_videoDB(act, folder_number, videosToInsert);
+                        if ( (row_id % PAGES_PER_FOLDER == 0) || (row_id == rows_count)){
+                            doBulkInsert_videoDB(act, cat_number , videosToInsert);
                             videosToInsert = new ArrayList<>();
-                        }
-
-                        old_row_title = rowTitle;
-
-                        // new page 1st title
-                        videosToInsert.add(videoValues);
-
-                        // final photo item check
-                        if (j == (photoArray.size() - 1)){
-                            list_number++;
-                            doBulkInsert_videoDB(act, list_number/PAGES_PER_FOLDER + folder_number , videosToInsert);
-                            isCateogyEnd = true;
                         }
                     }
                 }
-
             }
 
             // insert data to category table
@@ -476,9 +435,11 @@ public class LocalData {
                 e.printStackTrace();
             }
 
-        }// for (int i = 0; i < storageList.size(); i++)
+            last_cat_id += cats_count;
 
+        }// for (int i = 0; i < storageList.size(); i++)
     }
+
 
     // do bulk insert to video table
     static void doBulkInsert_videoDB(Activity act, int folder_number, List<ContentValues> videosToInsert)
@@ -498,7 +459,7 @@ public class LocalData {
         final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
                 VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
                 VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
-                VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT, " + // TEXT UNIQUE NOT NULL will make the URL unique.
                 VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
                 VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
                 VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +

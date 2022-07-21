@@ -58,9 +58,6 @@ public class CardPresenter extends Presenter {
     private int mDefaultBackgroundColor = -1;
 //    private Drawable mDefaultCardImage;
     FragmentActivity act;
-    boolean isGotDuration;
-    String acquiredDuration;
-    String duration;
 
     public  CardPresenter(){}
     int row_id;
@@ -117,13 +114,13 @@ public class CardPresenter extends Presenter {
         String linkNumberOfRowLinks = "    (" + linkPosInRow + "/" +
                 rowLength + ")    ";
         if(row_number == -1) {
-            // duration + link number of row links
-            positionInfo = duration +linkNumberOfRowLinks;
+            // link number of row links
+            positionInfo = linkNumberOfRowLinks;
 
         } else {
-            //  duration + link number of row links + playlist number
+            //  link number of row links + playlist number
             positionInfo = cardView.getContext().getResources().getString(R.string.current_list_title);
-            positionInfo = duration + linkNumberOfRowLinks + positionInfo + row_number;
+            positionInfo = linkNumberOfRowLinks + positionInfo + row_number;
         }
         cardView.setContentText(positionInfo);
 

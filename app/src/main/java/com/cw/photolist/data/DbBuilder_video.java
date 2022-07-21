@@ -157,7 +157,7 @@ public class DbBuilder_video {
             final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
                     VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
                     VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
-                    VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT NOT NULL, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                    VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT, " + // TEXT UNIQUE NOT NULL will make the URL unique.
                     VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
                     VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
                     VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
