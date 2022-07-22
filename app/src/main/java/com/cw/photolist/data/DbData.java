@@ -11,8 +11,10 @@ public class DbData {
 
 
    // get DB link data
-   public static String getDB_link_data(Context context, String table, String columnName, int pos)
-   {
+   public static String getDB_link_data(Context context,
+                                        String table,
+                                        String columnName,
+                                        int pos)   {
       DbHelper mOpenHelper = new DbHelper(context);
       mOpenHelper.setWriteAheadLoggingEnabled(false);
       SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
@@ -35,6 +37,77 @@ public class DbData {
       return retData;
    }
 
+   // get minimum position of row
+   public static int getDB_min_pos_of_row(Context context,
+                                        String table,
+                                        String row_title)   {
+      DbHelper mOpenHelper = new DbHelper(context);
+      mOpenHelper.setWriteAheadLoggingEnabled(false);
+      SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
+      Cursor cursor = sqlDb.query(
+              table,
+              null,//projection,
+              null,//selection,
+              null,//selectionArgs,
+              null,
+              null,
+              null//sortOrder
+      );
+
+      int index = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+
+      int row_length = cursor.getCount();
+
+      int min_pos = 999999;
+      for(int pos=0; pos<row_length; pos++) {
+         cursor.moveToPosition(pos);
+         String row_title_get =  cursor.getString(index);
+         if(row_title_get.equals(row_title)) {
+            if(pos < min_pos)
+               min_pos = pos;
+         }
+      }
+      cursor.close();
+      sqlDb.close();
+
+      return min_pos;
+   }
+
+   // get maximum position of row
+   public static int getDB_max_pos_of_row(Context context,
+                                          String table,
+                                          String row_title)   {
+      DbHelper mOpenHelper = new DbHelper(context);
+      mOpenHelper.setWriteAheadLoggingEnabled(false);
+      SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
+      Cursor cursor = sqlDb.query(
+              table,
+              null,//projection,
+              null,//selection,
+              null,//selectionArgs,
+              null,
+              null,
+              null//sortOrder
+      );
+
+      int index = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+
+      int row_length = cursor.getCount();
+
+      int max_pos = 0;
+      for(int pos=0; pos<row_length; pos++) {
+         cursor.moveToPosition(pos);
+         String row_title_get =  cursor.getString(index);
+         if(row_title_get.equals(row_title)) {
+            if(pos > max_pos)
+               max_pos = pos;
+         }
+      }
+      cursor.close();
+      sqlDb.close();
+
+      return max_pos;
+   }
 
    // get photos count in category
    public static int getPhotosCountInCategory(Context context,String table) {

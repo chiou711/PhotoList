@@ -56,8 +56,10 @@ public class Note extends AppCompatActivity
 	private int count;
 	int focusCatNum;
 	String table;
-	String columnName;
+	String column_photo_url;
 	int photosCount;
+	int max_pos_of_row;
+	int min_pos_of_row;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +83,14 @@ public class Note extends AppCompatActivity
 
 	    focusCatNum = Pref.getPref_video_table_id(getBaseContext());
 	    table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-	    columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+	    column_photo_url = VideoContract.VideoEntry.COLUMN_THUMB_URL;
 
-	    photoPath =  DbData.getDB_link_data(getBaseContext(),table,columnName,mEntryPosition);
+	    photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
 	    System.out.println("Note / _onCreate / photoPath = " + photoPath);
+
+		String row_title = DbData.getDB_link_data(getBaseContext(),table,VideoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
+	    min_pos_of_row = DbData.getDB_min_pos_of_row(getBaseContext(),table,row_title);
+		max_pos_of_row = DbData.getDB_max_pos_of_row(getBaseContext(),table,row_title);
 
 	    photosCount = DbData.getPhotosCountInCategory(getBaseContext(),table);
 
@@ -166,10 +172,17 @@ public class Note extends AppCompatActivity
 			if(count < 0){
 				mEntryPosition++;
 
-				if(mEntryPosition >= photosCount)
-					mEntryPosition = 0;
+				if (Pref.isAutoPlayByList(getBaseContext()) ){
+					if (mEntryPosition > max_pos_of_row)
+						mEntryPosition = min_pos_of_row;
+				}
 
-				photoPath =  DbData.getDB_link_data(getBaseContext(),table,columnName,mEntryPosition);
+				if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+					if (mEntryPosition >= photosCount)
+						mEntryPosition = 0;
+				}
+
+				photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
 				count = Define.DEFAULT_DISPLAY_DURATION;
 
 				if(handler!= null)

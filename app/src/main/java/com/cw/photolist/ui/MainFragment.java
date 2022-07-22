@@ -1010,8 +1010,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
 
     // start note intent
-    private void startNoteIntent(String path,int position)
-    {
+    private void startNoteIntent(int position){
         Intent intent = new Intent(act,Note.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivity(intent);
@@ -1412,7 +1411,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
                 startNoteIntentForResult(getPhotoPosition());
             else if(Define.DEFAULT_PLAY_NEXT == Define.by_runnable)
-                startNoteIntent(getPhotoPath(),getPhotoPosition());
+                startNoteIntent(getPhotoPosition());
 
         } else {
             // manual play
