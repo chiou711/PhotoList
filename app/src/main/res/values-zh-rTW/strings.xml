@@ -127,4 +127,8 @@
     <string name="delete_playlist_message">要刪除此播放列表嗎？</string>
     <string name="delete_item_message">要刪除此項目嗎？</string>
 
+    <string name="auto_play_on">自動播放開啟</string>
+    <string name="previous_one">上一張</string>
+    <string name="next_one">下一張</string>
+
 </resources>

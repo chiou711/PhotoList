@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
@@ -130,6 +131,11 @@ public class Note extends AppCompatActivity
 			// start count down
 			count--;
 
+			if(mToast==null ) {
+				mToast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
+				mToast.show();
+			}
+
 			if(count>0){
 
 				try {
@@ -158,6 +164,11 @@ public class Note extends AppCompatActivity
 		public void run() {
 
 			if(count == Define.DEFAULT_DISPLAY_DURATION){
+
+				if(mToast == null) {
+					mToast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
+					mToast.show();
+				}
 
 				try {
 					setPhotoImage();
@@ -351,8 +362,12 @@ public class Note extends AppCompatActivity
         return super.dispatchTouchEvent(event);
     }
 
+	Toast mToast;
 	// set previous photo image
 	void setPreviousPhotoImage(){
+
+		mToast = Toast.makeText(getBaseContext(), R.string.previous_one, Toast.LENGTH_SHORT);
+		mToast.show();
 
 		mEntryPosition--;
 
@@ -386,6 +401,10 @@ public class Note extends AppCompatActivity
 
 	// set next photo image
 	void setNextPhotoImage(){
+
+		mToast = Toast.makeText(getBaseContext(), R.string.next_one, Toast.LENGTH_SHORT);
+		mToast.show();
+
 		mEntryPosition++;
 
 		if (Pref.isAutoPlayByList(getBaseContext()) ){
