@@ -197,9 +197,16 @@ public class Note extends AppCompatActivity
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		int newPos;
 		System.out.println("Note / _onKeyDown / keyCode = " + keyCode);
 		switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_LEFT: //21
+				setPreviousPhotoImage();
+				return true;
+
+			case KeyEvent.KEYCODE_DPAD_RIGHT: //22
+				setNextPhotoImage();
+				return true;
+
 			case KeyEvent.KEYCODE_MEDIA_PREVIOUS: //88
 				return true;
 
@@ -229,7 +236,7 @@ public class Note extends AppCompatActivity
 	}
 
 	void setPhotoImage() throws IOException {
-        System.out.println("Note / _setLayoutView");
+        System.out.println("Note / _setPhotoImage");
 
 //		photoPath = "https://i.imgur.com/DvpvklR.png";
 
@@ -344,4 +351,69 @@ public class Note extends AppCompatActivity
         return super.dispatchTouchEvent(event);
     }
 
+	// set previous photo image
+	void setPreviousPhotoImage(){
+
+		mEntryPosition--;
+
+		if (Pref.isAutoPlayByList(getBaseContext()) ){
+			if (mEntryPosition < min_pos_of_row)
+				mEntryPosition = max_pos_of_row;
+			else if(mEntryPosition > max_pos_of_row)
+				mEntryPosition = min_pos_of_row;
+		}
+
+		if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+			if (mEntryPosition >= photosCount)
+				mEntryPosition = 0;
+			else if(mEntryPosition < 0)
+				mEntryPosition = photosCount-1;
+		}
+
+		photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
+
+		if(handler != null) {
+			handler.removeCallbacks(runCountDown);
+			handler = null;
+		}
+
+		try {
+			setPhotoImage();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// set next photo image
+	void setNextPhotoImage(){
+		mEntryPosition++;
+
+		if (Pref.isAutoPlayByList(getBaseContext()) ){
+			if (mEntryPosition < min_pos_of_row)
+				mEntryPosition = max_pos_of_row;
+			else if(mEntryPosition > max_pos_of_row)
+				mEntryPosition = min_pos_of_row;
+		}
+
+		if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+			if (mEntryPosition >= photosCount)
+				mEntryPosition = 0;
+			else if(mEntryPosition < 0)
+				mEntryPosition = photosCount-1;
+		}
+
+		photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
+
+		if(handler != null) {
+			handler.removeCallbacks(runCountDown);
+			handler = null;
+		}
+
+		try {
+			setPhotoImage();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 }
