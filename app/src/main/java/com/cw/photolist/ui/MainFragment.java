@@ -1021,7 +1021,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     {
         NoteFragment fragment = new NoteFragment();
         final Bundle args = new Bundle();
-        args.putString("KEY_PHOTO_PATH", path);
+        args.putInt("PHOTO_POSITION", getPhotoPosition());
         fragment.setArguments(args);
         FragmentTransaction transaction = act.getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
