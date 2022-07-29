@@ -20,7 +20,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.cw.photolist.data.VideoContract.VideoEntry;
+import com.cw.photolist.data.PhotoContract.VideoEntry;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.MainFragment;
 
@@ -58,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_VIDEO_TABLE);
 
         System.out.println("DbHelper / _onCreate (will create category table)");
-        final String SQL_CREATE_CATEGORY_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.CategoryEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_CATEGORY_TABLE = "CREATE TABLE IF NOT EXISTS " + PhotoContract.CategoryEntry.TABLE_NAME + " (" +
                 VideoEntry._ID + " INTEGER PRIMARY KEY," +
                 "category_name" + " TEXT NOT NULL," +
                 "video_table_id" + " INTEGER" +

@@ -37,7 +37,7 @@ import androidx.annotation.NonNull;
 /**
  * VideoProvider is a ContentProvider that provides videos for the rest of applications.
  */
-public class VideoProvider extends ContentProvider {
+public class PhotoProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     public DbHelper mOpenHelper;
 
@@ -74,15 +74,15 @@ public class VideoProvider extends ContentProvider {
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = VideoContract.CONTENT_AUTHORITY;
+        final String authority = PhotoContract.CONTENT_AUTHORITY;
 
         // For each type of URI to add, create a corresponding code.
-        matcher.addURI(authority, VideoContract.PATH_VIDEO, VIDEO);
-        matcher.addURI(authority, VideoContract.PATH_VIDEO + "/*", VIDEO_WITH_CATEGORY);
+        matcher.addURI(authority, PhotoContract.PATH_VIDEO, VIDEO);
+        matcher.addURI(authority, PhotoContract.PATH_VIDEO + "/*", VIDEO_WITH_CATEGORY);
 
         // For each type of URI to add, create a corresponding code.
-        matcher.addURI(authority, VideoContract.PATH_CATEGORY, CATEGORY);
-        matcher.addURI(authority, VideoContract.PATH_CATEGORY + "/*", VIDEO_WITH_CATEGORY);
+        matcher.addURI(authority, PhotoContract.PATH_CATEGORY, CATEGORY);
+        matcher.addURI(authority, PhotoContract.PATH_CATEGORY + "/*", VIDEO_WITH_CATEGORY);
 
         // Search related URIs.
         matcher.addURI(authority, "search/" + SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
@@ -95,7 +95,7 @@ public class VideoProvider extends ContentProvider {
         return sVideosContainingQueryBuilder.query(
                 mOpenHelper.getReadableDatabase(),
                 sVideosContainingQueryColumns,
-                VideoContract.VideoEntry.COLUMN_LINK_TITLE + " LIKE ? ",
+                PhotoContract.VideoEntry.COLUMN_LINK_TITLE + " LIKE ? ",
                 new String[]{"%" + query + "%"},
                 null,
                 null,
@@ -105,31 +105,31 @@ public class VideoProvider extends ContentProvider {
 
     private static HashMap<String, String> buildColumnMap() {
         HashMap<String, String> map = new HashMap<>();
-        map.put(VideoContract.VideoEntry._ID, VideoContract.VideoEntry._ID);
-        map.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, VideoContract.VideoEntry.COLUMN_LINK_TITLE);
-        map.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, VideoContract.VideoEntry.COLUMN_ROW_TITLE);
-        map.put(VideoContract.VideoEntry.COLUMN_LINK_URL, VideoContract.VideoEntry.COLUMN_LINK_URL);
-        map.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, VideoContract.VideoEntry.COLUMN_THUMB_URL);
-        map.put(VideoContract.VideoEntry.COLUMN_ACTION, VideoContract.VideoEntry.COLUMN_ACTION);
-        map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, VideoContract.VideoEntry._ID + " AS " +
+        map.put(PhotoContract.VideoEntry._ID, PhotoContract.VideoEntry._ID);
+        map.put(PhotoContract.VideoEntry.COLUMN_LINK_TITLE, PhotoContract.VideoEntry.COLUMN_LINK_TITLE);
+        map.put(PhotoContract.VideoEntry.COLUMN_ROW_TITLE, PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
+        map.put(PhotoContract.VideoEntry.COLUMN_LINK_URL, PhotoContract.VideoEntry.COLUMN_LINK_URL);
+        map.put(PhotoContract.VideoEntry.COLUMN_THUMB_URL, PhotoContract.VideoEntry.COLUMN_THUMB_URL);
+        map.put(PhotoContract.VideoEntry.COLUMN_ACTION, PhotoContract.VideoEntry.COLUMN_ACTION);
+        map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, PhotoContract.VideoEntry._ID + " AS " +
                 SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
         map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID,
-                VideoContract.VideoEntry._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
+                PhotoContract.VideoEntry._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
         return map;
     }
 
     void updateQueryBuilder(String tableId)
     {
         sVideosContainingQueryBuilder = new SQLiteQueryBuilder();
-        sVideosContainingQueryBuilder.setTables(VideoContract.VideoEntry.TABLE_NAME.concat(tableId));
+        sVideosContainingQueryBuilder.setTables(PhotoContract.VideoEntry.TABLE_NAME.concat(tableId));
         sVideosContainingQueryBuilder.setProjectionMap(sColumnMap);
         sVideosContainingQueryColumns = new String[]{
-                VideoContract.VideoEntry._ID,
-                VideoContract.VideoEntry.COLUMN_LINK_TITLE,
-                VideoContract.VideoEntry.COLUMN_ROW_TITLE,
-                VideoContract.VideoEntry.COLUMN_LINK_URL,
-                VideoContract.VideoEntry.COLUMN_THUMB_URL,
-                VideoContract.VideoEntry.COLUMN_ACTION,
+                PhotoContract.VideoEntry._ID,
+                PhotoContract.VideoEntry.COLUMN_LINK_TITLE,
+                PhotoContract.VideoEntry.COLUMN_ROW_TITLE,
+                PhotoContract.VideoEntry.COLUMN_LINK_URL,
+                PhotoContract.VideoEntry.COLUMN_THUMB_URL,
+                PhotoContract.VideoEntry.COLUMN_ACTION,
                 SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID
         };
     }
@@ -163,7 +163,7 @@ public class VideoProvider extends ContentProvider {
             case VIDEO: {
 //                System.out.println("VideoProvider / _query/ case VIDEO  " );
                 retCursor = mOpenHelper.getReadableDatabase().query(
-                        VideoContract.VideoEntry.TABLE_NAME.concat(table_id),//todo temp
+                        PhotoContract.VideoEntry.TABLE_NAME.concat(table_id),//todo temp
                         projection,
                         selection,
                         selectionArgs,
@@ -176,7 +176,7 @@ public class VideoProvider extends ContentProvider {
             case CATEGORY: {
 //                System.out.println("VideoProvider / _query/ case CATEGORY  " );
                 retCursor = mOpenHelper.getReadableDatabase().query(
-                        VideoContract.CategoryEntry.TABLE_NAME,//todo temp
+                        PhotoContract.CategoryEntry.TABLE_NAME,//todo temp
                         projection,
                         selection,
                         selectionArgs,
@@ -202,11 +202,11 @@ public class VideoProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             // The application is querying the db for its own contents.
             case VIDEO_WITH_CATEGORY:
-                return VideoContract.VideoEntry.CONTENT_TYPE;
+                return PhotoContract.VideoEntry.CONTENT_TYPE;
             case VIDEO:
-                return VideoContract.VideoEntry.CONTENT_TYPE;
+                return PhotoContract.VideoEntry.CONTENT_TYPE;
             case CATEGORY:
-                return VideoContract.CategoryEntry.CONTENT_TYPE;
+                return PhotoContract.CategoryEntry.CONTENT_TYPE;
             // The Android TV global search is querying our app for relevant content.
             case SEARCH_SUGGEST:
                 return SearchManager.SUGGEST_MIME_TYPE;
@@ -228,9 +228,9 @@ public class VideoProvider extends ContentProvider {
         switch (match) {
             case VIDEO: {
                 long _id = mOpenHelper.getWritableDatabase().insert(
-                        VideoContract.VideoEntry.TABLE_NAME, null, values);
+                        PhotoContract.VideoEntry.TABLE_NAME, null, values);
                 if (_id > 0) {
-                    returnUri = VideoContract.VideoEntry.buildVideoUri(_id);
+                    returnUri = PhotoContract.VideoEntry.buildVideoUri(_id);
                 } else {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -238,9 +238,9 @@ public class VideoProvider extends ContentProvider {
             }
             case CATEGORY: {
                 long _id = mOpenHelper.getWritableDatabase().insert(
-                        VideoContract.CategoryEntry.TABLE_NAME, null, values);
+                        PhotoContract.CategoryEntry.TABLE_NAME, null, values);
                 if (_id > 0) {
-                    returnUri = VideoContract.CategoryEntry.buildCategoryUri(_id);
+                    returnUri = PhotoContract.CategoryEntry.buildCategoryUri(_id);
                 } else {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -266,12 +266,12 @@ public class VideoProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case VIDEO: {
                 rowsDeleted = mOpenHelper.getWritableDatabase().delete(
-                        VideoContract.VideoEntry.TABLE_NAME.concat(tableId), selection, selectionArgs);
+                        PhotoContract.VideoEntry.TABLE_NAME.concat(tableId), selection, selectionArgs);
                 break;
             }
             case CATEGORY: {
                 rowsDeleted = mOpenHelper.getWritableDatabase().delete(
-                        VideoContract.CategoryEntry.TABLE_NAME, selection, selectionArgs);
+                        PhotoContract.CategoryEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
             default: {
@@ -294,12 +294,12 @@ public class VideoProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case VIDEO: {
                 rowsUpdated = mOpenHelper.getWritableDatabase().update(
-                        VideoContract.VideoEntry.TABLE_NAME, values, selection, selectionArgs);
+                        PhotoContract.VideoEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             }
             case CATEGORY: {
                 rowsUpdated = mOpenHelper.getWritableDatabase().update(
-                        VideoContract.CategoryEntry.TABLE_NAME, values, selection, selectionArgs);
+                        PhotoContract.CategoryEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             }
             default: {
@@ -318,7 +318,7 @@ public class VideoProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
-        System.out.println("VideoProvider / _bulkInsert / uri = " + uri.toString());
+//        System.out.println("VideoProvider / _bulkInsert / uri = " + uri.toString());
         switch (sUriMatcher.match(uri)) {
             case VIDEO: {
                 final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -327,10 +327,10 @@ public class VideoProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insertWithOnConflict(VideoContract.VideoEntry.TABLE_NAME.concat(tableId),
+                        long _id = db.insertWithOnConflict(PhotoContract.VideoEntry.TABLE_NAME.concat(tableId),
                                 null, value, SQLiteDatabase.CONFLICT_REPLACE);
 
-                        System.out.println("VideoProvider / _bulkInsert (case VIDEO) / _id = " + _id);
+//                        System.out.println("VideoProvider / _bulkInsert (case VIDEO) / _id = " + _id);
                         if (_id != -1) {
                             returnCount++;
                         }
@@ -350,10 +350,10 @@ public class VideoProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insertWithOnConflict(VideoContract.CategoryEntry.TABLE_NAME,
+                        long _id = db.insertWithOnConflict(PhotoContract.CategoryEntry.TABLE_NAME,
                                 null, value, SQLiteDatabase.CONFLICT_REPLACE);
 
-                        System.out.println("VideoProvider / _bulkInsert (case CATEGORY) / _id = " + _id);
+//                        System.out.println("VideoProvider / _bulkInsert (case CATEGORY) / _id = " + _id);
                         if (_id != -1) {
                             returnCount++;
                         }

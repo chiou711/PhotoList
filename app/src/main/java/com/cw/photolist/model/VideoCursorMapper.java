@@ -19,7 +19,7 @@ package com.cw.photolist.model;
 import android.database.Cursor;
 import androidx.leanback.database.CursorMapper;
 
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 
 /**
  * VideoCursorMapper maps a database Cursor to a Video object.
@@ -34,11 +34,11 @@ public final class VideoCursorMapper extends CursorMapper {
 
     @Override
     protected void bindColumns(Cursor cursor) {
-        idIndex = cursor.getColumnIndex(VideoContract.VideoEntry._ID);
-        linkTitleIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_LINK_TITLE);
-        linkUrlIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_LINK_URL);
-        rowTitleIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
-        cardImageUrlIndex = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_THUMB_URL);
+        idIndex = cursor.getColumnIndex(PhotoContract.VideoEntry._ID);
+        linkTitleIndex = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_LINK_TITLE);
+        linkUrlIndex = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_LINK_URL);
+        rowTitleIndex = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
+        cardImageUrlIndex = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_THUMB_URL);
     }
 
     @Override

@@ -35,11 +35,11 @@ import android.view.View;
 
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter_browse;
-import com.cw.photolist.ui.note.Note;
+import com.cw.photolist.ui.photo.Photo;
 
 /*
  * BrowseCategoryFragment shows a grid of videos that can be scrolled vertically.
@@ -98,7 +98,7 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(
                 getActivity(),
-                VideoContract.VideoEntry.CONTENT_URI,
+                PhotoContract.VideoEntry.CONTENT_URI,
                 null, // projection
                 null, // selection
                 null, // selection clause
@@ -126,7 +126,7 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
             if (item instanceof Video) {
                 System.out.println("VerticalGridFragment /  _onItemClicked");
                 Video video = (Video) item;
-                Intent intent = new Intent(getActivity(), Note.class);
+                Intent intent = new Intent(getActivity(), Photo.class);
                 int pos = DbData.getCursorPositionById(getContext(),(int)video.id);
                 intent.putExtra("PHOTO_POSITION", pos);
                 startActivity(intent);

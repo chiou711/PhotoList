@@ -54,7 +54,7 @@ public class DbData {
               null//sortOrder
       );
 
-      int index = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+      int index = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
 
       int row_length = cursor.getCount();
 
@@ -90,7 +90,7 @@ public class DbData {
               null//sortOrder
       );
 
-      int index = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+      int index = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
 
       int row_length = cursor.getCount();
 
@@ -140,13 +140,13 @@ public class DbData {
       String selection = null;
       String[] selectionArgs = null;
       String sortOrder = null;
-      Cursor query = contentResolver.query(VideoContract.CategoryEntry.CONTENT_URI,projection,selection,selectionArgs,sortOrder);
+      Cursor query = contentResolver.query(PhotoContract.CategoryEntry.CONTENT_URI,projection,selection,selectionArgs,sortOrder);
 
       // get new position by video table ID
       int new_position=0;
       if (query.moveToFirst()) {
          do {
-            String columnStr = VideoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID;
+            String columnStr = PhotoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID;
             int index = query.getColumnIndex(columnStr);
             int pointedVideoTableId = query.getInt(index);
             if(pointedVideoTableId == prefVideoTableId)
@@ -163,7 +163,7 @@ public class DbData {
    // get cursor position by ID
    public static int getCursorPositionById(Context act,int id){
       int focusCatNum = Pref.getPref_video_table_id(act);
-      String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+      String table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 
       int pos = 0;
       DbHelper mOpenHelper = new DbHelper(act);

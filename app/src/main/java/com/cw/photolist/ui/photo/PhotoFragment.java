@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cw.photolist.ui.note;
+package com.cw.photolist.ui.photo;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -36,7 +36,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.utility.Pref;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-public class NoteFragment extends Fragment
+public class PhotoFragment extends Fragment
 {
     public FragmentActivity act;
 	int mEntryPosition;
@@ -64,22 +64,22 @@ public class NoteFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        System.out.println("NoteFragment / _onCreate");
+        System.out.println("PhotoFragment / _onCreate");
 
 	    act = getActivity();
 
 	    Bundle arguments = getArguments();
-	    System.out.println("NoteFragment / _onCreate / photoPath = " + photoPath);
+	    System.out.println("PhotoFragment / _onCreate / photoPath = " + photoPath);
 	    mEntryPosition = arguments.getInt("PHOTO_POSITION");
 	    focusCatNum = Pref.getPref_video_table_id(act);
 
-	    table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-	    column_photo_url = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+	    table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+	    column_photo_url = PhotoContract.VideoEntry.COLUMN_THUMB_URL;
 
 	    photoPath =  DbData.getDB_link_data(act,table, column_photo_url,mEntryPosition);
-	    System.out.println("NoteFragment / _onCreate / photoPath = " + photoPath);
+	    System.out.println("PhotoFragment / _onCreate / photoPath = " + photoPath);
 
-	    String row_title = DbData.getDB_link_data(act,table,VideoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
+	    String row_title = DbData.getDB_link_data(act,table, PhotoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
 	    min_pos_of_row = DbData.getDB_min_pos_of_row(act,table,row_title);
 	    max_pos_of_row = DbData.getDB_max_pos_of_row(act,table,row_title);
 
@@ -100,7 +100,7 @@ public class NoteFragment extends Fragment
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		rootView = inflater.inflate(R.layout.note_view_landscape,container, false);
+		rootView = inflater.inflate(R.layout.photo_view_landscape,container, false);
 		imageView = rootView.findViewById(R.id.image_view);
 		imageView.setVisibility(View.VISIBLE);
 		rootView.setBackgroundColor(Color.BLACK);
@@ -143,7 +143,7 @@ public class NoteFragment extends Fragment
 	}
 
 	void setPhotoImage() throws IOException {
-        System.out.println("NoteFragment / _setPhotoImage");
+        System.out.println("PhotoFragment / _setPhotoImage");
 
 		Glide.with(this)
 				.asBitmap()
@@ -172,12 +172,15 @@ public class NoteFragment extends Fragment
 				});
 	}
 
-	Toast mToast;
+	Toast toastPrevious;
+	Toast toastNext;
 	// set previous photo image
 	void setPreviousPhotoImage(){
 
-		mToast = Toast.makeText(act, R.string.previous_one, Toast.LENGTH_SHORT);
-		mToast.show();
+		if(toastPrevious == null) {
+			toastPrevious = Toast.makeText(act, R.string.previous_one, Toast.LENGTH_SHORT);
+			toastPrevious.show();
+		}
 
 		mEntryPosition--;
 
@@ -208,8 +211,10 @@ public class NoteFragment extends Fragment
 	// set next photo image
 	void setNextPhotoImage(){
 
-		mToast = Toast.makeText(act, R.string.next_one, Toast.LENGTH_SHORT);
-		mToast.show();
+		if(toastNext == null) {
+			toastNext = Toast.makeText(act, R.string.next_one, Toast.LENGTH_SHORT);
+			toastNext.show();
+		}
 
 		mEntryPosition++;
 

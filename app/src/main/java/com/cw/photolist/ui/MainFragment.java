@@ -68,18 +68,17 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cw.photolist.utility.Photo;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.ui.note.Note;
-import com.cw.photolist.ui.note.NoteFragment;
+import com.cw.photolist.ui.photo.Photo;
+import com.cw.photolist.ui.photo.PhotoFragment;
 import com.cw.photolist.utility.StorageUtils;
 import com.cw.photolist.utility.Utils;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.Pair;
 import com.cw.photolist.data.Source_links;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.presenter.CardPresenter;
@@ -197,7 +196,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             currFilePath = appDir;
 
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath,i);
+            LocalData.scan_and_save(act,currFilePath,i);
             List<String> categoryArray = LocalData.category_array;
 
             // check
@@ -208,8 +207,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
 
             LocalData.init(currFilePath);
-            LocalData.scan_and_save(currFilePath,i);
-            List<Photo> photoArray = LocalData.photo_array;
+            LocalData.scan_and_save(act,currFilePath,i);
+            List<com.cw.photolist.utility.Photo> photoArray = LocalData.photo_array;
 
             // check
             size = photoArray.size();
@@ -236,7 +235,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         System.out.println("MainFragment / _onStop");
         if(mBackgroundManager!=null)
             mBackgroundManager.release();
-        cancelYouTubeHandler();
+        cancelPhotoHandler();
         super.onStop();
     }
 
@@ -455,7 +454,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                         public void onClick(DialogInterface dialog1, int which1)
                         {
                             alertDlg.dismiss();
-                            cancelYouTubeHandler();
+                            cancelPhotoHandler();
                         }
                     })
                     .setNegativeButton(act.getString(R.string.button_continue), new DialogInterface.OnClickListener()
@@ -466,9 +465,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                         {
                             // launch next intent
                             alertDlg.dismiss();
-                            cancelYouTubeHandler();
+                            cancelPhotoHandler();
 
-                            startNoteIntentForResult(getPhotoPosition());
+                            startPhotoIntentForResult(getPhotoPosition());
                         }
                     }).
                     setOnCancelListener(new DialogInterface.OnCancelListener(){
@@ -476,7 +475,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                         @Override
                         public void onCancel(DialogInterface dialog) {
                             alertDlg.dismiss();
-                            cancelYouTubeHandler();
+                            cancelPhotoHandler();
                         }
                     } );
             alertDlg = builder.create();
@@ -521,10 +520,10 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         if (id == CATEGORY_LOADER) {
             return new CursorLoader(
                     Objects.requireNonNull(getContext()),
-                    VideoContract.CategoryEntry.CONTENT_URI, // Table to query
+                    PhotoContract.CategoryEntry.CONTENT_URI, // Table to query
                     // not show duplicated category name
-                    new String[]{"DISTINCT " + VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME,
-                            VideoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID},
+                    new String[]{"DISTINCT " + PhotoContract.CategoryEntry.COLUMN_CATEGORY_NAME,
+                            PhotoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID},
                     // show duplicated category name
 //                    new String[]{VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME},
                     // Only categories
@@ -537,8 +536,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         else if (id == TITLE_LOADER) {
             return new CursorLoader(
                     getContext(),
-                    VideoContract.VideoEntry.CONTENT_URI, // Table to query
-                    new String[]{"DISTINCT " + VideoContract.VideoEntry.COLUMN_ROW_TITLE},
+                    PhotoContract.VideoEntry.CONTENT_URI, // Table to query
+                    new String[]{"DISTINCT " + PhotoContract.VideoEntry.COLUMN_ROW_TITLE},
                     // Only categories
                     null, // No selection clause
                     null, // No selection arguments
@@ -547,14 +546,14 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
         } else {
             // Assume it is for a video.
-            String title = args.getString(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+            String title = args.getString(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
 //            System.out.println("MainFragment / _onCreateLoader / title = "+ title);
             // This just creates a CursorLoader that gets all videos.
             return new CursorLoader(
                     getContext(),
-                    VideoContract.VideoEntry.CONTENT_URI, // Table to query
+                    PhotoContract.VideoEntry.CONTENT_URI, // Table to query
                     null, // Projection to return - null means return all fields
-                    VideoContract.VideoEntry.COLUMN_ROW_TITLE + " = ?", // Selection clause
+                    PhotoContract.VideoEntry.COLUMN_ROW_TITLE + " = ?", // Selection clause
                     new String[]{title},  // Select based on the rowTitle id.
                     null // Default sort order
             );
@@ -592,7 +591,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 mCategoryNames = new ArrayList<>();
                 // Iterate through each category entry and add it to the ArrayAdapter.
                 while (!data.isAfterLast()) {
-                    int categoryIndex = data.getColumnIndex(VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME);
+                    int categoryIndex = data.getColumnIndex(PhotoContract.CategoryEntry.COLUMN_CATEGORY_NAME);
                     String category_name = data.getString(categoryIndex);
 //                    System.out.println("MainFragment / _onLoadFinished / category_name = " + category_name);
                     mCategoryNames.add(category_name);
@@ -663,7 +662,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                     DbHelper mOpenHelper = new DbHelper(act);
                     mOpenHelper.setWriteAheadLoggingEnabled(false);
                     SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
-                    String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(Pref.getPref_video_table_id(act)));
+                    String table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(Pref.getPref_video_table_id(act)));
 
                     Cursor cursor = sqlDb.query(
                             table,
@@ -675,8 +674,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                             null//sortOrder
                     );
 
-                    int columnIndex_ID = cursor.getColumnIndex(VideoContract.VideoEntry._ID);
-                    int columnIndex_row_title = cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+                    int columnIndex_ID = cursor.getColumnIndex(PhotoContract.VideoEntry._ID);
+                    int columnIndex_row_title = cursor.getColumnIndex(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
                     int videosCount = cursor.getCount();
                     String same_row_title = null;
                     int size_row_links = 0;
@@ -837,7 +836,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
         // Iterate through each category entry and add it to the ArrayAdapter.
         while (!data.isAfterLast()) {
-            int titleIndex = data.getColumnIndex(VideoContract.VideoEntry.COLUMN_ROW_TITLE);
+            int titleIndex = data.getColumnIndex(PhotoContract.VideoEntry.COLUMN_ROW_TITLE);
             String title = data.getString(titleIndex);
 //            System.out.println("MainFragment / _onLoadFinished / title = " + title);
 
@@ -886,7 +885,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
                 // Start loading the videos from the database for a particular category.
                 Bundle args = new Bundle();
-                args.putString(VideoContract.VideoEntry.COLUMN_ROW_TITLE, title);
+                args.putString(PhotoContract.VideoEntry.COLUMN_ROW_TITLE, title);
 
                 // init loader for video items
                 mLoaderManager.initLoader(videoLoaderId, args, this);
@@ -944,17 +943,17 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             {
                 // launch next intent
                 alertDlg.dismiss();
-                cancelYouTubeHandler();
-                launchYouTubeIntent();
+                cancelPhotoHandler();
+                launchPhotoIntent();
             }
         }
     };
 
     int delay100ms = 100;
     /**
-     *  launch next YouTube intent
+     *  launch next photo intent
      */
-    private void launchYouTubeIntent()
+    private void launchPhotoIntent()
     {
 //        if(MainFragment.currLinkId >= MainFragment.getCurrLinksLength())
         //refer: https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_DPAD_DOWN_RIGHT
@@ -991,7 +990,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId(getNextId_auto());
 
             // method 1: by intent
-            startNoteIntentForResult(getPhotoPosition());
+            startPhotoIntentForResult(getPhotoPosition());
 
             // method 2 : by UI
 //            mInputConnection = new BaseInputConnection(act.findViewById(R.id.main_frame), true);
@@ -1001,36 +1000,36 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         }
     }
 
-    // start note intent for result
-    private void startNoteIntentForResult(int position){
-        Intent intent = new Intent(act,Note.class);
+    // start photo intent for result
+    private void startPhotoIntentForResult(int position){
+        Intent intent = new Intent(act, Photo.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivityForResult(intent,PHOTO_INTENT);
     }
 
 
-    // start note intent
-    private void startNoteIntent(int position){
-        Intent intent = new Intent(act,Note.class);
+    // start photo intent
+    private void startPhotoIntent(int position){
+        Intent intent = new Intent(act, Photo.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivity(intent);
     }
 
-    // start note fragment
-    private void startNoteFragment(String path)
+    // start photo fragment
+    private void startPhotoFragment(String path)
     {
-        NoteFragment fragment = new NoteFragment();
+        PhotoFragment fragment = new PhotoFragment();
         final Bundle args = new Bundle();
         args.putInt("PHOTO_POSITION", getPhotoPosition());
         fragment.setArguments(args);
         FragmentTransaction transaction = act.getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
-        transaction.replace(R.id.main_frame, fragment,"note").addToBackStack("note_stack").commit();
+        transaction.replace(R.id.main_frame, fragment,"photo").addToBackStack("photo_stack").commit();
     }
 
-    private void cancelYouTubeHandler()
+    private void cancelPhotoHandler()
     {
-        System.out.println("MainFragment / _cancelYouTubeHandler");
+        System.out.println("MainFragment / _cancelPhotoHandler");
         if(handler != null) {
             handler.removeCallbacks(runCountDown);
             handler = null;
@@ -1115,7 +1114,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // set new play Id after Shift keys
             setPlayId(getNextId_auto());
 
-            startNoteIntentForResult(getPhotoPosition());
+            startPhotoIntentForResult(getPhotoPosition());
         }
     }
 
@@ -1248,8 +1247,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     // get photo path
     private String getPhotoPath() {
         int focusCatNum = Pref.getPref_video_table_id(act);
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-        String columnName = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+        String table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+        String columnName = PhotoContract.VideoEntry.COLUMN_THUMB_URL;
         int pos = DbData.getCursorPositionById(getContext(),getPlayId());
         return DbData.getDB_link_data(getContext(),table,columnName,pos);
     }
@@ -1263,8 +1262,8 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     // get next photo title
     private String getNextPhotoTitle() {
         int focusCatNum = Pref.getPref_video_table_id(act);
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-        String columnName = VideoContract.VideoEntry.COLUMN_LINK_TITLE;
+        String table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+        String columnName = PhotoContract.VideoEntry.COLUMN_LINK_TITLE;
         int pos = DbData.getCursorPositionById(getContext(),getNextId_auto());
         return DbData.getDB_link_data(getContext(),table,columnName,pos);
     }
@@ -1272,7 +1271,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     // get next cursor position ID for Auto play
     int getNextCursorPositionId_auto(int currentPlayId){
         int focusCatNum = Pref.getPref_video_table_id(act);
-        String table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+        String table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 
         int cursorPos = 0;
         DbHelper mOpenHelper = new DbHelper(act);
@@ -1409,9 +1408,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId((int) ((Video) (item)).id);
 
             if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
-                startNoteIntentForResult(getPhotoPosition());
+                startPhotoIntentForResult(getPhotoPosition());
             else if(Define.DEFAULT_PLAY_NEXT == Define.by_runnable)
-                startNoteIntent(getPhotoPosition());
+                startPhotoIntent(getPhotoPosition());
 
         } else {
             // manual play
@@ -1419,7 +1418,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 public void run() {
                         // for open directly
                     setPlayId((int) ((Video) (item)).id);
-                    startNoteFragment(getPhotoPath());
+                    startPhotoFragment(getPhotoPath());
                 }
             });
         }

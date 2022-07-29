@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.cw.photolist.ui.note;
+package com.cw.photolist.ui.photo;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -39,7 +39,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.define.Define;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.io.IOException;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Note extends AppCompatActivity
+public class Photo extends AppCompatActivity
 {
     int mEntryPosition;
 	public static String photoPath;
@@ -65,9 +65,9 @@ public class Note extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("Note / _onCreate");
+        System.out.println("Photo / _onCreate");
 
-	    setContentView(R.layout.note_view_landscape);
+	    setContentView(R.layout.photo_view_landscape);
 
 	    if (getSupportActionBar() != null) {
 		    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -80,16 +80,16 @@ public class Note extends AppCompatActivity
 
 	    // set current selection
 	    mEntryPosition = getIntent().getExtras().getInt("PHOTO_POSITION");
-	    System.out.println("Note / _onCreate / mEntryPosition = " + mEntryPosition);
+	    System.out.println("Photo / _onCreate / mEntryPosition = " + mEntryPosition);
 
 	    focusCatNum = Pref.getPref_video_table_id(getBaseContext());
-	    table = VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
-	    column_photo_url = VideoContract.VideoEntry.COLUMN_THUMB_URL;
+	    table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
+	    column_photo_url = PhotoContract.VideoEntry.COLUMN_THUMB_URL;
 
 	    photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
-	    System.out.println("Note / _onCreate / photoPath = " + photoPath);
+	    System.out.println("Photo / _onCreate / photoPath = " + photoPath);
 
-		String row_title = DbData.getDB_link_data(getBaseContext(),table,VideoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
+		String row_title = DbData.getDB_link_data(getBaseContext(),table, PhotoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
 	    min_pos_of_row = DbData.getDB_min_pos_of_row(getBaseContext(),table,row_title);
 		max_pos_of_row = DbData.getDB_max_pos_of_row(getBaseContext(),table,row_title);
 
@@ -131,9 +131,9 @@ public class Note extends AppCompatActivity
 			// start count down
 			count--;
 
-			if(mToast==null ) {
-				mToast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
-				mToast.show();
+			if(toast ==null ) {
+				toast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
+				toast.show();
 			}
 
 			if(count>0){
@@ -142,7 +142,7 @@ public class Note extends AppCompatActivity
 					setPhotoImage();
 				} catch (IOException e) {
 					e.printStackTrace();
-					System.out.println("Note / _runCountDown / exception ");
+					System.out.println("Photo / _runCountDown / exception ");
 				}
 
 				handler.postDelayed(runCountDown,1000);
@@ -165,16 +165,16 @@ public class Note extends AppCompatActivity
 
 			if(count == Define.DEFAULT_DISPLAY_DURATION){
 
-				if(mToast == null) {
-					mToast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
-					mToast.show();
+				if(toast == null) {
+					toast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
+					toast.show();
 				}
 
 				try {
 					setPhotoImage();
 				} catch (IOException e) {
 					e.printStackTrace();
-					System.out.println("Note / _runAutoPlay / exception ");
+					System.out.println("Photo / _runAutoPlay / exception ");
 				}
 			}
 
@@ -208,7 +208,7 @@ public class Note extends AppCompatActivity
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		System.out.println("Note / _onKeyDown / keyCode = " + keyCode);
+		System.out.println("Photo / _onKeyDown / keyCode = " + keyCode);
 		switch (keyCode) {
 			case KeyEvent.KEYCODE_DPAD_LEFT: //21
 				setPreviousPhotoImage();
@@ -247,7 +247,7 @@ public class Note extends AppCompatActivity
 	}
 
 	void setPhotoImage() throws IOException {
-        System.out.println("Note / _setPhotoImage");
+        System.out.println("Photo / _setPhotoImage");
 
 //		photoPath = "https://i.imgur.com/DvpvklR.png";
 
@@ -285,7 +285,7 @@ public class Note extends AppCompatActivity
 	// avoid exception: has leaked window android.widget.ZoomButtonsController
 	@Override
 	public void finish() {
-		System.out.println("Note / _finish");
+		System.out.println("Photo / _finish");
 //		ViewGroup view = (ViewGroup) getWindow().getDecorView();
 //	    view.setBackgroundColor(getResources().getColor(color.background_dark)); // avoid white flash
 //	    view.setBackgroundColor(getResources().getColor(R.color.bar_color)); // avoid white flash
@@ -297,14 +297,14 @@ public class Note extends AppCompatActivity
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		System.out.println("Note / _onSaveInstanceState");
+		System.out.println("Photo / _onSaveInstanceState");
 	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) 
     {
         super.onCreateOptionsMenu(menu);
-		System.out.println("Note / _onCreateOptionsMenu");
+		System.out.println("Photo / _onCreateOptionsMenu");
         return true;
     }
     
@@ -327,7 +327,7 @@ public class Note extends AppCompatActivity
     // on back pressed
     @Override
     public void onBackPressed() {
-		System.out.println("Note / _onBackPressed");
+		System.out.println("Photo / _onBackPressed");
 	    if(handler != null) {
 		    handler.removeCallbacks(runCountDown);
 		    handler = null;
@@ -362,12 +362,16 @@ public class Note extends AppCompatActivity
         return super.dispatchTouchEvent(event);
     }
 
-	Toast mToast;
+	Toast toast;
+	Toast toast_previous;
+	Toast toast_next;
 	// set previous photo image
 	void setPreviousPhotoImage(){
 
-		mToast = Toast.makeText(getBaseContext(), R.string.previous_one, Toast.LENGTH_SHORT);
-		mToast.show();
+		if(toast_previous == null) {
+			toast_previous = Toast.makeText(getBaseContext(), R.string.previous_one, Toast.LENGTH_SHORT);
+			toast_previous.show();
+		}
 
 		mEntryPosition--;
 
@@ -402,8 +406,10 @@ public class Note extends AppCompatActivity
 	// set next photo image
 	void setNextPhotoImage(){
 
-		mToast = Toast.makeText(getBaseContext(), R.string.next_one, Toast.LENGTH_SHORT);
-		mToast.show();
+		if(toast_next == null) {
+			toast_next = Toast.makeText(getBaseContext(), R.string.next_one, Toast.LENGTH_SHORT);
+			toast_next.show();
+		}
 
 		mEntryPosition++;
 

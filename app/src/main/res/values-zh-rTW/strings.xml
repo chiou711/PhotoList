@@ -131,4 +131,6 @@
     <string name="previous_one">上一張</string>
     <string name="next_one">下一張</string>
 
+    <string name="no_photo_yet">還沒有照片</string>
+
 </resources>

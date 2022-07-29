@@ -244,9 +244,9 @@ public final class MovieList {
 
 				for (int i = 0; i < jsonArray.length(); i++) {
 					JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-					Id[i] = jsonObject.getInt("note_id");
-					Uri[i] = jsonObject.getString("note_link_uri");
-					Title[i] = jsonObject.getString("note_title");
+					Id[i] = jsonObject.getInt("photo_id");
+					Uri[i] = jsonObject.getString("photo_link_uri");
+					Title[i] = jsonObject.getString("photo_title");
 				}
 
 				isDataReady = true;

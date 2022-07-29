@@ -21,9 +21,9 @@ import android.os.Bundle;
 import com.cw.photolist.R;
 
 /*
- * Details activity class that loads VideoDetailsFragment class
+ * Details activity class that loads PhotoDetailsFragment class
  */
-public class VideoDetailsActivity extends LeanbackActivity {
+public class PhotoDetailsActivity extends LeanbackActivity {
     public static final String SHARED_ELEMENT_NAME = "hero";
     public static final String VIDEO = "Video";
     public static final String NOTIFICATION_ID = "NotificationId";

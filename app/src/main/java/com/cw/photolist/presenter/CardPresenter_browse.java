@@ -35,7 +35,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.R;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.ui.MainFragment;
-import com.cw.photolist.ui.VideoDetailsActivity;
+import com.cw.photolist.ui.PhotoDetailsActivity;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
@@ -153,15 +153,15 @@ public class CardPresenter_browse extends Presenter {
                 System.out.println("CardPresenter / onLongClick");
                 if (item instanceof Video) {
                     Video video = (Video) item;
-                    Intent intent = new Intent(act, VideoDetailsActivity.class);
-                    intent.putExtra(VideoDetailsActivity.VIDEO, video);
+                    Intent intent = new Intent(act, PhotoDetailsActivity.class);
+                    intent.putExtra(PhotoDetailsActivity.VIDEO, video);
 
                     act.runOnUiThread(new Runnable() {
                         public void run() {
                             Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                                     act,
                                     ((ImageCardView) viewHolder.view).getMainImageView(),
-                                    VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                                    PhotoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                             act.startActivityForResult(intent, MainFragment.VIDEO_DETAILS_INTENT, bundle);
                         }
                     });

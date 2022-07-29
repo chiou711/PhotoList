@@ -18,15 +18,10 @@
     package="com.cw.photolist">
 
     <permission
-        android:name="${applicationId}.ACCESS_VIDEO_DATA"
+        android:name="${applicationId}.ACCESS_PHOTO_DATA"
         android:protectionLevel="signature" />
 
-    <permission
-        android:name="${applicationId}.ACCESS_CATEGORY_DATA"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="${applicationId}.ACCESS_VIDEO_DATA" />
-    <uses-permission android:name="${applicationId}.ACCESS_CATEGORY_DATA" />
+    <uses-permission android:name="${applicationId}.ACCESS_PHOTO_DATA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -64,10 +59,10 @@
 
         <meta-data
             android:name="android.app.default_searchable"
-            android:value=".ui.VideoDetailsActivity" />
+            android:value=".ui.PhotoDetailsActivity" />
 
         <activity
-            android:name="com.cw.photolist.ui.VideoDetailsActivity"
+            android:name="com.cw.photolist.ui.PhotoDetailsActivity"
             android:exported="true"
             android:theme="@style/Theme.Leanback.Details">
 
@@ -91,16 +86,16 @@
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="com.cw.photolist.ui.options.browse_category.SearchActivity" />
 
-        <activity android:name=".ui.note.Note"
+        <activity android:name=".ui.photo.Photo"
             android:theme="@style/Theme.AppCompat"
             android:exported="true">
         </activity>
 
         <provider
-            android:name="com.cw.photolist.data.VideoProvider"
+            android:name="com.cw.photolist.data.PhotoProvider"
             android:authorities="${packageName}"
             android:exported="true"
-            android:permission="${applicationId}.ACCESS_VIDEO_DATA">
+            android:permission="${applicationId}.ACCESS_PHOTO_DATA">
             <path-permission
                 android:pathPrefix="/search"
                 android:readPermission="android.permission.GLOBAL_SEARCH" />

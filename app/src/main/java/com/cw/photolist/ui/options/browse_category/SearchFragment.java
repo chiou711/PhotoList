@@ -50,11 +50,11 @@ import android.widget.Toast;
 import com.cw.photolist.BuildConfig;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
-import com.cw.photolist.ui.VideoDetailsActivity;
+import com.cw.photolist.ui.PhotoDetailsActivity;
 
 
 /*
@@ -185,9 +185,9 @@ public class SearchFragment extends SearchSupportFragment
         String query = mQuery;
         return new CursorLoader(
                 getActivity(),
-                VideoContract.VideoEntry.CONTENT_URI,
+                PhotoContract.VideoEntry.CONTENT_URI,
                 null, // Return all fields.
-                VideoContract.VideoEntry.COLUMN_LINK_TITLE + " LIKE ? " ,
+                PhotoContract.VideoEntry.COLUMN_LINK_TITLE + " LIKE ? " ,
                 new String[]{"%" + query + "%"},
                 null // Default sort order
         );
@@ -227,13 +227,13 @@ public class SearchFragment extends SearchSupportFragment
                     Pref.isAutoPlayByCategory(getActivity())) {
                     // add action
                 } else {
-                    Intent intent = new Intent(getActivity(), VideoDetailsActivity.class);
-                    intent.putExtra(VideoDetailsActivity.VIDEO, video);
+                    Intent intent = new Intent(getActivity(), PhotoDetailsActivity.class);
+                    intent.putExtra(PhotoDetailsActivity.VIDEO, video);
 
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
                             ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                            VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                            PhotoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                     getActivity().startActivity(intent, bundle);
                 }
 

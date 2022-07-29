@@ -25,7 +25,7 @@ import android.provider.BaseColumns;
 /**
  * VideoContract represents the contract for storing videos in the SQLite database.
  */
-public final class VideoContract {
+public final class PhotoContract {
 
     // The name for the entire content provider.
     public static final String CONTENT_AUTHORITY = "com.cw.photolist";

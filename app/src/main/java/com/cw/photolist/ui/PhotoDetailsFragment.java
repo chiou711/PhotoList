@@ -71,13 +71,13 @@ import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter;
 import com.cw.photolist.presenter.DetailsDescriptionPresenter;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 
 /*
- * VideoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
+ * PhotoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
  * It shows a detailed view of video and its metadata plus related videos.
  */
-public class VideoDetailsFragment extends DetailsSupportFragment
+public class PhotoDetailsFragment extends DetailsSupportFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int NO_NOTIFICATION = -1;
@@ -109,11 +109,11 @@ public class VideoDetailsFragment extends DetailsSupportFragment
         mVideoCursorAdapter.setMapper(mVideoCursorMapper);
 
         mSelectedVideo = (Video) getActivity().getIntent()
-                .getParcelableExtra(VideoDetailsActivity.VIDEO);
+                .getParcelableExtra(PhotoDetailsActivity.VIDEO);
 
         if (mSelectedVideo != null || !hasGlobalSearchIntent()) {
             removeNotification(getActivity().getIntent()
-                    .getIntExtra(VideoDetailsActivity.NOTIFICATION_ID, NO_NOTIFICATION));
+                    .getIntExtra(PhotoDetailsActivity.NOTIFICATION_ID, NO_NOTIFICATION));
             setupAdapter();
             setupDetailsOverviewRow();
             setupMovieListRow();
@@ -151,7 +151,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
             String videoId = intentData.getLastPathSegment();
 
             Bundle args = new Bundle();
-            args.putString(VideoContract.VideoEntry._ID, videoId);
+            args.putString(PhotoContract.VideoEntry._ID, videoId);
             getLoaderManager().initLoader(mGlobalSearchVideoId++, args, this);
             return true;
         }
@@ -202,7 +202,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
         // Hook up transition element.
         mHelper = new FullWidthDetailsOverviewSharedElementHelper();
         mHelper.setSharedElementEnterTransition(getActivity(),
-                VideoDetailsActivity.SHARED_ELEMENT_NAME);
+                PhotoDetailsActivity.SHARED_ELEMENT_NAME);
         detailsPresenter.setListener(mHelper);
         detailsPresenter.setParticipatingEntranceTransition(false);
         prepareEntranceTransition();
@@ -232,13 +232,13 @@ public class VideoDetailsFragment extends DetailsSupportFragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case RELATED_VIDEO_LOADER: {
-                String title = args.getString(VideoContract.VideoEntry.COLUMN_ROW_TITLE );
+                String title = args.getString(PhotoContract.VideoEntry.COLUMN_ROW_TITLE );
                 System.out.println("VideoDetailsFragment / _onCreateLoader / title = " + title);
                 return new CursorLoader(
                         getActivity(),
-                        VideoContract.VideoEntry.CONTENT_URI,
+                        PhotoContract.VideoEntry.CONTENT_URI,
                         null,
-                        VideoContract.VideoEntry.COLUMN_ROW_TITLE + " = ?",
+                        PhotoContract.VideoEntry.COLUMN_ROW_TITLE + " = ?",
                         new String[]{title},
                         null
                 );
@@ -246,13 +246,13 @@ public class VideoDetailsFragment extends DetailsSupportFragment
             }
             default: {
                 // Loading video from global search.
-                String videoId = args.getString(VideoContract.VideoEntry._ID);
+                String videoId = args.getString(PhotoContract.VideoEntry._ID);
                 System.out.println("VideoDetailsFragment / _onCreateLoader / videoId = " + videoId);
                 return new CursorLoader(
                         getActivity(),
-                        VideoContract.VideoEntry.CONTENT_URI,
+                        PhotoContract.VideoEntry.CONTENT_URI,
                         null,
-                        VideoContract.VideoEntry._ID + " = ?",
+                        PhotoContract.VideoEntry._ID + " = ?",
                         new String[]{videoId},
                         null
                 );
@@ -394,7 +394,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment
         String title = mSelectedVideo.rowTitle;
 
         Bundle args = new Bundle();
-        args.putString(VideoContract.VideoEntry.COLUMN_ROW_TITLE, title);
+        args.putString(PhotoContract.VideoEntry.COLUMN_ROW_TITLE, title);
 
         getLoaderManager().initLoader(RELATED_VIDEO_LOADER, args, this);
 
@@ -414,12 +414,12 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                     Pref.isAutoPlayByCategory(getActivity())) {
                     // add action
                 } else {
-                    Intent intent = new Intent(getActivity(), VideoDetailsActivity.class);
-                    intent.putExtra(VideoDetailsActivity.VIDEO, video);
+                    Intent intent = new Intent(getActivity(), PhotoDetailsActivity.class);
+                    intent.putExtra(PhotoDetailsActivity.VIDEO, video);
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
                             ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                            VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                            PhotoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                     getActivity().startActivity(intent, bundle);
                 }
             }

@@ -33,8 +33,8 @@ import androidx.preference.PreferenceScreen;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
-import com.cw.photolist.data.VideoContract;
-import com.cw.photolist.data.VideoProvider;
+import com.cw.photolist.data.PhotoContract;
+import com.cw.photolist.data.PhotoProvider;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.MainActivity;
 import com.cw.photolist.ui.MainFragment;
@@ -183,9 +183,9 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 Objects.requireNonNull(act).deleteDatabase(DbHelper.DATABASE_NAME);
 
                 ContentResolver resolver = act.getContentResolver();
-                ContentProviderClient client = resolver.acquireContentProviderClient(VideoContract.CONTENT_AUTHORITY);
+                ContentProviderClient client = resolver.acquireContentProviderClient(PhotoContract.CONTENT_AUTHORITY);
                 assert client != null;
-                VideoProvider provider = (VideoProvider) client.getLocalContentProvider();
+                PhotoProvider provider = (PhotoProvider) client.getLocalContentProvider();
 
                 assert provider != null;
                 provider.mContentResolver = resolver;

@@ -30,7 +30,7 @@ import android.widget.TextView;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.utility.Utils;
-import com.cw.photolist.data.VideoContract;
+import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.ui.MainActivity;
 
 import java.util.ArrayList;
@@ -116,13 +116,13 @@ public class SelectCategoryFragment extends VerticalGridSupportFragment implemen
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
 
-        System.out.println("SelectCategoryFragment / _onCreateLoader / id == CATEGORY_LOADER / CategoryContract.CategoryEntry.CONTENT_URI =" + VideoContract.CategoryEntry.CONTENT_URI);
+        System.out.println("SelectCategoryFragment / _onCreateLoader / id == CATEGORY_LOADER / CategoryContract.CategoryEntry.CONTENT_URI =" + PhotoContract.CategoryEntry.CONTENT_URI);
 
         // id = CATEGORY_LOADER
         return new CursorLoader(
 		        getContext(),
-		        VideoContract.CategoryEntry.CONTENT_URI, // Table to query
-		        new String[]{"DISTINCT " + VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME},
+		        PhotoContract.CategoryEntry.CONTENT_URI, // Table to query
+		        new String[]{"DISTINCT " + PhotoContract.CategoryEntry.COLUMN_CATEGORY_NAME},
 		        // Only categories
 		        null, // No selection clause
 		        null, // No selection arguments
@@ -145,7 +145,7 @@ public class SelectCategoryFragment extends VerticalGridSupportFragment implemen
                 // Iterate through each category entry and add it to the ArrayAdapter.
                 while (!data.isAfterLast()) {
 
-                    int categoryIndex = data.getColumnIndex(VideoContract.CategoryEntry.COLUMN_CATEGORY_NAME);
+                    int categoryIndex = data.getColumnIndex(PhotoContract.CategoryEntry.COLUMN_CATEGORY_NAME);
                     String category_name = data.getString(categoryIndex);
                     System.out.println("SelectCategoryFragment / _onLoadFinished / category_name = " + category_name);
                     mCategoryNames.add(category_name);

@@ -33,8 +33,8 @@ import android.widget.Toast;
 
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
-import com.cw.photolist.data.VideoContract;
-import com.cw.photolist.data.VideoProvider;
+import com.cw.photolist.data.PhotoContract;
+import com.cw.photolist.data.PhotoProvider;
 import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.MainActivity;
 
@@ -155,7 +155,7 @@ public class Utils {
         cursor.moveToFirst();
 
         try {
-            int columnIndex = cursor.getColumnIndex(VideoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID);
+            int columnIndex = cursor.getColumnIndex(PhotoContract.CategoryEntry.COLUMN_VIDEO_TABLE_ID);
             videoTableId = cursor.getInt(columnIndex);
         }catch (Exception e){
             e.printStackTrace();
@@ -231,7 +231,7 @@ public class Utils {
 
         // Drop video table command
         final String SQL_DROP_VIDEO_TABLE = "DROP TABLE IF EXISTS " +
-                VideoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(videoTableId));
+                PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(videoTableId));
 
         System.out.println(" SQL_DROP_VIDEO_TABLE = " + SQL_DROP_VIDEO_TABLE);
 
@@ -242,7 +242,7 @@ public class Utils {
 
         // delete current row in category table after drop its video table
         ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
-        contentResolver.delete(VideoContract.CategoryEntry.CONTENT_URI,
+        contentResolver.delete(PhotoContract.CategoryEntry.CONTENT_URI,
                 "category_name=" + "\""+(String)item+"\"" ,
                 null);
 
@@ -333,15 +333,15 @@ public class Utils {
 
         // delete current item
         ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
-        VideoProvider.tableId = String.valueOf(Pref.getPref_video_table_id(act));
-        System.out.println("Utils / _deleteSelectedPlaylist / VideoProvider.tableId = " + VideoProvider.tableId);
-        contentResolver.delete(VideoContract.VideoEntry.CONTENT_URI, "row_title=" + "\""+item+"\"",null);
+        PhotoProvider.tableId = String.valueOf(Pref.getPref_video_table_id(act));
+        System.out.println("Utils / _deleteSelectedPlaylist / VideoProvider.tableId = " + PhotoProvider.tableId);
+        contentResolver.delete(PhotoContract.VideoEntry.CONTENT_URI, "row_title=" + "\""+item+"\"",null);
 
         // check if playlist still exists
         Cursor cursor = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             // Call requires API level 26(8.0)
-            cursor = contentResolver.query(VideoContract.VideoEntry.CONTENT_URI, null,null,null);
+            cursor = contentResolver.query(PhotoContract.VideoEntry.CONTENT_URI, null,null,null);
         }
         int leftRows = cursor.getCount();
         cursor.close();
@@ -416,8 +416,8 @@ public class Utils {
 
         System.out.println("Utils / _deleteSelectedItem / id = " + video_id);
         ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
-        VideoProvider.tableId = String.valueOf(Pref.getPref_video_table_id(act));
-        contentResolver.delete(VideoContract.VideoEntry.CONTENT_URI, "_id=" + video_id,null);
+        PhotoProvider.tableId = String.valueOf(Pref.getPref_video_table_id(act));
+        contentResolver.delete(PhotoContract.VideoEntry.CONTENT_URI, "_id=" + video_id,null);
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("KEY_DELETE", Pref.DB_DELETE);

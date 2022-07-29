@@ -23,14 +23,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
-import com.cw.photolist.data.VideoContract;
-import com.cw.photolist.data.VideoProvider;
+import com.cw.photolist.data.PhotoContract;
+import com.cw.photolist.data.PhotoProvider;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class LocalData {
     static String listTitle = null;
 
     // Scan all storage devices and save audio links to DB
-    public static void scan_and_save(String currFilePath,int storage_number){
+    public static void scan_and_save(Activity act,String currFilePath,int last_cat_number){
         System.out.println("LocalData / _scan_and_save / currFilePath = " + currFilePath);
 
         List<String> list;
@@ -79,73 +79,94 @@ public class LocalData {
 
         if (list.size() > 0 ) {
             for (String file : list) {
-                File fileDir = new File(currFilePath.concat("/").concat(file));
+                File filePath = new File(currFilePath.concat("/").concat(file));
                 System.out.println("==>  file = " + file);
-                System.out.println("==>  fileDir = " + fileDir.getPath());
+                System.out.println("==>  filePath = " + filePath.getPath());
 
-                boolean check =  !fileDir.getAbsolutePath().contains("..") ||
-                        (fileDir.getAbsolutePath().contains("..") &&  (file.length()!=2) ) ;
+                boolean check =  !filePath.getAbsolutePath().contains("..") ||
+                        (filePath.getAbsolutePath().contains("..") &&  (file.length()!=2) ) ;
 
                 //Skip some directories which could cause playing hang-up issue
-                if( !fileDir.getAbsolutePath().contains("Android/data") &&
-                    !fileDir.getAbsolutePath().contains(".thumbnails") &&
-                    !fileDir.getAbsolutePath().contains("Android/media") &&
+                if( !filePath.getAbsolutePath().contains("Android/data") &&
+                    !filePath.getAbsolutePath().contains(".thumbnails") &&
+                    !filePath.getName().startsWith(".") && // example .app_icon_back
+                    !filePath.getAbsolutePath().contains("Android/media") &&
                                 check )
                 {
-                    if (fileDir.isDirectory()) {
+                    if (filePath.isDirectory()) {
 
                         // add page
                         int dirs_count = 0;
-                        int dirsFilesCount = 0;
+                        int dirs_files_count = 0;
+                        int files_count = 0;
 
                         // get page name
-                        String pageName = fileDir.getName();
+                        String pageName = filePath.getName();
                         System.out.println(" ");
                         System.out.println("==> pageName = " + pageName);
 
-                        if (fileDir.listFiles() != null) {
-                            dirsFilesCount = fileDir.listFiles().length;
-                            System.out.println("--> dirsFilesCount : " + dirsFilesCount);
-                            dirs_count = getDirsCount(fileDir.listFiles());
+                        if (filePath.listFiles() != null) {
+                            dirs_files_count = filePath.listFiles().length;
+                            System.out.println("--> dirs_files_count : " + dirs_files_count);
+                            dirs_count = getDirsCount(filePath.listFiles());
                             System.out.println("--1 dirs_count : " + dirs_count);
-                            int files_count =  dirsFilesCount - dirs_count;
+                            files_count =  dirs_files_count - dirs_count;
                             System.out.println("--2 files_count : " + files_count);
                         }
 
                         // check if photo files exist
-
-                        if ((dirs_count == 0) && (dirsFilesCount > 0)) {
+                        // current filter: files_count > 0
+                        if ( files_count > 0) {
 
                             // check if dir has photo files before Save
-                            if(getPhotoFilesCount(fileDir)>0) {
+                            if(getPhotoFilesCount(filePath)>0) {
 
                                 // add new folder
                                 if ((pages_count % PAGES_PER_FOLDER) == 0) {
                                     folders_count = (pages_count / PAGES_PER_FOLDER) + 1 ;
                                         System.out.println("*> add new folder here, folders_count = " + folders_count);
-                                        category_array.add(String.valueOf(folders_count+storage_number));
+                                        category_array.add(String.valueOf(folders_count+last_cat_number));
                                 }
 
                                 // list name
                                 listTitle = pageName;
 
                                 pages_count++;//todo where to Reset pages_count?
+                                System.out.println("$$$ pages_count = "+ pages_count);
                             }
                         }
 
                         // recursive
-                        scan_and_save(fileDir.getAbsolutePath(),storage_number);
+                        scan_and_save(act,filePath.getAbsolutePath(),last_cat_number);
 
-                    } // if (fileDir.isDirectory())
+                    } // if (filePath.isDirectory())
                     else
                     {
                         if(!Utils.isEmptyString(listTitle)) {
-                            String photoLink = "file://".concat(fileDir.getPath());
+
+                            // fix wrong list title when
+                            // (files_count > 0) && (dirs_count > 0)
+                            if (!filePath.isDirectory() &&
+                                (hasImageExtension(filePath))) {
+                                String parentTitle = filePath.getParentFile().getName();
+                                if (!listTitle.equalsIgnoreCase(parentTitle)) {
+                                    listTitle = parentTitle;
+                                    pages_count++;
+                                }
+                            }
+
+                            String photoLink = "file://".concat(filePath.getPath());
                             String photoName = new File(photoLink).getName();
-                            Photo photo = new Photo(folders_count+storage_number, pages_count+storage_number*PAGES_PER_FOLDER, listTitle, photoLink, photoName);
+                            Photo photo = new Photo(folders_count+last_cat_number,
+                                    pages_count+last_cat_number*PAGES_PER_FOLDER,
+                                            listTitle,
+                                            photoLink,
+                                            photoName);
+
                             // add photo instance
                             photo_array.add(photo);
                         }
+
                     }
                 }
             } // for (String file : list)
@@ -272,7 +293,7 @@ public class LocalData {
         init(docDir);
 
         int storage_number = 0;
-        scan_and_save(docDir,storage_number);
+        scan_and_save(act,docDir,storage_number);
         List<String> categoryArray = category_array;
         List<Photo> photoArray = photo_array;
 
@@ -295,7 +316,7 @@ public class LocalData {
                     contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
 
             ContentResolver contentResolver = act.getContentResolver();
-            contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
+            contentResolver.bulkInsert(PhotoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -317,13 +338,13 @@ public class LocalData {
             }
 
             ContentValues videoValues = new ContentValues();
-            videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
-            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
-            videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
-            videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
+            videoValues.put(PhotoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
+            videoValues.put(PhotoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
+            videoValues.put(PhotoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
+            videoValues.put(PhotoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
 
             if (act != null) {
-                videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
+                videoValues.put(PhotoContract.VideoEntry.COLUMN_ACTION,
                         act.getResources().getString(R.string.global_search));
             }
 
@@ -365,9 +386,15 @@ public class LocalData {
             init(docDir);
 
             // scan local root and save data to array
-            scan_and_save(docDir,last_cat_id);
+            scan_and_save(act,docDir,last_cat_id);
 
             List<Photo> photoArray = photo_array; //todo Do twice?
+
+            //todo Enough toast?
+            if(photoArray.size() == 0) {
+                Toast.makeText(act, R.string.no_photo_yet, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             int arraySize = photoArray.size();
             int cats_count = photoArray.get(arraySize-1).getCategory_id()-last_cat_id;
@@ -396,13 +423,13 @@ public class LocalData {
                     String photoLink = photoArray.get(j).getPhoto_link();
 
                     ContentValues videoValues = new ContentValues();
-                    videoValues.put(VideoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
-                    videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
-                    videoValues.put(VideoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
-                    videoValues.put(VideoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
+                    videoValues.put(PhotoContract.VideoEntry.COLUMN_ROW_TITLE, rowTitle);
+                    videoValues.put(PhotoContract.VideoEntry.COLUMN_LINK_TITLE, photoName);
+                    videoValues.put(PhotoContract.VideoEntry.COLUMN_LINK_URL, linkUrl);
+                    videoValues.put(PhotoContract.VideoEntry.COLUMN_THUMB_URL, photoLink);
 
                     if (act != null) {
-                        videoValues.put(VideoContract.VideoEntry.COLUMN_ACTION,
+                        videoValues.put(PhotoContract.VideoEntry.COLUMN_ACTION,
                                 act.getResources().getString(R.string.global_search));
                     }
 
@@ -429,7 +456,7 @@ public class LocalData {
                         contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
 
                 ContentResolver contentResolver = act.getContentResolver();
-                contentResolver.bulkInsert(VideoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
+                contentResolver.bulkInsert(PhotoContract.CategoryEntry.CONTENT_URI, downloadedVideoContentValues);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -456,13 +483,13 @@ public class LocalData {
         String tableId = String.valueOf(folder_number); //Id starts from 1
 
         // Create a new table to hold videos.
-        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + VideoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
-                VideoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
-                VideoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
-                VideoContract.VideoEntry.COLUMN_LINK_URL + " TEXT, " + // TEXT UNIQUE NOT NULL will make the URL unique.
-                VideoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
-                VideoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
-                VideoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
+        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE IF NOT EXISTS " + PhotoContract.VideoEntry.TABLE_NAME.concat(tableId) + " (" +
+                PhotoContract.VideoEntry._ID + " INTEGER PRIMARY KEY," +
+                PhotoContract.VideoEntry.COLUMN_ROW_TITLE + " TEXT NOT NULL, " +
+                PhotoContract.VideoEntry.COLUMN_LINK_URL + " TEXT, " + // TEXT UNIQUE NOT NULL will make the URL unique.
+                PhotoContract.VideoEntry.COLUMN_LINK_TITLE + " TEXT NOT NULL, " +
+                PhotoContract.VideoEntry.COLUMN_THUMB_URL + " TEXT, " +
+                PhotoContract.VideoEntry.COLUMN_ACTION + " TEXT NOT NULL " +
                 " );";
 
         // Do the creating of the databases.
@@ -476,8 +503,8 @@ public class LocalData {
 
             ContentResolver contentResolver = act.getApplicationContext().getContentResolver();
 
-            VideoProvider.tableId = String.valueOf(folder_number);
-            contentResolver.bulkInsert(VideoContract.VideoEntry.CONTENT_URI, videoContentValues);
+            PhotoProvider.tableId = String.valueOf(folder_number);
+            contentResolver.bulkInsert(PhotoContract.VideoEntry.CONTENT_URI, videoContentValues);
 
         } catch (Exception e) {
             e.printStackTrace();

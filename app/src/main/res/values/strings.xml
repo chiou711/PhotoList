@@ -131,4 +131,6 @@
     <string name="previous_one">Previous one</string>
     <string name="next_one">Next one</string>
 
+    <string name="no_photo_yet">No photo yet</string>
+
 </resources>
