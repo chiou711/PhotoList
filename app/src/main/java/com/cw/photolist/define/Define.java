@@ -30,9 +30,6 @@ public class Define {
     // auto play by category (default: by list)
     public final static boolean DEFAULT_AUTO_PLAY_BY_CATEGORY = false;
 
-    // select file manager app (default: enabled, data package folder is empty at first)
-    public final static boolean DEFAULT_SEL_FILE_MGR_APP = true;
-
     // initial number of default URL: db_source_id_x
     public final static int INIT_SOURCE_LINK_NUMBER = 1;
 

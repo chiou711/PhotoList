@@ -90,6 +90,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
@@ -625,8 +626,13 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
                 startEntranceTransition(); //Move startEntranceTransition to after all
 
-                // show toast
-                Toast.makeText(act,getString(R.string.database_update),Toast.LENGTH_SHORT).show();
+                if(!Pref.getPref_db_is_updated(act)) {
+                    // show toast
+                    Toast.makeText(act, getString(R.string.db_is_updated), Toast.LENGTH_SHORT).show();
+
+                    // update db_is_updated to be true
+                    Pref.setPref_db_is_updated(act,true);
+                }
 
                 /*
                  *  end of loading category
@@ -739,9 +745,13 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
              *  call fetch data to load or update data base
              */
 
-            // Start fetching the categories data
+            // Start fetching the photo data
             if ((loader.getId() == CATEGORY_LOADER) && (mCategoryNames == null)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch local data =================================");
+
+
+                // Prepare to update DB, so set db_is_updated false
+                Pref.setPref_db_is_updated(act,false);
 
                 // show toast
                 Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();

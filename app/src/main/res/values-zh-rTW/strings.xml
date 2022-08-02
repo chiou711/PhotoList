@@ -28,9 +28,6 @@
     <string name="dir_name">PhotoList</string>
     <string name="popular_header">PhotoList</string>
     <string name="options">選項</string>
-    <string name="sel_file_mgr_app">選擇文件管理器應用</string>
-    <string name="set_default">恢復預設鏈接源</string>
-    <string name="remove_invalid_links">刪除在當前類別中的無效鏈接</string>
     <string name="select_category">選擇分類</string>
     <string name="error_fragment">Error Fragment</string>
     <string name="personal_settings">個人設置</string>
@@ -62,27 +59,17 @@
 
     <string name="header_icon">Header icon</string>
 
-    <!-- preference   -->
+    <!-- setting  -->
     <string name="pref_title_settings">應用設置</string>
-    <string name="pref_title_show_duration">顯示視頻長短</string>
     <string name="pref_title_auto_play_by_list">自動播放範圍: 列表</string>
     <string name="pref_title_auto_play_by_category">自動播放範圍: 分類</string>
-    <string name="pref_key_auto_play_by_list">pref_list_play</string>
+    <string name="pref_title_remove_invalid_links">刪除在當前類別中的無效鏈接</string>
+    <string name="pref_title_set_db_is_updated">更新資料庫</string>
+
+    <!-- preference   -->
     <string name="pref_key_auto_play_by_category">pref_category_play</string>
-    <string name="pref_title_recommendations">Recommendations</string>
-    <string name="pref_key_recommendations">pref_recommendations</string>
-    <string name="pref_key_screen_general">general_settings</string>
-    <string name="pref_title_screen_general">General Settings</string>
-    <string name="pref_key_screen_signin">signin</string>
-    <string name="pref_title_screen_signin">Please Login</string>
-    <string name="pref_title_login_description">Please enter your username and password</string>
-    <string name="pref_title_username">Username</string>
-    <string name="pref_title_password">Password</string>
-    <string name="pref_key_login">pref_login</string>
-    <string name="pref_key_sel_file_mgr_app">pref_sel_file_mgr_app</string>
-    <string name="pref_key_set_default">pref_set_default</string>
     <string name="pref_key_remove_invalid_links">pref_remove_invalid_links</string>
-    <string name="pref_title_login">Login</string>
+    <string name="pref_key_db_is_updated">pref_db_is_updated</string>
 
     <string name="playback_tag">PLAYBACK_TAG</string>
 
@@ -95,7 +82,7 @@
 
     <!-- update -->
     <string name="scan_photo_dir">掃描本地目錄</string>
-    <string name="database_update">建立資料庫</string>
+    <string name="db_is_updated">資料庫已更新</string>
 
     <!--  delete  -->
     <string name="database_delete_item">刪除當前項目</string>

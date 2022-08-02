@@ -11,13 +11,13 @@
             android:defaultValue="false"
             android:key="@string/pref_key_auto_play_by_category" />
         <Preference
-            android:title="@string/remove_invalid_links"
+            android:title="@string/pref_title_remove_invalid_links"
             android:defaultValue="true"
             android:key="@string/pref_key_remove_invalid_links" />
         <Preference
-            android:title="@string/set_default"
+            android:title="@string/pref_title_set_db_is_updated"
             android:defaultValue="true"
-            android:key="@string/pref_key_set_default" />
+            android:key="@string/pref_key_db_is_updated" />
 
     </PreferenceCategory>
 

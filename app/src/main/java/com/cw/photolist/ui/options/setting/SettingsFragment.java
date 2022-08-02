@@ -35,7 +35,6 @@ import com.cw.photolist.R;
 import com.cw.photolist.data.DbHelper;
 import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.data.PhotoProvider;
-import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.MainActivity;
 import com.cw.photolist.ui.MainFragment;
 
@@ -105,10 +104,6 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
         @Override
         public boolean onPreferenceTreeClick(Preference preference) {
-//            if (preference.getKey().equals(getString(R.string.pref_key_login))) {
-//                // Open an AuthenticationActivity
-//                startActivity(new Intent(getActivity(), AuthenticationActivity.class));
-//            }
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(act);
             SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
 
@@ -146,8 +141,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 startNewMainAct();
             }
 
-            if (preference.getKey().equals(getString(R.string.pref_key_set_default))) {
-                Pref.setPref_link_source_number(act, Define.INIT_SOURCE_LINK_NUMBER);
+            if (preference.getKey().equals(getString(R.string.pref_key_db_is_updated))) {
                 startRenewFetchService();
 
                 // remove category name key

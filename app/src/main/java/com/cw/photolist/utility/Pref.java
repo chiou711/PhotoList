@@ -10,7 +10,6 @@ import com.cw.photolist.define.Define;
 
 import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_CATEGORY;
 import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
-import static com.cw.photolist.define.Define.DEFAULT_SEL_FILE_MGR_APP;
 
 public class Pref {
 	public static int DB_DELETE = 99;
@@ -24,12 +23,6 @@ public class Pref {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_auto_play_by_category), DEFAULT_AUTO_PLAY_BY_CATEGORY);
 	}
-
-	public static boolean isSelFileMgrApp(Context context) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_sel_file_mgr_app), DEFAULT_SEL_FILE_MGR_APP);
-	}
-
 
 	// get preference video table ID
 	public static int getPref_video_table_id(Context context)
@@ -83,6 +76,20 @@ public class Pref {
 		SharedPreferences pref = context.getSharedPreferences("category", 0);
 		String keyName = "category_name";
 		pref.edit().remove(keyName).apply();
+	}
+
+	// set DB is updated
+	public static void setPref_db_is_updated(Context context,boolean isUpdated ){
+		String keyName = context.getResources().getString(R.string.pref_key_db_is_updated);
+		SharedPreferences pref = context.getSharedPreferences("database", 0);
+		pref.edit().putBoolean(keyName, isUpdated).apply();
+	}
+
+	// get DB is updated
+	public static boolean getPref_db_is_updated (Context context) {
+		String keyName = context.getResources().getString(R.string.pref_key_db_is_updated);
+		SharedPreferences pref = context.getSharedPreferences("database", 0);
+		return pref.getBoolean(keyName,false);
 	}
 
 }
