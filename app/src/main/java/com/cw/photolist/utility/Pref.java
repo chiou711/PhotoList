@@ -78,16 +78,16 @@ public class Pref {
 		pref.edit().remove(keyName).apply();
 	}
 
-	// set DB is updated
-	public static void setPref_db_is_updated(Context context,boolean isUpdated ){
-		String keyName = context.getResources().getString(R.string.pref_key_db_is_updated);
+	// set DB is created
+	public static void setPref_db_is_created(Context context, boolean isUpdated ){
+		String keyName = context.getResources().getString(R.string.pref_key_db_is_created);
 		SharedPreferences pref = context.getSharedPreferences("database", 0);
 		pref.edit().putBoolean(keyName, isUpdated).apply();
 	}
 
-	// get DB is updated
-	public static boolean getPref_db_is_updated (Context context) {
-		String keyName = context.getResources().getString(R.string.pref_key_db_is_updated);
+	// get DB is created
+	public static boolean getPref_db_is_created(Context context) {
+		String keyName = context.getResources().getString(R.string.pref_key_db_is_created);
 		SharedPreferences pref = context.getSharedPreferences("database", 0);
 		return pref.getBoolean(keyName,false);
 	}

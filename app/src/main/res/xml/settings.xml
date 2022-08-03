@@ -15,9 +15,9 @@
             android:defaultValue="true"
             android:key="@string/pref_key_remove_invalid_links" />
         <Preference
-            android:title="@string/pref_title_set_db_is_updated"
+            android:title="@string/pref_title_recreate_db"
             android:defaultValue="true"
-            android:key="@string/pref_key_db_is_updated" />
+            android:key="@string/pref_key_db_is_created" />
 
     </PreferenceCategory>
 

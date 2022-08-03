@@ -90,7 +90,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
@@ -626,12 +625,12 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
                 startEntranceTransition(); //Move startEntranceTransition to after all
 
-                if(!Pref.getPref_db_is_updated(act)) {
+                if(!Pref.getPref_db_is_created(act)) {
                     // show toast
                     Toast.makeText(act, getString(R.string.db_is_updated), Toast.LENGTH_SHORT).show();
 
                     // update db_is_updated to be true
-                    Pref.setPref_db_is_updated(act,true);
+                    Pref.setPref_db_is_created(act,true);
                 }
 
                 /*
@@ -751,7 +750,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
 
                 // Prepare to update DB, so set db_is_updated false
-                Pref.setPref_db_is_updated(act,false);
+                Pref.setPref_db_is_created(act,false);
 
                 // show toast
                 Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();

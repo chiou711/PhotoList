@@ -141,7 +141,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 startNewMainAct();
             }
 
-            if (preference.getKey().equals(getString(R.string.pref_key_db_is_updated))) {
+            if (preference.getKey().equals(getString(R.string.pref_key_db_is_created))) {
                 startRenewFetchService();
 
                 // remove category name key
