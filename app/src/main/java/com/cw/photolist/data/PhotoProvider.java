@@ -143,7 +143,7 @@ public class PhotoProvider extends ContentProvider {
         table_id = String.valueOf(focus_videoTableId);
 //        System.out.println("VideoProvider / _query/ table_id =  " + table_id);
 
-        Cursor retCursor;
+        Cursor retCursor = null;
         switch (sUriMatcher.match(uri)) {
             case SEARCH_SUGGEST: {
                 System.out.println("VideoProvider / _query/ case SEARCH_SUGGEST  " );
@@ -162,15 +162,19 @@ public class PhotoProvider extends ContentProvider {
             }
             case VIDEO: {
 //                System.out.println("VideoProvider / _query/ case VIDEO  " );
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        PhotoContract.VideoEntry.TABLE_NAME.concat(table_id),//todo temp
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
+                try{
+                    retCursor = mOpenHelper.getReadableDatabase().query(
+                            PhotoContract.VideoEntry.TABLE_NAME.concat(table_id),//todo temp
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null,
+                            null,
+                            sortOrder
+                    );
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
                 break;
             }
             case CATEGORY: {
@@ -192,7 +196,8 @@ public class PhotoProvider extends ContentProvider {
         }
 
         // this will call MainFragment / _onLoadFinished
-        retCursor.setNotificationUri(mContentResolver, uri);
+        if(retCursor != null)
+            retCursor.setNotificationUri(mContentResolver, uri);
 
         return retCursor;
     }

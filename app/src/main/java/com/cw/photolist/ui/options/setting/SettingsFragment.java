@@ -149,6 +149,9 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
                 MainFragment.mCategoryNames = null;
 
+                // Prepare to update DB, so set db_is_updated false
+                Pref.setPref_db_is_created(act, false);
+
                 startNewMainAct();
             }
 

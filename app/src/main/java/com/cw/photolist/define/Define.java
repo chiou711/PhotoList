@@ -18,17 +18,17 @@ package com.cw.photolist.define;
 
 /*
  * Created by CW on 2022/03/01
- * Modified by CW on 2022/07/13
+ * Modified by CW on 2022/08/05
  *
  */
 public class Define {
 
     // --- setting ---
-    // auto play by list (default: by list)
-    public final static boolean DEFAULT_AUTO_PLAY_BY_LIST = true;
+    // auto play range by list, need to match settings.xml
+    public final static boolean DEFAULT_AUTO_PLAY_BY_LIST = false;
 
-    // auto play by category (default: by list)
-    public final static boolean DEFAULT_AUTO_PLAY_BY_CATEGORY = false;
+    // auto play range by category, need to match settings.xml
+    public final static boolean DEFAULT_AUTO_PLAY_BY_CATEGORY = true;
 
     // initial number of default URL: db_source_id_x
     public final static int INIT_SOURCE_LINK_NUMBER = 1;

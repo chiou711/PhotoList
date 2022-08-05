@@ -184,20 +184,10 @@ public class PhotoFragment extends Fragment
 
 		mEntryPosition--;
 
-//		if (Pref.isAutoPlayByList(act.getBaseContext()) )
-//		{
-//			if (mEntryPosition < min_pos_of_row)
-//				mEntryPosition = max_pos_of_row;
-//			else if(mEntryPosition > max_pos_of_row)
-//				mEntryPosition = min_pos_of_row;
-//		}
-
-//		if (Pref.isAutoPlayByCategory(act.getBaseContext()) ){
-			if (mEntryPosition >= photosCount)
-				mEntryPosition = 0;
-			else if(mEntryPosition < 0)
-				mEntryPosition = photosCount-1;
-//		}
+		if (mEntryPosition >= photosCount)
+			mEntryPosition = 0;
+		else if(mEntryPosition < 0)
+			mEntryPosition = photosCount-1;
 
 		photoPath =  DbData.getDB_link_data(act.getBaseContext(),table, column_photo_url,mEntryPosition);
 
@@ -218,20 +208,10 @@ public class PhotoFragment extends Fragment
 
 		mEntryPosition++;
 
-//		if (Pref.isAutoPlayByList(act) )
-//		{
-//			if (mEntryPosition < min_pos_of_row)
-//				mEntryPosition = max_pos_of_row;
-//			else if(mEntryPosition > max_pos_of_row)
-//				mEntryPosition = min_pos_of_row;
-//		}
-
-//		if (Pref.isAutoPlayByCategory(act) ){
-			if (mEntryPosition >= photosCount)
-				mEntryPosition = 0;
-			else if(mEntryPosition < 0)
-				mEntryPosition = photosCount-1;
-//		}
+		if (mEntryPosition >= photosCount)
+			mEntryPosition = 0;
+		else if(mEntryPosition < 0)
+			mEntryPosition = photosCount-1;
 
 		photoPath =  DbData.getDB_link_data(act,table, column_photo_url,mEntryPosition);
 

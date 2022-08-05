@@ -467,7 +467,6 @@ public class LocalData {
         }// for (int i = 0; i < storageList.size(); i++)
     }
 
-
     // do bulk insert to video table
     static void doBulkInsert_videoDB(Activity act, int folder_number, List<ContentValues> videosToInsert)
     {

@@ -748,15 +748,14 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             if ((loader.getId() == CATEGORY_LOADER) && (mCategoryNames == null)) {
                 System.out.println("MainFragment / onLoadFinished / start Fetch local data =================================");
 
+                if(!Pref.getPref_db_is_created(act)) {
 
-                // Prepare to update DB, so set db_is_updated false
-                Pref.setPref_db_is_created(act,false);
+                    // show toast
+                    Toast.makeText(act, getString(R.string.scan_photo_dir), Toast.LENGTH_LONG).show();
 
-                // show toast
-                Toast.makeText(act,getString(R.string.scan_photo_dir),Toast.LENGTH_LONG).show();
-
-                // data base is not created yet, check READ permission for the first time
-                checkPermission2();
+                    // data base is not created yet, check READ permission for the first time
+                    checkPermission2();
+                }
             }
         }
     }
@@ -1587,8 +1586,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                     LocalData.createDB_DCIM(getActivity());
                 else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
                     LocalData.createDB_root(getActivity());
-
-
             }
         } else
             getActivity().finish(); //normally, will go to _resume if not finish

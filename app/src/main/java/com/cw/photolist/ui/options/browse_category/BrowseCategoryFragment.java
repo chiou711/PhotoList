@@ -39,6 +39,7 @@ import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter_browse;
+import com.cw.photolist.ui.ScanLocalAct;
 import com.cw.photolist.ui.photo.Photo;
 
 /*
@@ -85,7 +86,8 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
+//                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                Intent intent = new Intent(getActivity(), ScanLocalAct.class);
                 startActivity(intent);
             }
         });

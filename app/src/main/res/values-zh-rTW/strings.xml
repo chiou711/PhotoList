@@ -83,6 +83,7 @@
     <!-- update -->
     <string name="scan_photo_dir">掃描本地目錄</string>
     <string name="db_is_updated">資料庫已更新</string>
+    <string name="return_to_previous_stage">將返回上一階段</string>
 
     <!--  delete  -->
     <string name="database_delete_item">刪除當前項目</string>

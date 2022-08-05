@@ -264,7 +264,8 @@ public class Utils {
         }
 
         // update focus with first category name
-        Pref.setPref_category_name(act,mCategoryNames.get(0));
+        if(mCategoryNames.size()>0)
+            Pref.setPref_category_name(act,mCategoryNames.get(0));
 
         // start new MainActivity
         Intent new_intent = new Intent(act, MainActivity.class);

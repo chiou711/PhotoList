@@ -57,6 +57,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.cw.photolist.ui.ScanLocalAct"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Leanback.Browse.New"
+            android:exported="true">
+        </activity>
+
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".ui.PhotoDetailsActivity" />
