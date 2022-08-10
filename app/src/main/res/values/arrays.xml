@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cyclic_range_entries">
+        <item>@string/pref_title_cyclic_play_by_category</item>
+        <item>@string/pref_title_cyclic_play_by_list</item>
+    </string-array>
+
+    <!-- note: for list reference, integer-array usage is not allowed -->
+    <string-array name="cyclic_range_entry_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

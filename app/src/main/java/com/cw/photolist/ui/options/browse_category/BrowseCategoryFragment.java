@@ -40,7 +40,7 @@ import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter_browse;
 import com.cw.photolist.ui.ScanLocalAct;
-import com.cw.photolist.ui.photo.Photo;
+import com.cw.photolist.ui.photo.PhotoAct;
 
 /*
  * BrowseCategoryFragment shows a grid of videos that can be scrolled vertically.
@@ -128,7 +128,7 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
             if (item instanceof Video) {
                 System.out.println("VerticalGridFragment /  _onItemClicked");
                 Video video = (Video) item;
-                Intent intent = new Intent(getActivity(), Photo.class);
+                Intent intent = new Intent(getActivity(), PhotoAct.class);
                 int pos = DbData.getCursorPositionById(getContext(),(int)video.id);
                 intent.putExtra("PHOTO_POSITION", pos);
                 startActivity(intent);

@@ -23,12 +23,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragment;
 import androidx.leanback.preference.LeanbackPreferenceFragment;
 import androidx.leanback.preference.LeanbackSettingsFragment;
 import androidx.preference.DialogPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreference;
 
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
@@ -42,8 +44,7 @@ import java.util.Objects;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_CATEGORY;
-import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
+import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY;
 
 public class SettingsFragment extends LeanbackSettingsFragment
         implements DialogPreference.TargetFragment {
@@ -100,6 +101,29 @@ public class SettingsFragment extends LeanbackSettingsFragment
             }
 
             act = getActivity();
+
+            showRangeTitle();
+
+        }
+
+        // show range title
+        void showRangeTitle(){
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(act);
+
+            String currRangeSetting = sharedPreferences.getString(
+                    getString(R.string.pref_key_cyclic_play_range),
+                    "0" );
+
+            ListPreference range_selection =  (ListPreference)findPreference(getString(R.string.pref_key_cyclic_play_range));
+            String oriTitle = (String) getString(R.string.pref_title_range_selection);
+            String actualTitle;
+
+            if(currRangeSetting.equalsIgnoreCase("0"))
+                actualTitle  = oriTitle.concat(" : ").concat(getString(R.string.pref_title_cyclic_play_by_category));
+            else
+                actualTitle  = oriTitle.concat(" : ").concat(getString(R.string.pref_title_cyclic_play_by_list));
+
+            range_selection.setTitle(actualTitle);
         }
 
         @Override
@@ -107,40 +131,63 @@ public class SettingsFragment extends LeanbackSettingsFragment
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(act);
             SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
 
-            if (preference.getKey().equals(getString(R.string.pref_key_auto_play_by_list))){
-                if (preference.getKey().equals(getString(R.string.pref_key_auto_play_by_list))){
-                    boolean currentSetting = sharedPreferences.getBoolean(
-                                    act.getString(R.string.pref_key_auto_play_by_list),
-                                    DEFAULT_AUTO_PLAY_BY_LIST);
+            // select cyclic range
+            if (preference.getKey().equals(getString(R.string.pref_key_cyclic_play_range))){
 
-                    // keep one auto play mode
-                    if(currentSetting) {
-                        sharedPreferencesEditor.putBoolean(
-                                getString(R.string.pref_key_auto_play_by_category),
-                                false);
-                        sharedPreferencesEditor.apply();
-                    }
-                }
+                ListPreference range_selection =  (ListPreference)findPreference(getString(R.string.pref_key_cyclic_play_range));
 
-                startNewMainAct();
+                // Listener for list preference
+                range_selection.setOnPreferenceChangeListener((preference1, newValue) -> {
+                    SharedPreferences sharedPreferences1 = PreferenceManager.getDefaultSharedPreferences(act);
+                    SharedPreferences.Editor sharedPreferencesEditor1 = sharedPreferences1.edit();
+
+                    // apply selection range
+                    sharedPreferencesEditor1.putString(
+                            getString(R.string.pref_key_cyclic_play_range),
+                            (String)newValue);
+
+                    sharedPreferencesEditor1.apply();
+
+                    // start new main act
+                    startNewMainAct();
+
+                    return false;
+                });
+
+                String currRangeSetting = sharedPreferences.getString(
+                        getString(R.string.pref_key_cyclic_play_range),
+                        "0" );
+
+                if(currRangeSetting.equalsIgnoreCase("0"))
+                    range_selection.setValueIndex(0);
+                else
+                    range_selection.setValueIndex(1);
             }
 
-            if (preference.getKey().equals(getString(R.string.pref_key_auto_play_by_category))) {
-                if (preference.getKey().equals(getString(R.string.pref_key_auto_play_by_category))){
+            // set auto play
+            if (preference.getKey().equals(getString(R.string.pref_key_auto_play_switch))) {
+                if (preference.getKey().equals(getString(R.string.pref_key_auto_play_switch))){
                     boolean currentSetting = sharedPreferences.getBoolean(
-                            act.getString(R.string.pref_key_auto_play_by_category),
-                            DEFAULT_AUTO_PLAY_BY_CATEGORY);
-                    // keep one auto play mode
-                    if(currentSetting) {
+                            getString(R.string.pref_key_auto_play_switch),
+                            DEFAULT_AUTO_PLAY);
+
+                    SwitchPreference sw =(SwitchPreference)findPreference(getString(R.string.pref_key_auto_play_switch));
+                    sw.setChecked(currentSetting);
+
+                    // Listener for switch preference
+                    sw.setOnPreferenceChangeListener((preference12, newValue) -> {
+                        // toggle auto play
                         sharedPreferencesEditor.putBoolean(
-                                getString(R.string.pref_key_auto_play_by_list),
-                                false);
+                                getString(R.string.pref_key_auto_play_switch),
+                                (boolean)newValue);
                         sharedPreferencesEditor.apply();
-                    }
+
+                        return true;
+                    });
                 }
-                startNewMainAct();
             }
 
+            // create DB
             if (preference.getKey().equals(getString(R.string.pref_key_db_is_created))) {
                 startRenewFetchService();
 
@@ -153,10 +200,6 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 Pref.setPref_db_is_created(act, false);
 
                 startNewMainAct();
-            }
-
-            // remove invalid links
-            if (preference.getKey().equals(getString(R.string.pref_key_remove_invalid_links))){
             }
 
             return super.onPreferenceTreeClick(preference);

@@ -71,7 +71,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.ui.photo.Photo;
+import com.cw.photolist.ui.photo.PhotoAct;
 import com.cw.photolist.ui.photo.PhotoFragment;
 import com.cw.photolist.utility.StorageUtils;
 import com.cw.photolist.utility.Utils;
@@ -1010,7 +1010,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     // start photo intent for result
     private void startPhotoIntentForResult(int position){
-        Intent intent = new Intent(act, Photo.class);
+        Intent intent = new Intent(act, PhotoAct.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivityForResult(intent,PHOTO_INTENT);
     }
@@ -1018,7 +1018,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     // start photo intent
     private void startPhotoIntent(int position){
-        Intent intent = new Intent(act, Photo.class);
+        Intent intent = new Intent(act, PhotoAct.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivity(intent);
     }
@@ -1075,7 +1075,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             }
 
             // for auto play by category only
-            if(Pref.isAutoPlayByCategory(act)) {
+            if(Pref.isCyclicByCategory(act)) {
                 // add delay to make sure key event works
                 try {
                     Thread.sleep(delay100ms * 2);
@@ -1136,7 +1136,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         backSteps = 0;
 
         // for auto play by category only
-        if(Pref.isAutoPlayByCategory(act)) {
+        if(Pref.isCyclicByCategory(act)) {
             int rowsCount = mPlayLists.size();
             for (int row = 0; row < rowsCount; row++) {
                 List<Integer> playlist = mPlayLists.get(row);
@@ -1151,7 +1151,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         }
 
         // for auto play by list only
-        if(Pref.isAutoPlayByList(act)) {
+        if(Pref.isCyclicByList(act)) {
             if (getNextId_auto() == currentRow1stId) {
                 backSteps = currentRowSize - 1;
                 isEnd = true;
@@ -1324,9 +1324,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             cursor.getInt(index_id);
         } catch(Exception e){
             // set next ID
-            if(Pref.isAutoPlayByList(act))
+            if(Pref.isCyclicByList(act))
                 nextId = currentRow1stId;
-            else if (Pref.isAutoPlayByCategory(act)) {
+            else if (Pref.isCyclicByCategory(act)) {
                 cursor.moveToPosition(0);
                 nextId = cursor.getInt(index_id);
             }
@@ -1342,9 +1342,9 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         // at row end
         if(cursor.getInt(index_id)  > currentRowLastId  ) {
             // set next ID
-            if(Pref.isAutoPlayByList(act))
+            if(Pref.isCyclicByList(act))
                 nextId = currentRow1stId;
-            else if(Pref.isAutoPlayByCategory(act)) {
+            else if(Pref.isCyclicByCategory(act)) {
                 nextId = cursor.getInt(index_id);
             }
         } else {
@@ -1398,7 +1398,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 //        System.out.println("MainFragment / _openVideoItem / item = "+ item );
 
         // for auto play by list only
-        if(!Pref.isAutoPlayByCategory(act)) {
+        if(!Pref.isCyclicByCategory(act)) {
             // check row position
             for (int i = 0; i < mPlayLists.size(); i++) {
                 if (video.id >= (int) mPlayLists.get(i).get(0))
@@ -1412,7 +1412,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         currentRowLastId = (int) mPlayLists.get(currentRowPos).get(currentRowSize-1);//currentRow1stId + currentRowSize - 1; //todo last item error
 
         // auto play
-        if (Pref.isAutoPlayByList(act) || Pref.isAutoPlayByCategory(act)){
+        if (Pref.isAutoPlay(act)){
             setPlayId((int) ((Video) (item)).id);
 
             if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)

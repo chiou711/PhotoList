@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <PreferenceCategory
-        android:title="@string/pref_title_settings">
+        android:title="@string/pref_title_cyclic_play_range">
+        <ListPreference
+            android:key="@string/pref_key_cyclic_play_range"
+            android:title="@string/pref_title_range_selection"
+            android:entries="@array/cyclic_range_entries"
+            android:entryValues="@array/cyclic_range_entry_values"/>
 
-        <!-- need to match Define.DEFAULT_AUTO_PLAY_BY_LIST  -->
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_title_auto_play">
         <SwitchPreference
-            android:title="@string/pref_title_auto_play_by_list"
-            android:defaultValue="false"
-            android:key="@string/pref_key_auto_play_by_list" />
-
-        <!-- need to match Define.DEFAULT_AUTO_PLAY_BY_CATEGORY  -->
-        <SwitchPreference
-            android:title="@string/pref_title_auto_play_by_category"
+            android:title="@string/pref_title_auto_switch"
             android:defaultValue="true"
-            android:key="@string/pref_key_auto_play_by_category" />
+            android:key="@string/pref_key_auto_play_switch" />
+    </PreferenceCategory>
 
-        <Preference
-            android:title="@string/pref_title_remove_invalid_links"
-            android:defaultValue="true"
-            android:key="@string/pref_key_remove_invalid_links" />
+    <PreferenceCategory
+        android:title="@string/pref_title_db">
         <Preference
             android:title="@string/pref_title_recreate_db"
             android:defaultValue="true"
             android:key="@string/pref_key_db_is_created" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

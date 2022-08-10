@@ -223,8 +223,7 @@ public class SearchFragment extends SearchSupportFragment
             if (item instanceof Video) {
                 Video video = (Video) item;
 
-                if (Pref.isAutoPlayByList(getActivity()) ||
-                    Pref.isAutoPlayByCategory(getActivity())) {
+                if (Pref.isAutoPlay(getActivity())) {
                     // add action
                 } else {
                     Intent intent = new Intent(getActivity(), PhotoDetailsActivity.class);

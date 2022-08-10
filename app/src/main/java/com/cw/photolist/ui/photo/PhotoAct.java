@@ -47,7 +47,7 @@ import java.io.IOException;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Photo extends AppCompatActivity
+public class PhotoAct extends AppCompatActivity
 {
     int mEntryPosition;
 	public static String photoPath;
@@ -65,7 +65,7 @@ public class Photo extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("Photo / _onCreate");
+        System.out.println("PhotoAct / _onCreate");
 
 	    setContentView(R.layout.photo_view_landscape);
 
@@ -80,14 +80,14 @@ public class Photo extends AppCompatActivity
 
 	    // set current selection
 	    mEntryPosition = getIntent().getExtras().getInt("PHOTO_POSITION");
-	    System.out.println("Photo / _onCreate / mEntryPosition = " + mEntryPosition);
+	    System.out.println("PhotoAct / _onCreate / mEntryPosition = " + mEntryPosition);
 
 	    focusCatNum = Pref.getPref_video_table_id(getBaseContext());
 	    table = PhotoContract.VideoEntry.TABLE_NAME.concat(String.valueOf(focusCatNum));
 	    column_photo_url = PhotoContract.VideoEntry.COLUMN_THUMB_URL;
 
 	    photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
-	    System.out.println("Photo / _onCreate / photoPath = " + photoPath);
+	    System.out.println("PhotoAct / _onCreate / photoPath = " + photoPath);
 
 		String row_title = DbData.getDB_link_data(getBaseContext(),table, PhotoContract.VideoEntry.COLUMN_ROW_TITLE,mEntryPosition);
 	    min_pos_of_row = DbData.getDB_min_pos_of_row(getBaseContext(),table,row_title);
@@ -142,7 +142,7 @@ public class Photo extends AppCompatActivity
 					setPhotoImage();
 				} catch (IOException e) {
 					e.printStackTrace();
-					System.out.println("Photo / _runCountDown / exception ");
+					System.out.println("PhotoAct / _runCountDown / exception ");
 				}
 
 				handler.postDelayed(runCountDown,1000);
@@ -174,7 +174,7 @@ public class Photo extends AppCompatActivity
 					setPhotoImage();
 				} catch (IOException e) {
 					e.printStackTrace();
-					System.out.println("Photo / _runAutoPlay / exception ");
+					System.out.println("PhotoAct / _runAutoPlay / exception ");
 				}
 			}
 
@@ -183,12 +183,12 @@ public class Photo extends AppCompatActivity
 			if(count < 0){
 				mEntryPosition++;
 
-				if (Pref.isAutoPlayByList(getBaseContext()) ){
+				if (Pref.isCyclicByList(getBaseContext()) ){
 					if (mEntryPosition > max_pos_of_row)
 						mEntryPosition = min_pos_of_row;
 				}
 
-				if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+				if (Pref.isCyclicByCategory(getBaseContext()) ){
 					if (mEntryPosition >= photosCount)
 						mEntryPosition = 0;
 				}
@@ -208,7 +208,7 @@ public class Photo extends AppCompatActivity
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		System.out.println("Photo / _onKeyDown / keyCode = " + keyCode);
+		System.out.println("PhotoAct / _onKeyDown / keyCode = " + keyCode);
 		switch (keyCode) {
 			case KeyEvent.KEYCODE_DPAD_LEFT: //21
 				setPreviousPhotoImage();
@@ -247,7 +247,7 @@ public class Photo extends AppCompatActivity
 	}
 
 	void setPhotoImage() throws IOException {
-        System.out.println("Photo / _setPhotoImage");
+        System.out.println("PhotoAct / _setPhotoImage");
 
 //		photoPath = "https://i.imgur.com/DvpvklR.png";
 
@@ -285,7 +285,7 @@ public class Photo extends AppCompatActivity
 	// avoid exception: has leaked window android.widget.ZoomButtonsController
 	@Override
 	public void finish() {
-		System.out.println("Photo / _finish");
+		System.out.println("PhotoAct / _finish");
 //		ViewGroup view = (ViewGroup) getWindow().getDecorView();
 //	    view.setBackgroundColor(getResources().getColor(color.background_dark)); // avoid white flash
 //	    view.setBackgroundColor(getResources().getColor(R.color.bar_color)); // avoid white flash
@@ -297,14 +297,14 @@ public class Photo extends AppCompatActivity
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		System.out.println("Photo / _onSaveInstanceState");
+		System.out.println("PhotoAct / _onSaveInstanceState");
 	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) 
     {
         super.onCreateOptionsMenu(menu);
-		System.out.println("Photo / _onCreateOptionsMenu");
+		System.out.println("PhotoAct / _onCreateOptionsMenu");
         return true;
     }
     
@@ -327,7 +327,7 @@ public class Photo extends AppCompatActivity
     // on back pressed
     @Override
     public void onBackPressed() {
-		System.out.println("Photo / _onBackPressed");
+		System.out.println("PhotoAct / _onBackPressed");
 	    if(handler != null) {
 		    handler.removeCallbacks(runCountDown);
 		    handler = null;
@@ -375,14 +375,14 @@ public class Photo extends AppCompatActivity
 
 		mEntryPosition--;
 
-		if (Pref.isAutoPlayByList(getBaseContext()) ){
+		if (Pref.isCyclicByList(getBaseContext()) ){
 			if (mEntryPosition < min_pos_of_row)
 				mEntryPosition = max_pos_of_row;
 			else if(mEntryPosition > max_pos_of_row)
 				mEntryPosition = min_pos_of_row;
 		}
 
-		if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+		if (Pref.isCyclicByCategory(getBaseContext()) ){
 			if (mEntryPosition >= photosCount)
 				mEntryPosition = 0;
 			else if(mEntryPosition < 0)
@@ -413,14 +413,14 @@ public class Photo extends AppCompatActivity
 
 		mEntryPosition++;
 
-		if (Pref.isAutoPlayByList(getBaseContext()) ){
+		if (Pref.isCyclicByList(getBaseContext()) ){
 			if (mEntryPosition < min_pos_of_row)
 				mEntryPosition = max_pos_of_row;
 			else if(mEntryPosition > max_pos_of_row)
 				mEntryPosition = min_pos_of_row;
 		}
 
-		if (Pref.isAutoPlayByCategory(getBaseContext()) ){
+		if (Pref.isCyclicByCategory(getBaseContext()) ){
 			if (mEntryPosition >= photosCount)
 				mEntryPosition = 0;
 			else if(mEntryPosition < 0)

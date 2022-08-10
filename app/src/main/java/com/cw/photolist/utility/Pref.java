@@ -6,22 +6,31 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.cw.photolist.R;
-import com.cw.photolist.define.Define;
 
-import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_CATEGORY;
-import static com.cw.photolist.define.Define.DEFAULT_AUTO_PLAY_BY_LIST;
 
 public class Pref {
 	public static int DB_DELETE = 99;
 
-	public static boolean isAutoPlayByList(Context context) {
+	// is auto play
+	public static boolean isAutoPlay(Context context) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_auto_play_by_list), DEFAULT_AUTO_PLAY_BY_LIST);
+		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_auto_play_switch), true);
 	}
 
-	public static boolean isAutoPlayByCategory(Context context) {
+	// is cyclic by list
+	public static boolean isCyclicByList(Context context) {
+		return getCyclicPlayRange(context).equalsIgnoreCase("1")?true:false;
+	}
+
+	// is cyclic by category
+	public static boolean isCyclicByCategory(Context context) {
+		return getCyclicPlayRange(context).equalsIgnoreCase("0")?true:false;
+	}
+
+	// get cyclic play range
+	public static String getCyclicPlayRange(Context context) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getBoolean(context.getString(R.string.pref_key_auto_play_by_category), DEFAULT_AUTO_PLAY_BY_CATEGORY);
+		return sharedPreferences.getString(context.getString(R.string.pref_key_cyclic_play_range), "0");
 	}
 
 	// get preference video table ID
@@ -36,23 +45,6 @@ public class Pref {
 	{
 		String catName = getPref_category_name(context);
 		return Utils.getVideoTableId_byCategoryName(context,catName);
-	}
-
-	// set link source number
-	public static void setPref_link_source_number(Context context, int linkSrcNumber ){
-		SharedPreferences pref = context.getSharedPreferences("link_src", 0);
-		String keyName = "link_source_number";
-		pref.edit().putInt(keyName, linkSrcNumber).apply();
-	}
-
-	// get link source number
-	// Note:  after new installation, link source number
-	// 1 dedicated for Default: apply this
-	// 2 dedicated for Local: not ready
-	public static int getPref_link_source_number (Context context) {
-		SharedPreferences pref = context.getSharedPreferences("link_src", 0);
-		String keyName = "link_source_number";
-		return pref.getInt(keyName, Define.INIT_SOURCE_LINK_NUMBER);
 	}
 
 	// set preference category name

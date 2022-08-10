@@ -24,14 +24,8 @@ package com.cw.photolist.define;
 public class Define {
 
     // --- setting ---
-    // auto play range by list, need to match settings.xml
-    public final static boolean DEFAULT_AUTO_PLAY_BY_LIST = false;
-
-    // auto play range by category, need to match settings.xml
-    public final static boolean DEFAULT_AUTO_PLAY_BY_CATEGORY = true;
-
-    // initial number of default URL: db_source_id_x
-    public final static int INIT_SOURCE_LINK_NUMBER = 1;
+    // auto play, need to match settings.xml
+    public final static boolean DEFAULT_AUTO_PLAY = true;
 
     // initial category number
     public final static int INIT_CATEGORY_NUMBER = 1;
@@ -44,8 +38,8 @@ public class Define {
     public final static int DEFAULT_DISPLAY_DURATION = 5; //3;
 
     // auto play case
-    public final static int by_onActivityResult = 1;
-    public final static int by_runnable = 2;
+    public final static int by_onActivityResult = 1; // with count down dialog
+    public final static int by_runnable = 2; // without count down dialog
     public final static int DEFAULT_PLAY_NEXT = by_runnable;
 
     // photo directory origin
