@@ -89,7 +89,7 @@
     <!-- update -->
     <string name="scan_photo_dir">Scan local directory</string>
     <string name="db_is_updated">Database is updated</string>
-    <string name="return_to_previous_stage">Will return to previous stage</string>
+    <string name="return_to_main_page">Will return to main page</string>
 
     <!--  delete  -->
     <string name="database_delete_item">Delete current item</string>

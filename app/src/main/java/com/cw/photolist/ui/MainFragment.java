@@ -91,6 +91,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.cw.photolist.define.Define.INIT_CATEGORY_NUMBER;
+import static com.cw.photolist.utility.Utils.PERMISSIONS_REQUEST_STORAGE;
 
 import com.cw.photolist.ui.options.select_category.SelectCategoryActivity;
 import com.cw.photolist.ui.options.setting.SettingsActivity;
@@ -297,10 +298,19 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // new action: browse
-                Intent intent = new Intent(act, BrowseCategoryActivity.class);
-                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
-                startActivity(intent, bundle);
+
+                if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(act)) {
+                    // request permission dialog
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M/*API23*/) {
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST_STORAGE);
+                    }
+                } else {
+                    // new action: browse
+                    Intent intent = new Intent(act, BrowseCategoryActivity.class);
+                    Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(act).toBundle();
+                    startActivity(intent, bundle);
+                }
             }
         });
 
@@ -749,12 +759,15 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                 System.out.println("MainFragment / onLoadFinished / start Fetch local data =================================");
 
                 if(!Pref.getPref_db_is_created(act)) {
-
-                    // show toast
-                    Toast.makeText(act, getString(R.string.scan_photo_dir), Toast.LENGTH_LONG).show();
-
                     // data base is not created yet, check READ permission for the first time
-                    checkPermission2();
+                    // check permission first time, request necessary permission
+                    if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(act)) {
+                        // request permission dialog
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M/*API23*/) {
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                    PERMISSIONS_REQUEST_STORAGE);
+                        }
+                    }
                 }
             }
         }
@@ -1548,31 +1561,6 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 //
 //    }
 
-    // check permission
-    void checkPermission2(){
-        System.out.println("MainFragment / _checkPermission / Build.VERSION.SDK_INT = " + Build.VERSION.SDK_INT);
-
-        // check permission first time, request necessary permission
-        if (!Utils.isGranted_permission_READ_EXTERNAL_STORAGE(getActivity())) {
-            // request permission dialog
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    Utils.PERMISSIONS_REQUEST_STORAGE);
-        } else {
-            // case: renew default data
-            if (docDir == null) {
-                // permission is granted
-                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
-                    LocalData.createDB_DCIM(getActivity());
-                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
-                    LocalData.createDB_root(getActivity());
-
-            }
-        }
-
-
-
-    }
-
     // callback of granted permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1580,14 +1568,14 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
         System.out.println("MainFragment / _onRequestPermissionsResult / grantResults.length =" + grantResults.length);
         if ( (grantResults.length > 0) &&
              (grantResults[0] == PackageManager.PERMISSION_GRANTED) ){
-            if (requestCode == Utils.PERMISSIONS_REQUEST_STORAGE) {
+            if (requestCode == PERMISSIONS_REQUEST_STORAGE) {
                 // permission is granted
-                if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_DCIM)
-                    LocalData.createDB_DCIM(getActivity());
-                else if(Define.DEFAULT_PHOTO_DIRECTORY == Define.DIR_ROOT)
-                    LocalData.createDB_root(getActivity());
+                Intent intent = new Intent(getActivity(), ScanLocalAct.class);
+                startActivity(intent);
             }
-        } else
-            getActivity().finish(); //normally, will go to _resume if not finish
+        }
+        else {
+            //normally, will go to _resume if not finish
+        }
     }
 }

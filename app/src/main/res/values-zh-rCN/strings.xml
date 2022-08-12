@@ -89,7 +89,7 @@
     <!-- update -->
     <string name="scan_photo_dir">扫描本地目录</string>
     <string name="db_is_updated">数据库已更新</string>
-    <string name="return_to_previous_stage">将返回上一阶段</string>
+    <string name="return_to_main_page">将返回主页面</string>
 
     <!--  delete  -->
     <string name="database_delete_item">删除当前项目</string>

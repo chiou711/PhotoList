@@ -32,13 +32,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
-import com.cw.photolist.utility.Pref;
+import com.cw.photolist.ui.ScanLocalAct;
 import com.cw.photolist.R;
-import com.cw.photolist.data.DbHelper;
-import com.cw.photolist.data.PhotoContract;
-import com.cw.photolist.data.PhotoProvider;
 import com.cw.photolist.ui.MainActivity;
-import com.cw.photolist.ui.MainFragment;
 
 import java.util.Objects;
 
@@ -189,17 +185,8 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
             // create DB
             if (preference.getKey().equals(getString(R.string.pref_key_db_is_created))) {
-                startRenewFetchService();
-
-                // remove category name key
-                Pref.removePref_category_name(act);
-
-                MainFragment.mCategoryNames = null;
-
-                // Prepare to update DB, so set db_is_updated false
-                Pref.setPref_db_is_created(act, false);
-
-                startNewMainAct();
+                Intent intent = new Intent(getActivity(), ScanLocalAct.class);
+                startActivity(intent);
             }
 
             return super.onPreferenceTreeClick(preference);
@@ -212,36 +199,6 @@ public class SettingsFragment extends LeanbackSettingsFragment
             new_intent.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
             new_intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
             Objects.requireNonNull(act).startActivity(new_intent);
-        }
-
-        // start fetch service by URL string
-        private void startRenewFetchService() {
-            System.out.println("SelectLinkSrcFragment / _startFetchService");
-            // delete database
-            try {
-                System.out.println("SelectLinkSrcFragment / _startFetchService / will delete DB");
-                Objects.requireNonNull(act).deleteDatabase(DbHelper.DATABASE_NAME);
-
-                ContentResolver resolver = act.getContentResolver();
-                ContentProviderClient client = resolver.acquireContentProviderClient(PhotoContract.CONTENT_AUTHORITY);
-                assert client != null;
-                PhotoProvider provider = (PhotoProvider) client.getLocalContentProvider();
-
-                assert provider != null;
-                provider.mContentResolver = resolver;
-                provider.mOpenHelper.close();
-
-                provider.mOpenHelper = new DbHelper(act);
-                provider.mOpenHelper.setWriteAheadLoggingEnabled(false);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                    client.close();
-                else
-                    client.release();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
     }

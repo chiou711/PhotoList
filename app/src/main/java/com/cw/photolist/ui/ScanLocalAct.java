@@ -3,6 +3,7 @@ package com.cw.photolist.ui;
 import android.app.Activity;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,8 @@ import com.cw.photolist.utility.LocalData;
 import com.cw.photolist.utility.Pref;
 
 import java.util.Objects;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 /**
@@ -56,9 +59,6 @@ public class ScanLocalAct extends Activity {
 				messageText.setText(R.string.scan_photo_dir);
 			else if(countScan == 0) {
 				doScan();
-
-				Pref.setPref_db_is_created(act,true);
-
 				showFinishMessage();
 			}
 			handler.postDelayed(runnable_scan, 1000);
@@ -70,8 +70,24 @@ public class ScanLocalAct extends Activity {
 	// do Scan
 	void doScan(){
 		// delete database
+		deleteDB();
+
+		// Prepare to update DB, so set db_is_updated false
+		Pref.setPref_db_is_created(act, false);
+
+		// create DB
+		LocalData.createDB_root(this);
+
+		// remove category name key
+		Pref.removePref_category_name(act);
+
+		MainFragment.mCategoryNames = null;
+	}
+
+	// delete database
+	private void deleteDB() {
+		System.out.println("ScanLocalAct / _deleteDB");
 		try {
-			System.out.println("SelectLinkSrcFragment / _startFetchService / will delete DB");
 			Objects.requireNonNull(act).deleteDatabase(DbHelper.DATABASE_NAME);
 
 			ContentResolver resolver = act.getContentResolver();
@@ -94,14 +110,6 @@ public class ScanLocalAct extends Activity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// create DB
-		LocalData.createDB_root(this);
-
-		// remove category name key
-		Pref.removePref_category_name(act);
-
-		MainFragment.mCategoryNames = null;
 	}
 
 	Runnable runnable_finish;
@@ -113,7 +121,7 @@ public class ScanLocalAct extends Activity {
 		runnable_finish = () -> {
 			countFinish --;
 			if (countFinish == 2)
-				messageText.setText(R.string.return_to_previous_stage);
+				messageText.setText(R.string.return_to_main_page);
 			else if(countFinish == 0)
 				finish();
 
@@ -131,6 +139,17 @@ public class ScanLocalAct extends Activity {
 			handler.removeCallbacks(runnable_finish);
 		}
 		finish();
+
+		startNewMainAct();
+	}
+
+	// start new main activity
+	void startNewMainAct(){
+		// start new MainActivity to refresh card view
+		Intent new_intent = new Intent(act, MainActivity.class);
+		new_intent.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
+		new_intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+		Objects.requireNonNull(act).startActivity(new_intent);
 	}
 
 }
