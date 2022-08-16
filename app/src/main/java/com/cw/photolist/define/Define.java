@@ -23,6 +23,49 @@ package com.cw.photolist.define;
  */
 public class Define {
 
+    /***************************************************************************
+     * Set release/debug mode
+     * - RELEASE_MODE
+     * - DEBUG_MODE
+     ***************************************************************************/
+    public static int CODE_MODE;// could be DEBUG_MODE or RELEASE_MODE
+    public static int DEBUG_MODE = 0;
+    public static int RELEASE_MODE = 1;
+    public final static int DEBUG_DEFAULT = 0;
+    public final static int RELEASE_DEFAULT = 1;
+
+    public static int app_build_mode = 0;
+
+    /**
+     * Set APP build mode
+     */
+    public static void setAppBuildMode() {
+        /** 1 debug */
+        int mode = DEBUG_DEFAULT;
+
+        /** 2 release */
+//        int mode  =  Define.RELEASE_DEFAULT;
+
+        setAppBuildMode(mode);
+    }
+
+    private static void setAppBuildMode(int appBuildMode) {
+        app_build_mode = appBuildMode;
+
+        switch (appBuildMode){
+            case DEBUG_DEFAULT:
+                CODE_MODE = DEBUG_MODE;
+                break;
+
+            case RELEASE_DEFAULT:
+                CODE_MODE = RELEASE_MODE;
+                break;
+
+            default:
+                break;
+        }
+    }
+
     // --- setting ---
     // auto play, need to match settings.xml
     public final static boolean DEFAULT_AUTO_PLAY = true;

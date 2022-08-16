@@ -86,6 +86,8 @@ import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.GridItemPresenter;
 import com.cw.photolist.presenter.IconHeaderItemPresenter;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -125,7 +127,24 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
 
     private FragmentActivity act;
     public static List<RowInfo> rowInfoList;
-    public static String docDir;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Define.setAppBuildMode();
+        // Release mode: no debug message
+        if (Define.CODE_MODE == Define.RELEASE_MODE) {
+            OutputStream nullDev = new OutputStream() {
+                public void close() {}
+                public void flush() {}
+                public void write(byte[] b) {}
+                public void write(byte[] b, int off, int len) {}
+                public void write(int b) {}
+            };
+            System.setOut(new PrintStream(nullDev));
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
