@@ -47,7 +47,7 @@
         android:requestLegacyExternalStorage="true"> <!-- API 29 -->
 
         <activity
-            android:name="com.cw.photolist.ui.MainActivity"
+            android:name="com.cw.photolist.ui.misc.SplashScreen"
             android:screenOrientation="unspecified"
             android:theme="@style/Theme.Leanback.Browse.New"
             android:exported="true">
@@ -55,6 +55,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.cw.photolist.ui.MainActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Leanback.Browse.New"
+            android:exported="true">
         </activity>
 
         <activity

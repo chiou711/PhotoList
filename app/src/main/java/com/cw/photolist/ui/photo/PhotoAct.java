@@ -363,14 +363,13 @@ public class PhotoAct extends AppCompatActivity
     }
 
 	Toast toast;
-	Toast toast_previous;
-	Toast toast_next;
+	Toast toast_next_one;
 	// set previous photo image
 	void setPreviousPhotoImage(){
 
-		if(toast_previous == null) {
-			toast_previous = Toast.makeText(getBaseContext(), R.string.previous_one, Toast.LENGTH_SHORT);
-			toast_previous.show();
+		if(toast_next_one == null) {
+			toast_next_one = Toast.makeText(getBaseContext(), R.string.previous_one, Toast.LENGTH_SHORT);
+			toast_next_one.show();
 		}
 
 		mEntryPosition--;
@@ -406,9 +405,9 @@ public class PhotoAct extends AppCompatActivity
 	// set next photo image
 	void setNextPhotoImage(){
 
-		if(toast_next == null) {
-			toast_next = Toast.makeText(getBaseContext(), R.string.next_one, Toast.LENGTH_SHORT);
-			toast_next.show();
+		if(toast_next_one == null) {
+			toast_next_one = Toast.makeText(getBaseContext(), R.string.next_one, Toast.LENGTH_SHORT);
+			toast_next_one.show();
 		}
 
 		mEntryPosition++;

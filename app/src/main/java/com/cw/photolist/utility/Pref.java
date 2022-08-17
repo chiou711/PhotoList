@@ -84,4 +84,19 @@ public class Pref {
 		return pref.getBoolean(keyName,false);
 	}
 
+	// set splash screen URL
+	public static void setPref_splash_screen_url(Context context, String url ){
+		System.out.println("Utils / _setPref_splash_screen_url / name = " + url);
+		SharedPreferences pref = context.getSharedPreferences("splash_screen", 0);
+		String keyName = "splash_screen_url";
+		pref.edit().putString(keyName, url).apply();
+	}
+
+	// get splash screen URL
+	public static String getPref_splash_screen_url(Context context )
+	{
+		SharedPreferences pref = context.getSharedPreferences("splash_screen", 0);
+		String keyName = "splash_screen_url";
+		return pref.getString(keyName, null);
+	}
 }

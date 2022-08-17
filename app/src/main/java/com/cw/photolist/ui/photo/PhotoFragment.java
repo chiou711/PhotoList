@@ -172,14 +172,13 @@ public class PhotoFragment extends Fragment
 				});
 	}
 
-	Toast toastPrevious;
-	Toast toastNext;
+	Toast toastNext_one;
 	// set previous photo image
 	void setPreviousPhotoImage(){
 
-		if(toastPrevious == null) {
-			toastPrevious = Toast.makeText(act, R.string.previous_one, Toast.LENGTH_SHORT);
-			toastPrevious.show();
+		if(toastNext_one == null) {
+			toastNext_one = Toast.makeText(act, R.string.previous_one, Toast.LENGTH_SHORT);
+			toastNext_one.show();
 		}
 
 		mEntryPosition--;
@@ -211,9 +210,9 @@ public class PhotoFragment extends Fragment
 	// set next photo image
 	void setNextPhotoImage(){
 
-		if(toastNext == null) {
-			toastNext = Toast.makeText(act, R.string.next_one, Toast.LENGTH_SHORT);
-			toastNext.show();
+		if(toastNext_one == null) {
+			toastNext_one = Toast.makeText(act, R.string.next_one, Toast.LENGTH_SHORT);
+			toastNext_one.show();
 		}
 
 		mEntryPosition++;

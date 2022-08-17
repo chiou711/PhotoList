@@ -31,8 +31,9 @@
     <string name="select_category">選擇分類</string>
     <string name="error_fragment">Error Fragment</string>
     <string name="personal_settings">個人設置</string>
-    <string name="play_1">播放</string>
-    <string name="play_2">video</string>
+    <string name="set_splash_screen_1">設置為</string>
+    <string name="set_splash_screen_2">啟動畫面</string>
+    <string name="toast_new_splash_screen">設置了新的啟動畫面</string>
     <string name="delete_1">刪除</string>
     <string name="delete_2">當前項目</string>
 

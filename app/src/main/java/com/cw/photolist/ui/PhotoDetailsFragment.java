@@ -81,7 +81,7 @@ public class PhotoDetailsFragment extends DetailsSupportFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int NO_NOTIFICATION = -1;
-    private static final int ACTION_PLAY = 1;
+    private static final int ACTION_SET_SPLASH_SCREEN = 1;
     private static final int ACTION_DELETE = 2;
 
     // ID for loader that loads related videos.
@@ -210,8 +210,10 @@ public class PhotoDetailsFragment extends DetailsSupportFragment
         detailsPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                if (action.getId() == ACTION_PLAY) {
-                    // add action
+                if (action.getId() == ACTION_SET_SPLASH_SCREEN) {
+                    // set new splash screen
+                    Pref.setPref_splash_screen_url(getActivity(), mSelectedVideo.cardImageUrl);
+                    Toast.makeText(getActivity(),R.string.toast_new_splash_screen,Toast.LENGTH_SHORT).show();
                 } else if(action.getId() == ACTION_DELETE){
                     // delete current item
                     Utils.confirmDeleteSelectedItem(getActivity(),mSelectedVideo.id);
@@ -375,9 +377,9 @@ public class PhotoDetailsFragment extends DetailsSupportFragment
 
         SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
 
-        adapter.set(ACTION_PLAY, new Action(ACTION_PLAY,
-                getResources().getString(R.string.play_1),
-                getResources().getString(R.string.play_2)));
+        adapter.set(ACTION_SET_SPLASH_SCREEN, new Action(ACTION_SET_SPLASH_SCREEN,
+                getResources().getString(R.string.set_splash_screen_1),
+                getResources().getString(R.string.set_splash_screen_2)));
         adapter.set(ACTION_DELETE, new Action(ACTION_DELETE,
                 getResources().getString(R.string.delete_1),
                 getResources().getString(R.string.delete_2)));
