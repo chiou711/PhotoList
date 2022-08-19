@@ -46,7 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-public class PhotoFragment extends Fragment
+public class ManualPhotoFragment extends Fragment
 {
     public FragmentActivity act;
 	int mEntryPosition;

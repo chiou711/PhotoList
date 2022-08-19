@@ -47,7 +47,7 @@ import java.io.IOException;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class PhotoAct extends AppCompatActivity
+public class AutoPhotoAct extends AppCompatActivity
 {
     int mEntryPosition;
 	public static String photoPath;
@@ -218,6 +218,10 @@ public class PhotoAct extends AppCompatActivity
 				setNextPhotoImage();
 				return true;
 
+			case KeyEvent.KEYCODE_DPAD_CENTER: //23
+				stopAutoPlayNext();
+				return true;
+
 			case KeyEvent.KEYCODE_MEDIA_PREVIOUS: //88
 				return true;
 
@@ -364,6 +368,7 @@ public class PhotoAct extends AppCompatActivity
 
 	Toast toast;
 	Toast toast_next_one;
+	Toast toast_stop_auto;
 	// set previous photo image
 	void setPreviousPhotoImage(){
 
@@ -439,5 +444,18 @@ public class PhotoAct extends AppCompatActivity
 			e.printStackTrace();
 		}
 
+	}
+
+	// stop auto play next
+	void stopAutoPlayNext(){
+		if(handler != null) {
+			handler.removeCallbacks(runCountDown);
+			handler = null;
+		}
+
+		if(toast_stop_auto == null) {
+			toast_stop_auto = Toast.makeText(getBaseContext(), R.string.auto_play_off, Toast.LENGTH_SHORT);
+			toast_stop_auto.show();
+		}
 	}
 }

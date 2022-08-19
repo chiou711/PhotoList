@@ -123,7 +123,7 @@ public class SplashScreen extends Activity {
 					@Override
 					public void onLoadFailed(@Nullable Drawable errorDrawable) {
 						super.onLoadFailed(errorDrawable);
-						imageView.setImageDrawable(getResources().getDrawable(R.drawable.movie));
+						imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
 					}
 				});
 

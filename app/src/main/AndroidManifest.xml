@@ -100,7 +100,7 @@
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="com.cw.photolist.ui.options.browse_category.SearchActivity" />
 
-        <activity android:name=".ui.photo.PhotoAct"
+        <activity android:name=".ui.photo.AutoPhotoAct"
             android:theme="@style/Theme.AppCompat"
             android:exported="true">
         </activity>

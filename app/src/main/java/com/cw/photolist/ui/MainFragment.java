@@ -71,8 +71,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
-import com.cw.photolist.ui.photo.PhotoAct;
-import com.cw.photolist.ui.photo.PhotoFragment;
+import com.cw.photolist.ui.photo.AutoPhotoAct;
+import com.cw.photolist.ui.photo.ManualPhotoFragment;
 import com.cw.photolist.utility.StorageUtils;
 import com.cw.photolist.utility.Utils;
 import com.cw.photolist.data.DbHelper;
@@ -496,7 +496,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
                             alertDlg.dismiss();
                             cancelPhotoHandler();
 
-                            startPhotoIntentForResult(getPhotoPosition());
+                            startAutoPhotoIntentForResult(getPhotoPosition());
                         }
                     }).
                     setOnCancelListener(new DialogInterface.OnCancelListener(){
@@ -1030,7 +1030,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId(getNextId_auto());
 
             // method 1: by intent
-            startPhotoIntentForResult(getPhotoPosition());
+            startAutoPhotoIntentForResult(getPhotoPosition());
 
             // method 2 : by UI
 //            mInputConnection = new BaseInputConnection(act.findViewById(R.id.main_frame), true);
@@ -1041,24 +1041,24 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
     }
 
     // start photo intent for result
-    private void startPhotoIntentForResult(int position){
-        Intent intent = new Intent(act, PhotoAct.class);
+    private void startAutoPhotoIntentForResult(int position){
+        Intent intent = new Intent(act, AutoPhotoAct.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivityForResult(intent,PHOTO_INTENT);
     }
 
 
     // start photo intent
-    private void startPhotoIntent(int position){
-        Intent intent = new Intent(act, PhotoAct.class);
+    private void startAutoPhotoIntent(int position){
+        Intent intent = new Intent(act, AutoPhotoAct.class);
         intent.putExtra("PHOTO_POSITION", position);
         startActivity(intent);
     }
 
     // start photo fragment
-    private void startPhotoFragment(String path)
+    private void startManualPhotoFragment(String path)
     {
-        PhotoFragment fragment = new PhotoFragment();
+        ManualPhotoFragment fragment = new ManualPhotoFragment();
         final Bundle args = new Bundle();
         args.putInt("PHOTO_POSITION", getPhotoPosition());
         fragment.setArguments(args);
@@ -1154,7 +1154,7 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             // set new play Id after Shift keys
             setPlayId(getNextId_auto());
 
-            startPhotoIntentForResult(getPhotoPosition());
+            startAutoPhotoIntentForResult(getPhotoPosition());
         }
     }
 
@@ -1448,17 +1448,17 @@ public class MainFragment extends BrowseSupportFragment implements LoaderManager
             setPlayId((int) ((Video) (item)).id);
 
             if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
-                startPhotoIntentForResult(getPhotoPosition());
+                startAutoPhotoIntentForResult(getPhotoPosition());
             else if(Define.DEFAULT_PLAY_NEXT == Define.by_runnable)
-                startPhotoIntent(getPhotoPosition());
+                startAutoPhotoIntent(getPhotoPosition());
 
         } else {
             // manual play
             act.runOnUiThread(new Runnable() {
                 public void run() {
-                        // for open directly
+                    // for open directly
                     setPlayId((int) ((Video) (item)).id);
-                    startPhotoFragment(getPhotoPath());
+                    startManualPhotoFragment(getPhotoPath());
                 }
             });
         }
