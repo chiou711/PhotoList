@@ -15,11 +15,8 @@
 package com.cw.photolist.ui.options.setting;
 
 import android.app.Activity;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -32,6 +29,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
+import com.cw.photolist.define.Define;
 import com.cw.photolist.ui.ScanLocalAct;
 import com.cw.photolist.R;
 import com.cw.photolist.ui.MainActivity;
@@ -99,7 +97,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
             act = getActivity();
 
             showRangeTitle();
-
+            showDurationTitle();
         }
 
         // show range title
@@ -120,6 +118,30 @@ public class SettingsFragment extends LeanbackSettingsFragment
                 actualTitle  = oriTitle.concat(" : ").concat(getString(R.string.pref_title_cyclic_play_by_list));
 
             range_selection.setTitle(actualTitle);
+        }
+
+        // show display duration
+        void showDurationTitle(){
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(act);
+
+            String currDurationSetting = sharedPreferences.getString(
+                    getString(R.string.pref_key_auto_play_duration),
+                    String.valueOf(Define.DEFAULT_DISPLAY_DURATION ));
+
+            ListPreference duration_selection =  (ListPreference)findPreference(getString(R.string.pref_key_auto_play_duration));
+            String oriTitle = (String) getString(R.string.pref_title_auto_play_duration);
+            String actualTitle = null;
+
+            // get current duration
+            String[] entries = getResources().getStringArray(R.array.duration_range_entries);
+            String[] values = getResources().getStringArray(R.array.duration_range_entry_values);
+            for(int i=0;i<values.length;i++){
+                if(currDurationSetting.equals(values[i]))
+                    actualTitle  = oriTitle.concat(" : ").concat(entries[i]);
+            }
+
+            // set title
+            duration_selection.setTitle(actualTitle);
         }
 
         @Override
@@ -180,6 +202,42 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
                         return true;
                     });
+                }
+            }
+
+            // select auto play duration
+            if (preference.getKey().equals(getString(R.string.pref_key_auto_play_duration))){
+
+                ListPreference duration_selection =  (ListPreference)findPreference(getString(R.string.pref_key_auto_play_duration));
+
+                // Listener for list preference
+                duration_selection.setOnPreferenceChangeListener((preference1, newValue) -> {
+                    SharedPreferences sharedPreferences1 = PreferenceManager.getDefaultSharedPreferences(act);
+                    SharedPreferences.Editor sharedPreferencesEditor1 = sharedPreferences1.edit();
+
+                    // apply selection range
+                    sharedPreferencesEditor1.putString(
+                            getString(R.string.pref_key_auto_play_duration),
+                            (String)newValue);
+
+                    sharedPreferencesEditor1.apply();
+
+                    // start new main act
+                    startNewMainAct();
+
+                    return false;
+                });
+
+                String currRangeSetting = sharedPreferences.getString(
+                        getString(R.string.pref_key_auto_play_duration),
+                        String.valueOf(Define.DEFAULT_DISPLAY_DURATION ));
+
+                // highlight current option
+                String[] listDuration;
+                listDuration = getResources().getStringArray(R.array.duration_range_entry_values);
+                for(int i=0;i<listDuration.length;i++){
+                    if(currRangeSetting.equals(listDuration[i]))
+                        duration_selection.setValueIndex(i);
                 }
             }
 

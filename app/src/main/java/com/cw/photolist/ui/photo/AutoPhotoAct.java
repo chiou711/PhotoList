@@ -113,7 +113,7 @@ public class AutoPhotoAct extends AppCompatActivity
 //			    .diskCacheStrategy(DiskCacheStrategy.DATA)
 				.priority(Priority.HIGH);
 
-	    count = Define.DEFAULT_DISPLAY_DURATION;
+	    count = Integer.valueOf(Pref.getAutoPlayDuration(this));
 	    handler = new Handler();
 
 	    if(Define.DEFAULT_PLAY_NEXT == Define.by_onActivityResult)
@@ -163,7 +163,7 @@ public class AutoPhotoAct extends AppCompatActivity
 	private final Runnable runAutoPlay = new Runnable() {
 		public void run() {
 
-			if(count == Define.DEFAULT_DISPLAY_DURATION){
+			if(count == Integer.valueOf(Pref.getAutoPlayDuration(AutoPhotoAct.this))){
 
 				if(toast == null) {
 					toast = Toast.makeText(getBaseContext(), R.string.auto_play_on, Toast.LENGTH_SHORT);
@@ -194,13 +194,13 @@ public class AutoPhotoAct extends AppCompatActivity
 				}
 
 				photoPath =  DbData.getDB_link_data(getBaseContext(),table, column_photo_url,mEntryPosition);
-				count = Define.DEFAULT_DISPLAY_DURATION;
+				count = Integer.valueOf(Pref.getAutoPlayDuration(AutoPhotoAct.this));
 
 				if(handler!= null)
 					handler.postDelayed(runAutoPlay,100);
 			} else {
 				if(handler != null)
-					handler.postDelayed(runAutoPlay, 1000);
+					handler.postDelayed(runAutoPlay, Define.DEFAULT_ONE_SECOND_UNITS);
 			}
 		}
 	};
@@ -256,31 +256,33 @@ public class AutoPhotoAct extends AppCompatActivity
 //		photoPath = "https://i.imgur.com/DvpvklR.png";
 
 		// cf. https://stackoverflow.com/questions/57584072/simpletarget-is-deprecated-glide
-		Glide.with(this)
-				.asBitmap()
-				.load(photoPath)
-				.apply(options)
-				.into(new CustomTarget<Bitmap>() {
-					@Override
-					public void onResourceReady(Bitmap resource,Transition<? super Bitmap> transition) {
-						System.out.println("----------- onResourceReady");
-						imageView.setImageBitmap(resource);
-						imageView.buildDrawingCache();
-						imageView.setVisibility(View.VISIBLE);
-					}
+		if(!isDestroyed()) {//fix: You cannot start a load for a destroyed activity
+			Glide.with(this)
+					.asBitmap()
+					.load(photoPath)
+					.apply(options)
+					.into(new CustomTarget<Bitmap>() {
+						@Override
+						public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+							System.out.println("----------- onResourceReady");
+							imageView.setImageBitmap(resource);
+							imageView.buildDrawingCache();
+							imageView.setVisibility(View.VISIBLE);
+						}
 
-					@Override
-					public void onLoadCleared(@Nullable Drawable placeholder) {
-						System.out.println("------ _onLoadCleared");
-					}
+						@Override
+						public void onLoadCleared(@Nullable Drawable placeholder) {
+							System.out.println("------ _onLoadCleared");
+						}
 
-					@Override
-					public void onLoadFailed(@Nullable Drawable errorDrawable) {
-						super.onLoadFailed(errorDrawable);
-						System.out.println("------ _onLoadFailed");
-						imageView.setImageDrawable(getResources().getDrawable(R.drawable.movie));
-					}
-				});
+						@Override
+						public void onLoadFailed(@Nullable Drawable errorDrawable) {
+							super.onLoadFailed(errorDrawable);
+							System.out.println("------ _onLoadFailed");
+							imageView.setImageDrawable(getResources().getDrawable(R.drawable.movie));
+						}
+					});
+		}
 
 //		Glide.with(this).load("https://i.imgur.com/DvpvklR.png").into(imageView);
 //		Glide.with(this).load(photoPath).into(imageView);

@@ -65,6 +65,19 @@
     <string name="pref_title_range_selection">Range selection</string>
     <string name="pref_title_cyclic_play_by_list">List</string>
     <string name="pref_title_cyclic_play_by_category">Category</string>
+    <string name="pref_title_auto_play_duration">Auto play duration</string>
+    <string name="pref_title_1_sec">1 sec</string>
+    <string name="pref_title_2_sec">2 sec</string>
+    <string name="pref_title_3_sec">3 sec</string>
+    <string name="pref_title_4_sec">4 sec</string>
+    <string name="pref_title_5_sec">5 sec</string>
+    <string name="pref_title_6_sec">6 sec</string>
+    <string name="pref_title_7_sec">7 sec</string>
+    <string name="pref_title_8_sec">8 sec</string>
+    <string name="pref_title_9_sec">9 sec</string>
+    <string name="pref_title_10_sec">10 sec</string>
+    <string name="pref_title_20_sec">20 sec</string>
+    <string name="pref_title_30_sec">30 sec</string>
     <string name="pref_title_auto_play">Auto play</string>
     <string name="pref_title_auto_switch">Switch</string>
     <string name="pref_title_db">Database</string>
@@ -73,9 +86,8 @@
 
     <!-- preference   -->
     <string name="pref_key_cyclic_play_range">pref_cyclic_play_range</string>
-    <string name="pref_key_play_by_list">pref_list_play</string>
-    <string name="pref_key_play_by_category">pref_category_play</string>
     <string name="pref_key_auto_play_switch">pref_auto_play_switch</string>
+    <string name="pref_key_auto_play_duration">pref_auto_play_duration</string>
     <string name="pref_key_db_is_created">pref_db_is_created</string>
 
     <string name="playback_tag">PLAYBACK_TAG</string>

@@ -79,6 +79,7 @@ public class Define {
 
     // display duration
     public final static int DEFAULT_DISPLAY_DURATION = 5; //3;
+    public final static int DEFAULT_ONE_SECOND_UNITS = 1000; //for fast/slow adjustment
 
     // auto play case
     public final static int by_onActivityResult = 1; // with count down dialog

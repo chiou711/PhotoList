@@ -10,4 +10,35 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+
+    <string-array name="duration_range_entries">
+        <item>@string/pref_title_1_sec</item>
+        <item>@string/pref_title_2_sec</item>
+        <item>@string/pref_title_3_sec</item>
+        <item>@string/pref_title_4_sec</item>
+        <item>@string/pref_title_5_sec</item>
+        <item>@string/pref_title_6_sec</item>
+        <item>@string/pref_title_7_sec</item>
+        <item>@string/pref_title_8_sec</item>
+        <item>@string/pref_title_9_sec</item>
+        <item>@string/pref_title_10_sec</item>
+        <item>@string/pref_title_20_sec</item>
+        <item>@string/pref_title_30_sec</item>
+    </string-array>
+
+    <!-- note: for list reference, integer-array usage is not allowed -->
+    <string-array name="duration_range_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+    </string-array>
 </resources>

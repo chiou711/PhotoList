@@ -17,6 +17,11 @@
             android:title="@string/pref_title_auto_switch"
             android:defaultValue="true"
             android:key="@string/pref_key_auto_play_switch" />
+        <ListPreference
+            android:key="@string/pref_key_auto_play_duration"
+            android:title="@string/pref_title_auto_play_duration"
+            android:entries="@array/duration_range_entries"
+            android:entryValues="@array/duration_range_entry_values"/>
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.cw.photolist.R;
+import com.cw.photolist.define.Define;
 
 
 public class Pref {
@@ -31,6 +32,13 @@ public class Pref {
 	public static String getCyclicPlayRange(Context context) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getString(context.getString(R.string.pref_key_cyclic_play_range), "0");
+	}
+
+	// get auto play duration
+	public static String getAutoPlayDuration(Context context) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPreferences.getString(context.getString(R.string.pref_key_auto_play_duration),
+									String.valueOf(Define.DEFAULT_DISPLAY_DURATION ));
 	}
 
 	// get preference video table ID

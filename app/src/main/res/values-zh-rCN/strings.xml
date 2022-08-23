@@ -65,6 +65,19 @@
     <string name="pref_title_range_selection">范围选择</string>
     <string name="pref_title_cyclic_play_by_list">列表</string>
     <string name="pref_title_cyclic_play_by_category">分类</string>
+    <string name="pref_title_auto_play_duration">自动播放时长</string>
+    <string name="pref_title_1_sec">1秒</string>
+    <string name="pref_title_2_sec">2秒</string>
+    <string name="pref_title_3_sec">3秒</string>
+    <string name="pref_title_4_sec">4秒</string>
+    <string name="pref_title_5_sec">5秒</string>
+    <string name="pref_title_6_sec">6秒</string>
+    <string name="pref_title_7_sec">7秒</string>
+    <string name="pref_title_8_sec">8秒</string>
+    <string name="pref_title_9_sec">9秒</string>
+    <string name="pref_title_10_sec">10秒</string>
+    <string name="pref_title_20_sec">20秒</string>
+    <string name="pref_title_30_sec">30秒</string>
     <string name="pref_title_auto_play">自动播放</string>
     <string name="pref_title_auto_switch">开关</string>
     <string name="pref_title_db">数据库</string>
@@ -73,9 +86,8 @@
 
     <!-- preference   -->
     <string name="pref_key_cyclic_play_range">pref_cyclic_play_range</string>
-    <string name="pref_key_play_by_list">pref_list_play</string>
-    <string name="pref_key_play_by_category">pref_category_play</string>
     <string name="pref_key_auto_play_switch">pref_auto_play_switch</string>
+    <string name="pref_key_auto_play_duration">pref_auto_play_duration</string>
     <string name="pref_key_db_is_created">pref_db_is_created</string>
 
     <string name="playback_tag">PLAYBACK_TAG</string>
