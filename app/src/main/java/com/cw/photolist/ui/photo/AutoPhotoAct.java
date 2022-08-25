@@ -16,6 +16,7 @@
 
 package com.cw.photolist.ui.photo;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -36,6 +37,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.cw.photolist.model.Video;
+import com.cw.photolist.ui.MainFragment;
+import com.cw.photolist.ui.PhotoDetailsActivity;
 import com.cw.photolist.utility.Pref;
 import com.cw.photolist.R;
 import com.cw.photolist.data.DbData;
@@ -46,6 +50,7 @@ import java.io.IOException;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 
 public class AutoPhotoAct extends AppCompatActivity
 {
@@ -123,6 +128,25 @@ public class AutoPhotoAct extends AppCompatActivity
 
 	} //onCreate end
 
+	// get Video by position
+	Video getVideoByPosition(int pos){
+		long id = DbData.getDB_id_byPosition(getBaseContext(),table, "_id" ,pos);
+		String row_title = DbData.getDB_link_data(getBaseContext(),table, PhotoContract.VideoEntry.COLUMN_ROW_TITLE,pos);
+		String photoPath =  DbData.getDB_link_data(getBaseContext(),table, PhotoContract.VideoEntry.COLUMN_THUMB_URL ,pos);
+		String title = DbData.getDB_link_data(getBaseContext(),table, PhotoContract.VideoEntry.COLUMN_LINK_TITLE ,pos);
+		String bgImageUrl = "android.resource://com.cw.photolist/drawable/scenery";
+
+		Video video = new Video(
+				id,
+				row_title,
+				title,
+				null,
+				bgImageUrl,
+				photoPath
+		);
+		return video;
+	}
+
 	/**
 	 * runnable for counting down
 	 */
@@ -162,6 +186,10 @@ public class AutoPhotoAct extends AppCompatActivity
 	 * */
 	private final Runnable runAutoPlay = new Runnable() {
 		public void run() {
+
+			// avoid wrong entry position count
+			if(handler == null)
+				return;
 
 			if(count == Integer.valueOf(Pref.getAutoPlayDuration(AutoPhotoAct.this))){
 
@@ -453,6 +481,21 @@ public class AutoPhotoAct extends AppCompatActivity
 		if(handler != null) {
 			handler.removeCallbacks(runCountDown);
 			handler = null;
+		} else {
+			// launch PhotoDetailsActivity
+			Video video = getVideoByPosition(mEntryPosition);
+			Intent intent = new Intent(AutoPhotoAct.this, PhotoDetailsActivity.class);
+			intent.putExtra(PhotoDetailsActivity.VIDEO, video);
+
+			runOnUiThread(new Runnable() {
+				public void run() {
+					Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+							AutoPhotoAct.this,
+							imageView,
+							PhotoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+					startActivityForResult(intent, MainFragment.VIDEO_DETAILS_INTENT, bundle);
+				}
+			});
 		}
 
 		if(toast_stop_auto == null) {

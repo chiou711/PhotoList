@@ -37,6 +37,33 @@ public class DbData {
       return retData;
    }
 
+   // get DB id by position
+   public static Long getDB_id_byPosition(Context context,
+                                        String table,
+                                        String columnName,
+                                        int pos)   {
+      DbHelper mOpenHelper = new DbHelper(context);
+      mOpenHelper.setWriteAheadLoggingEnabled(false);
+      SQLiteDatabase sqlDb = mOpenHelper.getReadableDatabase();
+      Cursor cursor = sqlDb.query(
+              table,
+              null,//projection,
+              null,//selection,
+              null,//selectionArgs,
+              null,
+              null,
+              null//sortOrder
+      );
+
+      int index = cursor.getColumnIndex(columnName);
+      cursor.moveToPosition((int) pos);
+      Long retData = cursor.getLong(index);
+      cursor.close();
+      sqlDb.close();
+
+      return retData;
+   }
+
    // get minimum position of row
    public static int getDB_min_pos_of_row(Context context,
                                         String table,
