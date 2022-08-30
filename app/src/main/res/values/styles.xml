@@ -20,6 +20,16 @@
         <item name="searchOrbBrightColor">?attr/defaultSearchBrightColor</item>
     </style>
 
+    <style name="Theme.Leanback.VerticalGrid.Setting" parent="Theme.Leanback.VerticalGrid">
+        <item name="searchOrbViewStyle">@style/ReplaceSearchOrbView_setting</item>
+    </style>
+    <style name="ReplaceSearchOrbView_setting" parent="Widget.Leanback.SearchOrbViewStyle">
+        <item name="searchOrbIcon">@android:drawable/ic_menu_edit</item>
+        <item name="searchOrbIconColor">?attr/defaultSearchIconColor</item>
+        <item name="searchOrbColor">?attr/defaultSearchColor</item>
+        <item name="searchOrbBrightColor">?attr/defaultSearchBrightColor</item>
+    </style>
+
     <!--search orb location-->
 <!--    <style name="Widget.Leanback.SearchOrbViewStyle">-->
 <!--        <item name="android:paddingLeft">400dp</item>-->

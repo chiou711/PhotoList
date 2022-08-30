@@ -20,6 +20,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.leanback.app.VerticalGridSupportFragment;
 import androidx.leanback.widget.CursorObjectAdapter;
 import androidx.leanback.widget.OnItemViewClickedListener;
@@ -39,8 +42,10 @@ import com.cw.photolist.data.PhotoContract;
 import com.cw.photolist.model.Video;
 import com.cw.photolist.model.VideoCursorMapper;
 import com.cw.photolist.presenter.CardPresenter_browse;
-import com.cw.photolist.ui.ScanLocalAct;
+import com.cw.photolist.ui.options.setting.SettingsActivity;
 import com.cw.photolist.ui.photo.AutoPhotoAct;
+import com.cw.photolist.ui.photo.ManualPhotoFragment;
+import com.cw.photolist.utility.Pref;
 
 /*
  * BrowseCategoryFragment shows a grid of videos that can be scrolled vertically.
@@ -87,8 +92,9 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
             @Override
             public void onClick(View view) {
 //                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                Intent intent = new Intent(getActivity(), ScanLocalAct.class);
-                startActivity(intent);
+                Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity()).toBundle();
+                startActivity(intent, bundle);
             }
         });
 
@@ -128,10 +134,29 @@ public class BrowseCategoryFragment extends VerticalGridSupportFragment
             if (item instanceof Video) {
                 System.out.println("VerticalGridFragment /  _onItemClicked");
                 Video video = (Video) item;
-                Intent intent = new Intent(getActivity(), AutoPhotoAct.class);
-                int pos = DbData.getCursorPositionById(getContext(),(int)video.id);
-                intent.putExtra("PHOTO_POSITION", pos);
-                startActivity(intent);
+
+                // auto play
+                if (Pref.isAutoPlay(getActivity())){
+                    Intent intent = new Intent(getActivity(), AutoPhotoAct.class);
+                    int pos = DbData.getCursorPositionById(getContext(), (int) video.id);
+                    intent.putExtra("PHOTO_POSITION", pos);
+                    startActivity(intent);
+
+                } else {
+                    // manual play
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            int pos = DbData.getCursorPositionById(getContext(), (int) video.id);
+                            ManualPhotoFragment fragment = new ManualPhotoFragment();
+                            final Bundle args = new Bundle();
+                            args.putInt("PHOTO_POSITION", pos);
+                            fragment.setArguments(args);
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.fragment_slide_in_left, R.anim.fragment_slide_out_left, R.anim.fragment_slide_in_right, R.anim.fragment_slide_out_right);
+                            transaction.replace(R.id.vertical_grid_fragment, fragment,"photo").addToBackStack("photo_stack").commit();
+                        }
+                    });
+                }
             }
         }
     }

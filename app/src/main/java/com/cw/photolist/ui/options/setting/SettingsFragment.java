@@ -166,9 +166,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
                     sharedPreferencesEditor1.apply();
 
-                    // start new main act
-                    startNewMainAct();
-
+                    showRangeTitle();
                     return false;
                 });
 
@@ -222,8 +220,7 @@ public class SettingsFragment extends LeanbackSettingsFragment
 
                     sharedPreferencesEditor1.apply();
 
-                    // start new main act
-                    startNewMainAct();
+                    showDurationTitle();
 
                     return false;
                 });
@@ -248,15 +245,6 @@ public class SettingsFragment extends LeanbackSettingsFragment
             }
 
             return super.onPreferenceTreeClick(preference);
-        }
-
-        // start new main activity
-        void startNewMainAct(){
-            // start new MainActivity to refresh card view
-            Intent new_intent = new Intent(act, MainActivity.class);
-            new_intent.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
-            new_intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-            Objects.requireNonNull(act).startActivity(new_intent);
         }
 
     }

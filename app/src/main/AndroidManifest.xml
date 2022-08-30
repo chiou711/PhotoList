@@ -91,7 +91,7 @@
             android:name="com.cw.photolist.ui.options.browse_category.BrowseCategoryActivity"
             android:exported="true"
             android:parentActivityName="com.cw.photolist.ui.MainActivity"
-            android:theme="@style/Theme.Leanback.VerticalGrid" />
+            android:theme="@style/Theme.Leanback.VerticalGrid.Setting" />
         <activity
             android:name="com.cw.photolist.ui.options.select_category.SelectCategoryActivity"
             android:exported="true"
